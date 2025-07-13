@@ -24,8 +24,8 @@ The Personas MCP Server provides AI assistants like Claude with different "perso
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/pidster/personas.git
-cd personas
+git clone https://github.com/pidster/persona-mcp.git
+cd persona-mcp
 ```
 
 2. Install dependencies:
@@ -71,7 +71,7 @@ Add to your Claude Desktop configuration:
   "mcpServers": {
     "personas": {
       "command": "node",
-      "args": ["/absolute/path/to/personas/dist/index.js"]
+      "args": ["/absolute/path/to/persona-mcp/dist/index.js"]
     }
   }
 }

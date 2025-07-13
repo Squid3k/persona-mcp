@@ -356,18 +356,17 @@ export class EnhancedPersonaManager {
    * Convert LoadedPersona to basic Persona interface
    */
   private convertToBasicPersona(loadedPersona: LoadedPersona): Persona {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {
-      source,
-      isValid,
-      validationErrors,
-      version,
-      author,
-      created,
-      updated,
-      dependencies,
-      extends: extendsField,
-      metadata,
+      source: _source,
+      isValid: _isValid,
+      validationErrors: _validationErrors,
+      version: _version,
+      author: _author,
+      created: _created,
+      updated: _updated,
+      dependencies: _dependencies,
+      extends: _extendsField,
+      metadata: _metadata,
       ...basicPersona
     } = loadedPersona;
     return basicPersona;

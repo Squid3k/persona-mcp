@@ -50,8 +50,8 @@ export class PersonasMcpServer {
 
     this.server = new Server(
       {
-        name: this.config.name!,
-        version: this.config.version!,
+        name: this.config.name || 'personas-mcp',
+        version: this.config.version || '1.0.0',
       },
       {
         capabilities: {
@@ -201,7 +201,12 @@ export class PersonasMcpServer {
         origin: this.config.http.allowedOrigins || ['*'],
         credentials: true,
         methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Mcp-Session-Id', 'x-session-id'],
+        allowedHeaders: [
+          'Content-Type',
+          'Authorization',
+          'Mcp-Session-Id',
+          'x-session-id',
+        ],
         exposedHeaders: ['Mcp-Session-Id', 'x-session-id'],
       };
       app.use(cors(corsOptions));
@@ -213,9 +218,15 @@ export class PersonasMcpServer {
     // Create MCP transport
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
-      enableJsonResponse: true,  // Enable JSON responses for compatibility
+      enableJsonResponse: true, // Enable JSON responses for compatibility
       enableDnsRebindingProtection: true,
-      allowedHosts: [this.config.host!, '127.0.0.1', 'localhost', `localhost:${this.config.port}`, `${this.config.host}:${this.config.port}`],
+      allowedHosts: [
+        this.config.host || 'localhost',
+        '127.0.0.1',
+        'localhost',
+        `localhost:${this.config.port || 3000}`,
+        `${this.config.host || 'localhost'}:${this.config.port || 3000}`,
+      ],
     });
 
     // Connect MCP server to transport BEFORE setting up HTTP routes
@@ -258,17 +269,19 @@ export class PersonasMcpServer {
     // Handle deprecated SSE endpoint
     app.get('/sse', (req, res) => {
       res.status(400).json({
-        error: 'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
+        error:
+          'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
         endpoint: '/mcp',
-        transport: 'streamable-http'
+        transport: 'streamable-http',
       });
     });
 
     app.post('/sse', express.json(), (req, res) => {
       res.status(400).json({
-        error: 'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
+        error:
+          'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
         endpoint: '/mcp',
-        transport: 'streamable-http'
+        transport: 'streamable-http',
       });
     });
 
@@ -307,7 +320,8 @@ export class PersonasMcpServer {
       res.json({
         name: this.config.name,
         version: this.config.version,
-        description: 'MCP server providing prompt personas for LLM problem-solving assistance',
+        description:
+          'MCP server providing prompt personas for LLM problem-solving assistance',
         transport: 'http',
         endpoints: {
           mcp: endpoint,
@@ -325,18 +339,28 @@ export class PersonasMcpServer {
     // MCP server already connected above
 
     // Start HTTP server
-    const host = this.config.host!;
-    const port = this.config.port!;
+    const host = this.config.host || 'localhost';
+    const port = this.config.port || 3000;
 
     return new Promise<void>((resolve, reject) => {
-      this.httpServer!.listen(port, host, () => {
+      if (!this.httpServer) {
+        reject(new Error('HTTP server not initialized'));
+        return;
+      }
+
+      this.httpServer.listen(port, host, () => {
         console.error(`Personas MCP server running on http://${host}:${port}`);
         console.error(`MCP endpoint: http://${host}:${port}${endpoint}`);
         console.error(`Health check: http://${host}:${port}/health`);
         resolve();
       });
 
-      this.httpServer!.on('error', (error) => {
+      if (!this.httpServer) {
+        reject(new Error('HTTP server not initialized'));
+        return;
+      }
+
+      this.httpServer.on('error', error => {
         console.error('HTTP server error:', error);
         reject(error);
       });
@@ -348,8 +372,13 @@ export class PersonasMcpServer {
 
     // Close HTTP server if running
     if (this.httpServer) {
-      return new Promise<void>((resolve) => {
-        this.httpServer!.close(() => {
+      return new Promise<void>(resolve => {
+        if (!this.httpServer) {
+          resolve();
+          return;
+        }
+
+        this.httpServer.close(() => {
           console.error('HTTP server closed');
           resolve();
         });
@@ -359,4 +388,3 @@ export class PersonasMcpServer {
     console.error('Personas MCP server shutdown complete');
   }
 }
-

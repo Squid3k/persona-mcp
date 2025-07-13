@@ -40,9 +40,7 @@ describe('Server E2E Tests', () => {
     });
 
     it('should respond to root info endpoint', async () => {
-      const response = await request(server.getUrl())
-        .get('/')
-        .expect(200);
+      const response = await request(server.getUrl()).get('/').expect(200);
 
       expect(response.body).toMatchObject({
         name: 'personas-mcp',
@@ -62,9 +60,7 @@ describe('Server E2E Tests', () => {
     });
 
     it('should return 404 for non-existent endpoints', async () => {
-      await request(server.getUrl())
-        .get('/non-existent')
-        .expect(404);
+      await request(server.getUrl()).get('/non-existent').expect(404);
     });
   });
 
@@ -77,12 +73,13 @@ describe('Server E2E Tests', () => {
 
       // CORS headers should be present
       const corsOrigin = response.headers['access-control-allow-origin'];
-      const corsCredentials = response.headers['access-control-allow-credentials'];
+      const corsCredentials =
+        response.headers['access-control-allow-credentials'];
       const exposedHeaders = response.headers['access-control-expose-headers'];
-      
+
       // At least one CORS header should be present
       expect(corsOrigin || corsCredentials || exposedHeaders).toBeTruthy();
-      
+
       // If exposed headers are present, check they include our custom headers
       if (exposedHeaders) {
         expect(exposedHeaders.toLowerCase()).toContain('mcp-session-id');
@@ -98,20 +95,23 @@ describe('Server E2E Tests', () => {
         .set('Access-Control-Request-Headers', 'content-type,x-session-id')
         .expect(204);
 
-      expect(response.headers['access-control-allow-methods']).toContain('POST');
+      expect(response.headers['access-control-allow-methods']).toContain(
+        'POST'
+      );
       expect(response.headers['access-control-allow-methods']).toContain('GET');
-      expect(response.headers['access-control-allow-headers']).toContain('x-session-id');
+      expect(response.headers['access-control-allow-headers']).toContain(
+        'x-session-id'
+      );
     });
   });
 
   describe('Deprecated SSE Endpoint', () => {
     it('should return deprecation error for GET /sse', async () => {
-      const response = await request(server.getUrl())
-        .get('/sse')
-        .expect(400);
+      const response = await request(server.getUrl()).get('/sse').expect(400);
 
       expect(response.body).toEqual({
-        error: 'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
+        error:
+          'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
         endpoint: '/mcp',
         transport: 'streamable-http',
       });
@@ -124,7 +124,8 @@ describe('Server E2E Tests', () => {
         .expect(400);
 
       expect(response.body).toEqual({
-        error: 'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
+        error:
+          'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
         endpoint: '/mcp',
         transport: 'streamable-http',
       });
@@ -186,6 +187,7 @@ describe('Server E2E Tests', () => {
       const response = await request(server.getUrl())
         .post('/mcp')
         .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json, text/event-stream')
         .set('x-session-id', 'test-session')
         .send('{"invalid": json}');
 

@@ -11,7 +11,6 @@ function parseArgs(): ServerConfig {
     const nextArg = args[i + 1];
 
     switch (arg) {
-
       case '--port':
       case '-p':
         if (nextArg && !isNaN(parseInt(nextArg))) {
@@ -38,7 +37,6 @@ function parseArgs(): ServerConfig {
         config.http = { ...config.http, enableCors: false };
         break;
 
-
       case '--help':
         printHelp();
         process.exit(0);
@@ -57,7 +55,7 @@ function parseArgs(): ServerConfig {
 }
 
 function printHelp(): void {
-  console.log(`
+  console.error(`
 Personas MCP Server
 
 USAGE:
@@ -100,8 +98,8 @@ async function main(): Promise<void> {
     process.exit(0);
   };
 
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', () => void shutdown());
+  process.on('SIGTERM', () => void shutdown());
 
   try {
     await server.run();

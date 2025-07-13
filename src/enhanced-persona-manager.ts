@@ -51,7 +51,7 @@ export class EnhancedPersonaManager {
       return;
     }
 
-    console.log('Initializing Enhanced Persona Manager...');
+    console.error('Initializing Enhanced Persona Manager...');
 
     // Create user directory if it doesn't exist
     await this.ensureDirectoryExists(this.config.directories.user);
@@ -65,7 +65,7 @@ export class EnhancedPersonaManager {
     }
 
     this.initialized = true;
-    console.log('Enhanced Persona Manager initialized successfully');
+    console.error('Enhanced Persona Manager initialized successfully');
   }
 
   /**
@@ -141,15 +141,16 @@ export class EnhancedPersonaManager {
       .filter(([, r]) => r.conflicts.length > 0)
       .map(([id, r]) => ({
         id,
-        sources: [r.persona.source.type, ...r.conflicts.map(c => c.source.type)],
+        sources: [
+          r.persona.source.type,
+          ...r.conflicts.map(c => c.source.type),
+        ],
       }));
 
-    const invalid = this.resolver
-      .getInvalidPersonas(allPersonas)
-      .map(p => ({
-        id: p.id,
-        errors: p.validationErrors || [],
-      }));
+    const invalid = this.resolver.getInvalidPersonas(allPersonas).map(p => ({
+      id: p.id,
+      errors: p.validationErrors || [],
+    }));
 
     return { statistics, conflicts, invalid };
   }
@@ -158,7 +159,7 @@ export class EnhancedPersonaManager {
    * Reload all personas from disk
    */
   async reloadPersonas(): Promise<void> {
-    console.log('Reloading all personas...');
+    console.error('Reloading all personas...');
     this.personas.clear();
     await this.loadAllPersonas();
   }
@@ -192,12 +193,12 @@ export class EnhancedPersonaManager {
     const allPersonas: LoadedPersona[] = [];
 
     // Load default TypeScript personas
-    console.log('Loading default personas...');
+    console.error('Loading default personas...');
     const defaultPersonas = this.loadDefaultPersonas();
     allPersonas.push(...defaultPersonas);
 
     // Load user personas
-    console.log('Loading user personas...');
+    console.error('Loading user personas...');
     const userPersonas = await this.loader.loadPersonasFromDirectory(
       this.config.directories.user,
       'user'
@@ -205,7 +206,7 @@ export class EnhancedPersonaManager {
     allPersonas.push(...userPersonas);
 
     // Load project personas
-    console.log('Loading project personas...');
+    console.error('Loading project personas...');
     const projectPersonas = await this.loader.loadPersonasFromDirectory(
       this.config.directories.project,
       'project'
@@ -222,15 +223,15 @@ export class EnhancedPersonaManager {
 
     // Log statistics
     const stats = this.resolver.getStatistics(allPersonas);
-    console.log(
+    console.error(
       `Loaded ${stats.total} personas (${stats.valid} valid, ${stats.invalid} invalid)`
     );
-    console.log(
+    console.error(
       `Sources: ${stats.bySource.default} default, ${stats.bySource.user} user, ${stats.bySource.project} project`
     );
 
     if (stats.conflicts > 0) {
-      console.log(`Found ${stats.conflicts} persona conflicts`);
+      console.error(`Found ${stats.conflicts} persona conflicts`);
     }
   }
 
@@ -238,7 +239,12 @@ export class EnhancedPersonaManager {
    * Load default TypeScript personas
    */
   private loadDefaultPersonas(): LoadedPersona[] {
-    const defaults = [architectPersona, developerPersona, reviewerPersona, debuggerPersona];
+    const defaults = [
+      architectPersona,
+      developerPersona,
+      reviewerPersona,
+      debuggerPersona,
+    ];
 
     return defaults.map(persona => ({
       ...persona,
@@ -270,7 +276,7 @@ export class EnhancedPersonaManager {
    * Handle file system changes
    */
   private async handleFileChange(event: WatchEvent): Promise<void> {
-    console.log(`File ${event.type}: ${event.filePath}`);
+    console.error(`File ${event.type}: ${event.filePath}`);
 
     try {
       switch (event.type) {
@@ -304,7 +310,7 @@ export class EnhancedPersonaManager {
     const key = `${persona.id}:${persona.source.type}:${filePath}`;
     this.personas.set(key, persona);
 
-    console.log(
+    console.error(
       `${persona.isValid ? 'Loaded' : 'Failed to load'} persona '${persona.id}' from ${filePath}`
     );
   }
@@ -317,7 +323,7 @@ export class EnhancedPersonaManager {
     if (existingKey) {
       const persona = this.personas.get(existingKey);
       this.personas.delete(existingKey);
-      console.log(`Removed persona '${persona?.id}' from ${filePath}`);
+      console.error(`Removed persona '${persona?.id}' from ${filePath}`);
     }
   }
 
@@ -351,7 +357,19 @@ export class EnhancedPersonaManager {
    */
   private convertToBasicPersona(loadedPersona: LoadedPersona): Persona {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { source, isValid, validationErrors, version, author, created, updated, dependencies, extends: extendsField, metadata, ...basicPersona } = loadedPersona;
+    const {
+      source,
+      isValid,
+      validationErrors,
+      version,
+      author,
+      created,
+      updated,
+      dependencies,
+      extends: extendsField,
+      metadata,
+      ...basicPersona
+    } = loadedPersona;
     return basicPersona;
   }
 
@@ -364,7 +382,7 @@ export class EnhancedPersonaManager {
     } catch {
       try {
         await fs.mkdir(dir, { recursive: true });
-        console.log(`Created directory: ${dir}`);
+        console.error(`Created directory: ${dir}`);
       } catch (error) {
         console.warn(`Failed to create directory ${dir}:`, error);
       }

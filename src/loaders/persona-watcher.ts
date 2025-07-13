@@ -1,4 +1,4 @@
-import chokidar from 'chokidar';
+import chokidar, { type FSWatcher } from 'chokidar';
 import path from 'path';
 
 export interface WatchEvent {
@@ -9,7 +9,7 @@ export interface WatchEvent {
 export type WatchCallback = (event: WatchEvent) => void | Promise<void>;
 
 export class PersonaWatcher {
-  private watcher: chokidar.FSWatcher | null = null;
+  private watcher: FSWatcher | null = null;
   private debounceMap = new Map<string, NodeJS.Timeout>();
   private isWatching = false;
   private watchedDirectories: string[] = [];
@@ -48,7 +48,7 @@ export class PersonaWatcher {
 
     // Log each directory being watched
     for (const dir of existingDirectories) {
-      console.log(`Watching directory ${dir} for persona changes`);
+      console.error(`Watching directory ${dir} for persona changes`);
     }
 
     // Create watch patterns for YAML files
@@ -70,17 +70,24 @@ export class PersonaWatcher {
       ],
     });
 
+    if (!this.watcher) {
+      console.error('Watcher initialization failed');
+      return;
+    }
+
     this.watcher
-      .on('add', filePath =>
+      .on('add', (filePath: string) =>
         this.debouncedCallback('add', filePath, callback, debounceMs)
       )
-      .on('change', filePath =>
+      .on('change', (filePath: string) =>
         this.debouncedCallback('change', filePath, callback, debounceMs)
       )
-      .on('unlink', filePath =>
+      .on('unlink', (filePath: string) =>
         this.debouncedCallback('unlink', filePath, callback, debounceMs)
       )
-      .on('error', error => console.error('File watcher error:', error))
+      .on('error', (error: unknown) =>
+        console.error('File watcher error:', error)
+      )
       .on('ready', () => {
         this.isWatching = true;
       });
@@ -121,8 +128,10 @@ export class PersonaWatcher {
     const watched = this.watcher.getWatched();
     const paths: string[] = [];
     for (const [dir, files] of Object.entries(watched)) {
-      for (const file of files) {
-        paths.push(path.join(dir, file));
+      if (Array.isArray(files)) {
+        for (const file of files) {
+          paths.push(path.join(dir, file));
+        }
       }
     }
     return paths;
@@ -144,17 +153,22 @@ export class PersonaWatcher {
     }
 
     // Set new timeout
-    const timeout = setTimeout(async () => {
-      try {
-        await callback({
-          type: eventType,
-          filePath,
-        });
-      } catch (error) {
-        console.error(`Error handling ${eventType} event for ${filePath}:`, error);
-      } finally {
-        this.debounceMap.delete(filePath);
-      }
+    const timeout = setTimeout(() => {
+      void (async () => {
+        try {
+          await callback({
+            type: eventType,
+            filePath,
+          });
+        } catch (error) {
+          console.error(
+            `Error handling ${eventType} event for ${filePath}:`,
+            error
+          );
+        } finally {
+          this.debounceMap.delete(filePath);
+        }
+      })();
     }, debounceMs);
 
     this.debounceMap.set(filePath, timeout);

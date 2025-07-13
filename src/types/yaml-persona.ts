@@ -19,7 +19,7 @@ export const YamlPersonaSchema = PersonaSchema.extend({
   updated: z.string().datetime().optional(),
   dependencies: z.array(z.string()).optional(),
   extends: z.string().optional(), // For persona inheritance
-  
+
   // Enhanced metadata
   metadata: YamlPersonaMetadataSchema,
 }).strict();
@@ -76,6 +76,8 @@ export class PersonaValidationError extends Error {
 }
 
 export class PersonaLoadingError extends Error {
+  public cause?: Error;
+
   constructor(
     public filePath: string,
     public originalError: Error,

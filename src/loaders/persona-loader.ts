@@ -4,12 +4,9 @@ import * as YAML from 'yaml';
 import glob from 'fast-glob';
 import { z } from 'zod';
 import {
-  YamlPersona,
   YamlPersonaSchema,
   LoadedPersona,
   PersonaSource,
-  PersonaValidationError,
-  PersonaLoadingError,
 } from '../types/yaml-persona.js';
 
 export class PersonaLoader {
@@ -26,7 +23,7 @@ export class PersonaLoader {
         ignore: ['**/node_modules/**', '**/.git/**'],
       });
       return files;
-    } catch (error) {
+    } catch {
       // Directory doesn't exist or is not accessible
       return [];
     }
@@ -41,7 +38,7 @@ export class PersonaLoader {
   ): Promise<LoadedPersona> {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
-      const yamlData = YAML.parse(content);
+      const yamlData = YAML.parse(content) as unknown;
 
       // Validate with Zod schema
       const persona = YamlPersonaSchema.parse(yamlData);
@@ -100,7 +97,7 @@ export class PersonaLoader {
   async validatePersonaFile(filePath: string): Promise<boolean> {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
-      const yamlData = YAML.parse(content);
+      const yamlData = YAML.parse(content) as unknown;
       YamlPersonaSchema.parse(yamlData);
       return true;
     } catch {

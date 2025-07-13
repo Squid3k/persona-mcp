@@ -32,7 +32,7 @@ export class PersonaResolver {
 
       // Log conflicts for debugging
       if (conflicts.length > 0) {
-        console.log(
+        console.error(
           `Persona conflict resolved for '${id}': ` +
             `Using ${winner.source.type} version, ` +
             `ignoring ${conflicts.length} other(s)`
@@ -159,7 +159,9 @@ export class PersonaResolver {
 
       // If same precedence and validity, prefer newer file
       if (a.source.lastModified && b.source.lastModified) {
-        return b.source.lastModified.getTime() - a.source.lastModified.getTime();
+        return (
+          b.source.lastModified.getTime() - a.source.lastModified.getTime()
+        );
       }
 
       // Fallback to alphabetical order by file path
@@ -213,9 +215,9 @@ export class PersonaResolver {
       const versions = new Set(group.map(p => p.version));
       if (versions.size > 1) {
         warnings.push(
-          `Persona '${id}' has multiple versions: ${Array.from(
-            versions
-          ).join(', ')}`
+          `Persona '${id}' has multiple versions: ${Array.from(versions).join(
+            ', '
+          )}`
         );
       }
     }

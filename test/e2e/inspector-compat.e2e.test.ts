@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import { TestServer, generateSessionId } from './test-helpers.js';
+import {
+  TestServer,
+  generateSessionId,
+  createJsonRpcRequest,
+  createMcpHeaders,
+} from './test-helpers.js';
 
 describe('MCP Inspector Compatibility E2E Tests', () => {
   let server: TestServer;
@@ -25,7 +30,8 @@ describe('MCP Inspector Compatibility E2E Tests', () => {
         .expect(400);
 
       expect(response.body).toEqual({
-        error: 'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
+        error:
+          'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
         endpoint: '/mcp',
         transport: 'streamable-http',
       });
@@ -53,7 +59,7 @@ describe('MCP Inspector Compatibility E2E Tests', () => {
   describe('StreamableHTTP Transport', () => {
     it('should handle GET requests for streaming', async () => {
       const sessionId = generateSessionId();
-      
+
       // StreamableHTTP uses GET for establishing connections
       const response = await request(server.getUrl())
         .get('/mcp')
@@ -78,7 +84,7 @@ describe('MCP Inspector Compatibility E2E Tests', () => {
 
     it('should handle POST requests with session ID', async () => {
       const sessionId = generateSessionId();
-      
+
       const response = await request(server.getUrl())
         .post('/mcp')
         .set('Content-Type', 'application/json')
@@ -110,10 +116,14 @@ describe('MCP Inspector Compatibility E2E Tests', () => {
         .options('/mcp')
         .set('Origin', 'http://localhost:5173') // Common MCP Inspector port
         .set('Access-Control-Request-Method', 'POST')
-        .set('Access-Control-Request-Headers', 'content-type,x-session-id,mcp-session-id')
+        .set(
+          'Access-Control-Request-Headers',
+          'content-type,x-session-id,mcp-session-id'
+        )
         .expect(204);
 
-      const allowedHeaders = response.headers['access-control-allow-headers'].toLowerCase();
+      const allowedHeaders =
+        response.headers['access-control-allow-headers'].toLowerCase();
       expect(allowedHeaders).toContain('x-session-id');
       expect(allowedHeaders).toContain('mcp-session-id');
       expect(allowedHeaders).toContain('content-type');
@@ -121,7 +131,7 @@ describe('MCP Inspector Compatibility E2E Tests', () => {
 
     it('should expose required headers in responses', async () => {
       const sessionId = generateSessionId();
-      
+
       const response = await request(server.getUrl())
         .post('/mcp')
         .set('Origin', 'http://localhost:5173')
@@ -142,7 +152,7 @@ describe('MCP Inspector Compatibility E2E Tests', () => {
   describe('Error Handling for Inspector Edge Cases', () => {
     it('should handle missing Content-Type gracefully', async () => {
       const sessionId = generateSessionId();
-      
+
       const response = await request(server.getUrl())
         .post('/mcp')
         .set('x-session-id', sessionId)
@@ -154,10 +164,11 @@ describe('MCP Inspector Compatibility E2E Tests', () => {
 
     it('should handle malformed JSON with clear error', async () => {
       const sessionId = generateSessionId();
-      
+
       const response = await request(server.getUrl())
         .post('/mcp')
         .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json, text/event-stream')
         .set('x-session-id', sessionId)
         .send('{"invalid": json}');
 
@@ -166,7 +177,7 @@ describe('MCP Inspector Compatibility E2E Tests', () => {
 
     it('should handle empty POST body', async () => {
       const sessionId = generateSessionId();
-      
+
       const response = await request(server.getUrl())
         .post('/mcp')
         .set('Content-Type', 'application/json')
@@ -179,58 +190,25 @@ describe('MCP Inspector Compatibility E2E Tests', () => {
 
   describe('Inspector Connection Flow', () => {
     it('should support typical inspector connection sequence', async () => {
-      const sessionId = generateSessionId();
-      
-      // Step 1: Initialize
-      const initResponse = await request(server.getUrl())
-        .post('/mcp')
-        .set('Content-Type', 'application/json')
-        .set('x-session-id', sessionId)
-        .send({
-          jsonrpc: '2.0',
-          method: 'initialize',
-          params: {
-            protocolVersion: '0.1.0',
-            capabilities: {},
-            clientInfo: {
-              name: 'mcp-inspector',
-              version: '1.0.0',
-            },
-          },
-          id: 1,
-        });
+      // Use proper session initialization like the working tests
+      const sessionId = await server.initializeMcpSession();
 
-      // 200 OK or 406 Not Acceptable if content negotiation fails
-      expect([200, 406]).toContain(initResponse.status);
-
-      // Step 2: List resources
+      // Step 1: List resources (initialization already done)
       const resourcesResponse = await request(server.getUrl())
         .post('/mcp')
-        .set('Content-Type', 'application/json')
-        .set('x-session-id', sessionId)
-        .send({
-          jsonrpc: '2.0',
-          method: 'resources/list',
-          params: {},
-          id: 2,
-        });
+        .set(createMcpHeaders(sessionId))
+        .send(createJsonRpcRequest('resources/list', {}))
+        .expect(200);
 
-      expect(resourcesResponse.status).toBe(200);
       expect(resourcesResponse.body.result?.resources).toBeDefined();
 
-      // Step 3: List prompts
+      // Step 2: List prompts
       const promptsResponse = await request(server.getUrl())
         .post('/mcp')
-        .set('Content-Type', 'application/json')
-        .set('x-session-id', sessionId)
-        .send({
-          jsonrpc: '2.0',
-          method: 'prompts/list',
-          params: {},
-          id: 3,
-        });
+        .set(createMcpHeaders(sessionId))
+        .send(createJsonRpcRequest('prompts/list', {}))
+        .expect(200);
 
-      expect(promptsResponse.status).toBe(200);
       expect(promptsResponse.body.result?.prompts).toBeDefined();
     });
   });

@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import { TestServer, createJsonRpcRequest, createMcpHeaders, createInitializeRequest } from './test-helpers.js';
+import {
+  TestServer,
+  createJsonRpcRequest,
+  createMcpHeaders,
+} from './test-helpers.js';
 
 describe('MCP Protocol E2E Tests', () => {
   let server: TestServer;
@@ -63,7 +67,9 @@ describe('MCP Protocol E2E Tests', () => {
       const response = await request(server.getUrl())
         .post('/mcp')
         .set(createMcpHeaders(sessionId))
-        .send(createJsonRpcRequest('resources/read', { uri: 'persona://architect' }))
+        .send(
+          createJsonRpcRequest('resources/read', { uri: 'persona://architect' })
+        )
         .expect(200);
 
       expect(response.body).toMatchObject({
@@ -81,7 +87,9 @@ describe('MCP Protocol E2E Tests', () => {
       });
 
       // Verify the content is valid JSON
-      const personaData = JSON.parse(response.body.result.contents[0].text);
+      const personaData = JSON.parse(
+        response.body.result.contents[0].text as string
+      ) as Record<string, unknown>;
       expect(personaData).toMatchObject({
         id: 'architect',
         name: 'Software Architect',
@@ -111,7 +119,11 @@ describe('MCP Protocol E2E Tests', () => {
       const response = await request(server.getUrl())
         .post('/mcp')
         .set(createMcpHeaders(sessionId))
-        .send(createJsonRpcRequest('resources/read', { uri: 'persona://non-existent' }))
+        .send(
+          createJsonRpcRequest('resources/read', {
+            uri: 'persona://non-existent',
+          })
+        )
         .expect(200);
 
       expect(response.body).toMatchObject({
@@ -162,10 +174,12 @@ describe('MCP Protocol E2E Tests', () => {
       const response = await request(server.getUrl())
         .post('/mcp')
         .set(createMcpHeaders(sessionId))
-        .send(createJsonRpcRequest('prompts/get', { 
-          name: 'adopt-persona-developer',
-          arguments: {},
-        }))
+        .send(
+          createJsonRpcRequest('prompts/get', {
+            name: 'adopt-persona-developer',
+            arguments: {},
+          })
+        )
         .expect(200);
 
       expect(response.body).toMatchObject({
@@ -191,10 +205,12 @@ describe('MCP Protocol E2E Tests', () => {
       const response = await request(server.getUrl())
         .post('/mcp')
         .set(createMcpHeaders(sessionId))
-        .send(createJsonRpcRequest('prompts/get', { 
-          name: 'adopt-persona-developer',
-          arguments: { context },
-        }))
+        .send(
+          createJsonRpcRequest('prompts/get', {
+            name: 'adopt-persona-developer',
+            arguments: { context },
+          })
+        )
         .expect(200);
 
       expect(response.body).toMatchObject({
@@ -218,10 +234,12 @@ describe('MCP Protocol E2E Tests', () => {
       const response = await request(server.getUrl())
         .post('/mcp')
         .set(createMcpHeaders(sessionId))
-        .send(createJsonRpcRequest('prompts/get', { 
-          name: 'invalid-prompt-name',
-          arguments: {},
-        }))
+        .send(
+          createJsonRpcRequest('prompts/get', {
+            name: 'invalid-prompt-name',
+            arguments: {},
+          })
+        )
         .expect(200);
 
       expect(response.body).toMatchObject({
@@ -238,10 +256,12 @@ describe('MCP Protocol E2E Tests', () => {
       const response = await request(server.getUrl())
         .post('/mcp')
         .set(createMcpHeaders(sessionId))
-        .send(createJsonRpcRequest('prompts/get', { 
-          name: 'adopt-persona-nonexistent',
-          arguments: {},
-        }))
+        .send(
+          createJsonRpcRequest('prompts/get', {
+            name: 'adopt-persona-nonexistent',
+            arguments: {},
+          })
+        )
         .expect(200);
 
       expect(response.body).toMatchObject({

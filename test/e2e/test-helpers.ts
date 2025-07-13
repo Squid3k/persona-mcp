@@ -48,21 +48,21 @@ export class TestServer {
       }, 10000);
 
       // Capture stderr for debugging
-      this.process.stderr?.on('data', (data) => {
+      this.process.stderr?.on('data', (data: Buffer) => {
         const message = data.toString();
         console.error(`[Server Error]: ${message}`);
-        
+
         // Check if server has started
         if (message.includes('MCP server running on')) {
           serverStarted = true;
           clearTimeout(startTimeout);
-          
+
           // Wait a bit more to ensure server is fully ready
           setTimeout(() => resolve(), 500);
         }
       });
 
-      this.process.on('error', (error) => {
+      this.process.on('error', error => {
         clearTimeout(startTimeout);
         reject(error);
       });
@@ -70,7 +70,9 @@ export class TestServer {
       this.process.on('exit', (code, signal) => {
         if (!serverStarted) {
           clearTimeout(startTimeout);
-          reject(new Error(`Server exited with code ${code} and signal ${signal}`));
+          reject(
+            new Error(`Server exited with code ${code} and signal ${signal}`)
+          );
         }
       });
     });
@@ -99,16 +101,19 @@ export class TestServer {
       try {
         const response = await fetch(`${this.getUrl('/ready')}`, {
           method: 'GET',
-          headers: { 'Accept': 'application/json' }
+          headers: { Accept: 'application/json' },
         });
 
         if (response.ok) {
-          const data = await response.json();
+          const data = (await response.json()) as {
+            ready?: boolean;
+            server?: string;
+          };
           if (data.ready && data.server === 'connected') {
             return; // MCP server is ready
           }
         }
-      } catch (error) {
+      } catch {
         // Ignore fetch errors and retry
       }
 
@@ -117,7 +122,9 @@ export class TestServer {
       }
     }
 
-    throw new Error(`MCP server did not become ready within ${maxAttempts * delay}ms`);
+    throw new Error(
+      `MCP server did not become ready within ${maxAttempts * delay}ms`
+    );
   }
 
   async initializeMcpSession(): Promise<string> {
@@ -126,17 +133,21 @@ export class TestServer {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json, text/event-stream',
+        Accept: 'application/json, text/event-stream',
       },
       body: JSON.stringify(createInitializeRequest()),
     });
 
     if (!response.ok) {
-      throw new Error(`MCP initialization failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `MCP initialization failed: ${response.status} ${response.statusText}`
+      );
     }
 
     // Get session ID from response headers
-    const sessionId = response.headers.get('mcp-session-id') || response.headers.get('x-session-id');
+    const sessionId =
+      response.headers.get('mcp-session-id') ||
+      response.headers.get('x-session-id');
     if (!sessionId) {
       throw new Error('MCP initialization did not return session ID');
     }
@@ -161,7 +172,11 @@ export class TestServer {
 }
 
 // Helper to create MCP-compliant JSON-RPC request
-export function createJsonRpcRequest(method: string, params: any = {}, id: string | number = 1) {
+export function createJsonRpcRequest(
+  method: string,
+  params: Record<string, unknown> = {},
+  id: string | number = 1
+) {
   return {
     jsonrpc: '2.0',
     method,
@@ -178,7 +193,7 @@ export function generateSessionId(): string {
 // Helper to create MCP initialize request
 export function createInitializeRequest(id: string | number = 1) {
   return {
-    jsonrpc: '2.0',
+    jsonrpc: '2.0' as const,
     method: 'initialize',
     params: {
       protocolVersion: '2024-11-05',
@@ -199,13 +214,13 @@ export function createInitializeRequest(id: string | number = 1) {
 export function createMcpHeaders(sessionId?: string) {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Accept': 'application/json, text/event-stream',
+    Accept: 'application/json, text/event-stream',
   };
-  
+
   if (sessionId) {
     headers['x-session-id'] = sessionId;
-    headers['mcp-session-id'] = sessionId;  // Use lowercase
+    headers['mcp-session-id'] = sessionId; // Use lowercase
   }
-  
+
   return headers;
 }

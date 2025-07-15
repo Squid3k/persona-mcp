@@ -7,6 +7,8 @@ import {
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
   GetPromptRequestSchema,
+  ListToolsRequestSchema,
+  CallToolRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import express from 'express';
 import cors from 'cors';
@@ -14,6 +16,7 @@ import { createServer } from 'http';
 import { randomUUID } from 'crypto';
 import { EnhancedPersonaManager } from './enhanced-persona-manager.js';
 import { PersonaConfig } from './types/yaml-persona.js';
+import { RecommendationTool } from './tools/recommendation-tool.js';
 
 export interface ServerConfig {
   name?: string;
@@ -33,6 +36,7 @@ export class PersonasMcpServer {
   private personaManager: EnhancedPersonaManager;
   private config: ServerConfig;
   private httpServer?: ReturnType<typeof createServer>;
+  private recommendationTool: RecommendationTool;
 
   constructor(config: ServerConfig = {}) {
     this.config = {
@@ -57,11 +61,13 @@ export class PersonasMcpServer {
         capabilities: {
           resources: {},
           prompts: {},
+          tools: {},
         },
       }
     );
 
     this.personaManager = new EnhancedPersonaManager(this.config.personas);
+    this.recommendationTool = new RecommendationTool(this.personaManager);
     this.setupHandlers();
   }
 
@@ -155,6 +161,53 @@ export class PersonasMcpServer {
           },
         ],
       };
+    });
+
+    // List available tools
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      return {
+        tools: this.recommendationTool.getToolDefinitions(),
+      };
+    });
+
+    // Handle tool calls
+    this.server.setRequestHandler(CallToolRequestSchema, async request => {
+      const { name, arguments: args } = request.params;
+
+      try {
+        const result = await this.recommendationTool.handleToolCall(
+          name,
+          args ?? {}
+        );
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  success: false,
+                  error:
+                    error instanceof Error
+                      ? error.message
+                      : 'Unknown error occurred',
+                },
+                null,
+                2
+              ),
+            },
+          ],
+          isError: true,
+        };
+      }
     });
   }
 

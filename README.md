@@ -134,8 +134,10 @@ npm run format
 
 - **Dynamic Persona Loading**: Automatically loads personas from multiple sources
 - **File Watching**: Hot-reloads personas when YAML files change
+- **Intelligent Recommendations**: AI-powered persona matching for your tasks
+- **Multi-Factor Scoring**: Advanced algorithm considering keywords, expertise, and complexity
 - **Extensible Architecture**: Easy to add new personas
-- **Full MCP Support**: Resources, prompts, and streaming responses
+- **Full MCP Support**: Resources, prompts, tools, and streaming responses
 - **CORS Support**: Configurable for different environments
 
 ## Available Resources
@@ -158,6 +160,77 @@ Each persona can be adopted via prompts:
 
 Each prompt accepts an optional `context` parameter for specific problem context.
 
+## Persona Recommendation System
+
+The server includes an intelligent recommendation system that helps you find the best persona for your task.
+
+### Available Tools
+
+The following MCP tools are available for persona recommendations:
+
+#### 1. `recommend-persona`
+Find the best personas for your task based on description, keywords, and complexity.
+
+```json
+{
+  "name": "recommend-persona",
+  "arguments": {
+    "title": "Design a REST API",
+    "description": "Create a RESTful API with authentication and rate limiting",
+    "keywords": ["api", "rest", "authentication"],
+    "complexity": "moderate"
+  }
+}
+```
+
+#### 2. `explain-persona-fit`
+Get a detailed explanation of why a specific persona fits (or doesn't fit) your task.
+
+```json
+{
+  "name": "explain-persona-fit",
+  "arguments": {
+    "personaId": "architect",
+    "title": "System design",
+    "description": "Design a distributed system"
+  }
+}
+```
+
+#### 3. `compare-personas`
+Compare multiple personas side-by-side for the same task.
+
+```json
+{
+  "name": "compare-personas",
+  "arguments": {
+    "personaIds": ["architect", "developer"],
+    "title": "API design",
+    "description": "Design and implement a new API"
+  }
+}
+```
+
+#### 4. `get-recommendation-stats`
+Get system statistics and scoring configuration.
+
+### How It Works
+
+The recommendation system uses a multi-factor scoring algorithm that considers:
+
+- **Keyword Matching (30%)**: Semantic matching between task and persona expertise
+- **Role Alignment (25%)**: How well the persona's role fits the task type
+- **Expertise Match (20%)**: Direct expertise overlap
+- **Context Relevance (15%)**: Domain and environmental factors
+- **Complexity Fit (10%)**: Matching task complexity to persona capabilities
+
+Each recommendation includes:
+- **Score**: 0-100 indicating match quality
+- **Reasoning**: Explanation of the recommendation
+- **Strengths**: What the persona excels at for this task
+- **Limitations**: Potential drawbacks or gaps
+- **Confidence**: How confident the system is in the recommendation
+
 ## Troubleshooting
 
 ### Server won't start
@@ -173,6 +246,18 @@ Each prompt accepts an optional `context` parameter for specific problem context
 - Ensure the server is running: `curl http://localhost:3000/health`
 - Check firewall settings if accessing remotely
 - Verify CORS settings match your client configuration
+
+## Documentation
+
+For detailed documentation, see:
+
+- [API Reference](./docs/engineering/api-reference.md) - Complete API documentation for all tools
+- [System Architecture](./docs/architecture/system-overview.md) - High-level architecture overview
+- [Recommendation System Design](./docs/designs/recommendation-system.md) - Detailed design documentation
+
+## Contributing
+
+Contributions are welcome! Please read our contributing guidelines and check the [roadmap](./plans/roadmap.md) for planned features.
 
 ## License
 

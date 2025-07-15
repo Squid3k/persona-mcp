@@ -38,8 +38,24 @@
     "prompts",
     "model-context-protocol"
   ],
-  "author": "",
+  "author": "pidster",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pidster/persona-mcp.git"
+  },
+  "homepage": "https://github.com/pidster/persona-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/pidster/persona-mcp/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.15.1",
     "chokidar": "^4.0.3",

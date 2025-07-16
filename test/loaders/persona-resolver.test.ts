@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { PersonaResolver } from '../../src/loaders/persona-resolver.js';
-import { LoadedPersona, PersonaSource, PersonaPrecedence } from '../../src/types/yaml-persona.js';
+import {
+  LoadedPersona,
+  PersonaSource,
+  PersonaPrecedence,
+} from '../../src/types/yaml-persona.js';
 
 describe('PersonaResolver', () => {
   let resolver: PersonaResolver;
@@ -22,17 +26,25 @@ describe('PersonaResolver', () => {
     core: {
       identity: `You are ${id}`,
       primaryObjective: `Test objective for ${id}`,
-      constraints: ['Test constraint 1', 'Test constraint 2', 'Test constraint 3']
+      constraints: [
+        'Test constraint 1',
+        'Test constraint 2',
+        'Test constraint 3',
+      ],
     },
     behavior: {
       mindset: ['Test mindset 1', 'Test mindset 2', 'Test mindset 3'],
       methodology: ['Test step 1', 'Test step 2', 'Test step 3', 'Test step 4'],
       priorities: ['Test priority 1', 'Test priority 2', 'Test priority 3'],
-      antiPatterns: ['Test anti-pattern 1', 'Test anti-pattern 2', 'Test anti-pattern 3']
+      antiPatterns: [
+        'Test anti-pattern 1',
+        'Test anti-pattern 2',
+        'Test anti-pattern 3',
+      ],
     },
     expertise: {
       domains: ['testing', 'validation', 'quality', 'assurance'],
-      skills: ['test design', 'test execution', 'debugging', 'reporting']
+      skills: ['test design', 'test execution', 'debugging', 'reporting'],
     },
     decisionCriteria: ['Is it tested?', 'Is it valid?', 'Is it documented?'],
     examples: ['Test example 1', 'Test example 2'],
@@ -41,10 +53,10 @@ describe('PersonaResolver', () => {
     source: {
       type: sourceType,
       filePath,
-      lastModified
+      lastModified,
     },
     isValid,
-    validationErrors: isValid ? undefined : ['Test error']
+    validationErrors: isValid ? undefined : ['Test error'],
   });
 
   beforeEach(() => {
@@ -63,7 +75,7 @@ describe('PersonaResolver', () => {
       const personas = [
         createMockPersona('persona1', 'default'),
         createMockPersona('persona2', 'user'),
-        createMockPersona('persona3', 'project')
+        createMockPersona('persona3', 'project'),
       ];
 
       const result = resolver.resolveConflicts(personas);
@@ -136,8 +148,20 @@ describe('PersonaResolver', () => {
     });
 
     it('should prefer valid personas over invalid ones with same precedence', () => {
-      const invalidPersona = createMockPersona('test-persona', 'user', '/path/invalid.yaml', undefined, false);
-      const validPersona = createMockPersona('test-persona', 'user', '/path/valid.yaml', undefined, true);
+      const invalidPersona = createMockPersona(
+        'test-persona',
+        'user',
+        '/path/invalid.yaml',
+        undefined,
+        false
+      );
+      const validPersona = createMockPersona(
+        'test-persona',
+        'user',
+        '/path/valid.yaml',
+        undefined,
+        true
+      );
       const personas = [invalidPersona, validPersona];
 
       const result = resolver.resolveConflicts(personas);
@@ -150,8 +174,20 @@ describe('PersonaResolver', () => {
     });
 
     it('should handle sorting when invalid persona comes first', () => {
-      const validPersona = createMockPersona('test-persona', 'user', '/path/valid.yaml', undefined, true);
-      const invalidPersona = createMockPersona('test-persona', 'user', '/path/invalid.yaml', undefined, false);
+      const validPersona = createMockPersona(
+        'test-persona',
+        'user',
+        '/path/valid.yaml',
+        undefined,
+        true
+      );
+      const invalidPersona = createMockPersona(
+        'test-persona',
+        'user',
+        '/path/invalid.yaml',
+        undefined,
+        false
+      );
       const personas = [validPersona, invalidPersona];
 
       const result = resolver.resolveConflicts(personas);
@@ -166,8 +202,18 @@ describe('PersonaResolver', () => {
     it('should prefer newer files when precedence and validity are equal', () => {
       const olderDate = new Date('2023-01-01');
       const newerDate = new Date('2023-01-02');
-      const olderPersona = createMockPersona('test-persona', 'user', '/path/old.yaml', olderDate);
-      const newerPersona = createMockPersona('test-persona', 'user', '/path/new.yaml', newerDate);
+      const olderPersona = createMockPersona(
+        'test-persona',
+        'user',
+        '/path/old.yaml',
+        olderDate
+      );
+      const newerPersona = createMockPersona(
+        'test-persona',
+        'user',
+        '/path/new.yaml',
+        newerDate
+      );
       const personas = [olderPersona, newerPersona];
 
       const result = resolver.resolveConflicts(personas);
@@ -179,8 +225,16 @@ describe('PersonaResolver', () => {
     });
 
     it('should fall back to alphabetical order when all other criteria are equal', () => {
-      const personaB = createMockPersona('test-persona', 'user', '/path/b.yaml');
-      const personaA = createMockPersona('test-persona', 'user', '/path/a.yaml');
+      const personaB = createMockPersona(
+        'test-persona',
+        'user',
+        '/path/b.yaml'
+      );
+      const personaA = createMockPersona(
+        'test-persona',
+        'user',
+        '/path/a.yaml'
+      );
       const personas = [personaB, personaA];
 
       const result = resolver.resolveConflicts(personas);
@@ -227,8 +281,20 @@ describe('PersonaResolver', () => {
 
   describe('getValidPersonas', () => {
     it('should return only valid personas', () => {
-      const validPersona = createMockPersona('valid', 'user', undefined, undefined, true);
-      const invalidPersona = createMockPersona('invalid', 'user', undefined, undefined, false);
+      const validPersona = createMockPersona(
+        'valid',
+        'user',
+        undefined,
+        undefined,
+        true
+      );
+      const invalidPersona = createMockPersona(
+        'invalid',
+        'user',
+        undefined,
+        undefined,
+        false
+      );
       const personas = [validPersona, invalidPersona];
 
       const result = resolver.getValidPersonas(personas);
@@ -237,7 +303,13 @@ describe('PersonaResolver', () => {
     });
 
     it('should return empty array when no valid personas', () => {
-      const invalidPersona = createMockPersona('invalid', 'user', undefined, undefined, false);
+      const invalidPersona = createMockPersona(
+        'invalid',
+        'user',
+        undefined,
+        undefined,
+        false
+      );
       const personas = [invalidPersona];
 
       const result = resolver.getValidPersonas(personas);
@@ -258,8 +330,20 @@ describe('PersonaResolver', () => {
 
   describe('getInvalidPersonas', () => {
     it('should return only invalid personas', () => {
-      const validPersona = createMockPersona('valid', 'user', undefined, undefined, true);
-      const invalidPersona = createMockPersona('invalid', 'user', undefined, undefined, false);
+      const validPersona = createMockPersona(
+        'valid',
+        'user',
+        undefined,
+        undefined,
+        true
+      );
+      const invalidPersona = createMockPersona(
+        'invalid',
+        'user',
+        undefined,
+        undefined,
+        false
+      );
       const personas = [validPersona, invalidPersona];
 
       const result = resolver.getInvalidPersonas(personas);
@@ -277,8 +361,20 @@ describe('PersonaResolver', () => {
     });
 
     it('should return all personas when all are invalid', () => {
-      const persona1 = createMockPersona('persona1', 'user', undefined, undefined, false);
-      const persona2 = createMockPersona('persona2', 'user', undefined, undefined, false);
+      const persona1 = createMockPersona(
+        'persona1',
+        'user',
+        undefined,
+        undefined,
+        false
+      );
+      const persona2 = createMockPersona(
+        'persona2',
+        'user',
+        undefined,
+        undefined,
+        false
+      );
       const personas = [persona1, persona2];
 
       const result = resolver.getInvalidPersonas(personas);
@@ -362,9 +458,27 @@ describe('PersonaResolver', () => {
 
   describe('getStatistics', () => {
     it('should return correct statistics for mixed personas', () => {
-      const defaultPersona = createMockPersona('default', 'default', undefined, undefined, true);
-      const userPersona = createMockPersona('user', 'user', undefined, undefined, true);
-      const projectPersona = createMockPersona('project', 'project', undefined, undefined, false);
+      const defaultPersona = createMockPersona(
+        'default',
+        'default',
+        undefined,
+        undefined,
+        true
+      );
+      const userPersona = createMockPersona(
+        'user',
+        'user',
+        undefined,
+        undefined,
+        true
+      );
+      const projectPersona = createMockPersona(
+        'project',
+        'project',
+        undefined,
+        undefined,
+        false
+      );
       const personas = [defaultPersona, userPersona, projectPersona];
 
       const result = resolver.getStatistics(personas);
@@ -376,9 +490,9 @@ describe('PersonaResolver', () => {
         bySource: {
           default: 1,
           user: 1,
-          project: 1
+          project: 1,
         },
-        conflicts: 0
+        conflicts: 0,
       });
     });
 
@@ -397,9 +511,9 @@ describe('PersonaResolver', () => {
         bySource: {
           default: 1,
           user: 2,
-          project: 0
+          project: 0,
         },
-        conflicts: 1
+        conflicts: 1,
       });
     });
 
@@ -413,9 +527,9 @@ describe('PersonaResolver', () => {
         bySource: {
           default: 0,
           user: 0,
-          project: 0
+          project: 0,
         },
-        conflicts: 0
+        conflicts: 0,
       });
     });
 
@@ -425,7 +539,13 @@ describe('PersonaResolver', () => {
       const conflict1Project = createMockPersona('conflict1', 'project');
       const conflict2Default = createMockPersona('conflict2', 'default');
       const conflict2User = createMockPersona('conflict2', 'user');
-      const personas = [conflict1Default, conflict1User, conflict1Project, conflict2Default, conflict2User];
+      const personas = [
+        conflict1Default,
+        conflict1User,
+        conflict1Project,
+        conflict2Default,
+        conflict2User,
+      ];
 
       const result = resolver.getStatistics(personas);
 
@@ -436,48 +556,94 @@ describe('PersonaResolver', () => {
         bySource: {
           default: 2,
           user: 2,
-          project: 1
+          project: 1,
         },
-        conflicts: 2
+        conflicts: 2,
       });
     });
   });
 
   describe('validatePersonaCompatibility', () => {
     it('should detect role conflicts', () => {
-      const persona1 = createMockPersona('test-persona', 'default', undefined, undefined, true, 'developer');
-      const persona2 = createMockPersona('test-persona', 'user', undefined, undefined, true, 'architect');
-      const personas = [persona1, persona2];
-
-      const result = resolver.validatePersonaCompatibility(personas);
-
-      expect(result).toEqual([
-        "Persona 'test-persona' has conflicting roles: developer, architect"
-      ]);
-    });
-
-    it('should detect version conflicts', () => {
-      const persona1 = createMockPersona('test-persona', 'default', undefined, undefined, true, 'developer', '1.0');
-      const persona2 = createMockPersona('test-persona', 'user', undefined, undefined, true, 'developer', '2.0');
-      const personas = [persona1, persona2];
-
-      const result = resolver.validatePersonaCompatibility(personas);
-
-      expect(result).toEqual([
-        "Persona 'test-persona' has multiple versions: 1.0, 2.0"
-      ]);
-    });
-
-    it('should detect both role and version conflicts', () => {
-      const persona1 = createMockPersona('test-persona', 'default', undefined, undefined, true, 'developer', '1.0');
-      const persona2 = createMockPersona('test-persona', 'user', undefined, undefined, true, 'architect', '2.0');
+      const persona1 = createMockPersona(
+        'test-persona',
+        'default',
+        undefined,
+        undefined,
+        true,
+        'developer'
+      );
+      const persona2 = createMockPersona(
+        'test-persona',
+        'user',
+        undefined,
+        undefined,
+        true,
+        'architect'
+      );
       const personas = [persona1, persona2];
 
       const result = resolver.validatePersonaCompatibility(personas);
 
       expect(result).toEqual([
         "Persona 'test-persona' has conflicting roles: developer, architect",
-        "Persona 'test-persona' has multiple versions: 1.0, 2.0"
+      ]);
+    });
+
+    it('should detect version conflicts', () => {
+      const persona1 = createMockPersona(
+        'test-persona',
+        'default',
+        undefined,
+        undefined,
+        true,
+        'developer',
+        '1.0'
+      );
+      const persona2 = createMockPersona(
+        'test-persona',
+        'user',
+        undefined,
+        undefined,
+        true,
+        'developer',
+        '2.0'
+      );
+      const personas = [persona1, persona2];
+
+      const result = resolver.validatePersonaCompatibility(personas);
+
+      expect(result).toEqual([
+        "Persona 'test-persona' has multiple versions: 1.0, 2.0",
+      ]);
+    });
+
+    it('should detect both role and version conflicts', () => {
+      const persona1 = createMockPersona(
+        'test-persona',
+        'default',
+        undefined,
+        undefined,
+        true,
+        'developer',
+        '1.0'
+      );
+      const persona2 = createMockPersona(
+        'test-persona',
+        'user',
+        undefined,
+        undefined,
+        true,
+        'architect',
+        '2.0'
+      );
+      const personas = [persona1, persona2];
+
+      const result = resolver.validatePersonaCompatibility(personas);
+
+      expect(result).toEqual([
+        "Persona 'test-persona' has conflicting roles: developer, architect",
+        "Persona 'test-persona' has multiple versions: 1.0, 2.0",
       ]);
     });
 
@@ -507,8 +673,24 @@ describe('PersonaResolver', () => {
     });
 
     it('should handle multiple personas with same roles and versions', () => {
-      const persona1 = createMockPersona('test-persona', 'default', undefined, undefined, true, 'developer', '1.0');
-      const persona2 = createMockPersona('test-persona', 'user', undefined, undefined, true, 'developer', '1.0');
+      const persona1 = createMockPersona(
+        'test-persona',
+        'default',
+        undefined,
+        undefined,
+        true,
+        'developer',
+        '1.0'
+      );
+      const persona2 = createMockPersona(
+        'test-persona',
+        'user',
+        undefined,
+        undefined,
+        true,
+        'developer',
+        '1.0'
+      );
       const personas = [persona1, persona2];
 
       const result = resolver.validatePersonaCompatibility(personas);
@@ -558,15 +740,23 @@ describe('PersonaResolver', () => {
     it('should get correct precedence values', () => {
       const privateResolver = resolver as any;
 
-      expect(privateResolver.getPrecedence('default')).toBe(PersonaPrecedence.DEFAULT);
-      expect(privateResolver.getPrecedence('user')).toBe(PersonaPrecedence.USER);
-      expect(privateResolver.getPrecedence('project')).toBe(PersonaPrecedence.PROJECT);
+      expect(privateResolver.getPrecedence('default')).toBe(
+        PersonaPrecedence.DEFAULT
+      );
+      expect(privateResolver.getPrecedence('user')).toBe(
+        PersonaPrecedence.USER
+      );
+      expect(privateResolver.getPrecedence('project')).toBe(
+        PersonaPrecedence.PROJECT
+      );
     });
 
     it('should handle invalid precedence type', () => {
       const privateResolver = resolver as any;
 
-      expect(privateResolver.getPrecedence('invalid' as any)).toBe(PersonaPrecedence.DEFAULT);
+      expect(privateResolver.getPrecedence('invalid' as any)).toBe(
+        PersonaPrecedence.DEFAULT
+      );
     });
   });
 });

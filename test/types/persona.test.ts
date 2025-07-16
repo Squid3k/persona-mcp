@@ -17,50 +17,50 @@ describe('Persona Types', () => {
         constraints: [
           'Must follow testing best practices',
           'Cannot skip validation steps',
-          'Must maintain test coverage'
-        ]
+          'Must maintain test coverage',
+        ],
       },
       behavior: {
         mindset: [
           'Think systematically about edge cases',
           'Consider user experience impact',
-          'Validate assumptions through testing'
+          'Validate assumptions through testing',
         ],
         methodology: [
           'Analyze requirements thoroughly',
           'Design comprehensive test cases',
           'Execute tests systematically',
-          'Document findings clearly'
+          'Document findings clearly',
         ],
         priorities: [
           'Test coverage and completeness',
           'Bug detection and prevention',
-          'System reliability'
+          'System reliability',
         ],
         antiPatterns: [
           'Skipping edge case testing',
           'Ignoring error conditions',
-          'Rushing through validation'
-        ]
+          'Rushing through validation',
+        ],
       },
       expertise: {
         domains: [
           'Test automation',
           'Quality assurance',
           'Bug detection',
-          'System validation'
+          'System validation',
         ],
         skills: [
           'Test case design',
           'Automated testing',
           'Performance testing',
-          'Security testing'
-        ]
+          'Security testing',
+        ],
       },
       decisionCriteria: [
         'Does this improve test coverage?',
         'Will this catch potential bugs?',
-        'Is this testable and maintainable?'
+        'Is this testable and maintainable?',
       ],
       examples: ['Example 1', 'Example 2'],
       tags: ['test', 'validation', 'persona'],
@@ -86,50 +86,50 @@ describe('Persona Types', () => {
           constraints: [
             'Keep things simple',
             'Avoid complexity',
-            'Focus on essentials'
-          ]
+            'Focus on essentials',
+          ],
         },
         behavior: {
           mindset: [
             'Simple and direct',
             'Minimal complexity',
-            'Essential focus'
+            'Essential focus',
           ],
           methodology: [
             'Identify core requirements',
             'Implement minimal solution',
             'Verify basic functionality',
-            'Maintain simplicity'
+            'Maintain simplicity',
           ],
           priorities: [
             'Simplicity first',
             'Core functionality',
-            'Easy maintenance'
+            'Easy maintenance',
           ],
           antiPatterns: [
             'Over-engineering',
             'Unnecessary complexity',
-            'Feature creep'
-          ]
+            'Feature creep',
+          ],
         },
         expertise: {
           domains: [
             'Minimal design',
             'Simple solutions',
             'Core functionality',
-            'Basic implementation'
+            'Basic implementation',
           ],
           skills: [
             'Simplification',
             'Essential feature identification',
             'Basic implementation',
-            'Core system design'
-          ]
+            'Core system design',
+          ],
         },
         decisionCriteria: [
           'Is this necessary?',
           'Does this add complexity?',
-          'Can this be simplified?'
+          'Can this be simplified?',
         ],
         examples: ['Minimal example', 'Basic example'],
         tags: ['minimal', 'simple', 'basic'],
@@ -177,17 +177,17 @@ describe('Persona Types', () => {
         core: {
           identity: '',
           primaryObjective: '',
-          constraints: []
+          constraints: [],
         },
         behavior: {
           mindset: [],
           methodology: [],
           priorities: [],
-          antiPatterns: []
+          antiPatterns: [],
         },
         expertise: {
           domains: [],
-          skills: []
+          skills: [],
         },
         decisionCriteria: [],
         examples: [],
@@ -202,12 +202,14 @@ describe('Persona Types', () => {
     it('should validate persona with optional behaviorDiagrams', () => {
       const personaWithOptionalDiagrams = {
         ...validPersona,
-        behaviorDiagrams: [{
-          title: 'Test Diagram',
-          mermaidDSL: 'graph TD\n  A --> B',
-          diagramType: 'flowchart' as const,
-          description: 'A test diagram'
-        }],
+        behaviorDiagrams: [
+          {
+            title: 'Test Diagram',
+            mermaidDSL: 'graph TD\n  A --> B',
+            diagramType: 'flowchart' as const,
+            description: 'A test diagram',
+          },
+        ],
       };
 
       const result = PersonaSchema.safeParse(personaWithOptionalDiagrams);
@@ -252,50 +254,46 @@ describe('Persona Types', () => {
           constraints: [
             'Must be type safe',
             'Follow TypeScript best practices',
-            'Maintain type consistency'
-          ]
+            'Maintain type consistency',
+          ],
         },
         behavior: {
           mindset: [
             'Type safety first',
             'Compile time validation',
-            'Clear type definitions'
+            'Clear type definitions',
           ],
           methodology: [
             'Define types first',
             'Use strict typing',
             'Validate at compile time',
-            'Document type contracts'
+            'Document type contracts',
           ],
-          priorities: [
-            'Type safety',
-            'Compile time errors',
-            'Clear contracts'
-          ],
+          priorities: ['Type safety', 'Compile time errors', 'Clear contracts'],
           antiPatterns: [
             'Using any type',
             'Ignoring type errors',
-            'Weak type definitions'
-          ]
+            'Weak type definitions',
+          ],
         },
         expertise: {
           domains: [
             'TypeScript',
             'Type systems',
             'Static analysis',
-            'Compile time validation'
+            'Compile time validation',
           ],
           skills: [
             'Type definition',
             'Generic programming',
             'Type inference',
-            'Interface design'
-          ]
+            'Interface design',
+          ],
         },
         decisionCriteria: [
           'Is this type safe?',
           'Will this catch errors at compile time?',
-          'Are the types clear and maintainable?'
+          'Are the types clear and maintainable?',
         ],
         examples: ['Type safe example', 'Interface example'],
         tags: ['types', 'typescript', 'safety'],

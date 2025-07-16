@@ -195,7 +195,10 @@ export class PersonaScorer {
     task: TaskDescription
   ): number {
     const taskText = `${task.title} ${task.description}`.toLowerCase();
-    const allExpertise = [...persona.expertise.domains, ...persona.expertise.skills];
+    const allExpertise = [
+      ...persona.expertise.domains,
+      ...persona.expertise.skills,
+    ];
     const expertiseMatches = allExpertise.filter(
       exp =>
         taskText.includes(exp.toLowerCase()) ||
@@ -272,10 +275,15 @@ export class PersonaScorer {
   }
 
   private extractPersonaKeywords(persona: Persona): string[] {
-    const allExpertise = [...persona.expertise.domains, ...persona.expertise.skills];
+    const allExpertise = [
+      ...persona.expertise.domains,
+      ...persona.expertise.skills,
+    ];
     const fromExpertise = allExpertise.map(e => e.toLowerCase());
     const fromTags = persona.tags?.map(t => t.toLowerCase()) || [];
-    const fromDescription = this.extractImplicitKeywords(this.getPersonaDescription(persona));
+    const fromDescription = this.extractImplicitKeywords(
+      this.getPersonaDescription(persona)
+    );
 
     return [...fromExpertise, ...fromTags, ...fromDescription];
   }
@@ -353,7 +361,10 @@ export class PersonaScorer {
     task: TaskDescription
   ): string[] {
     const taskText = `${task.title} ${task.description}`.toLowerCase();
-    const allExpertise = [...persona.expertise.domains, ...persona.expertise.skills];
+    const allExpertise = [
+      ...persona.expertise.domains,
+      ...persona.expertise.skills,
+    ];
     return allExpertise.filter(
       exp =>
         taskText.includes(exp.toLowerCase()) ||
@@ -366,7 +377,10 @@ export class PersonaScorer {
     domain: string
   ): boolean {
     const domainLower = domain.toLowerCase();
-    const allExpertise = [...persona.expertise.domains, ...persona.expertise.skills];
+    const allExpertise = [
+      ...persona.expertise.domains,
+      ...persona.expertise.skills,
+    ];
     const personaText =
       `${this.getPersonaDescription(persona)} ${allExpertise.join(' ')}`.toLowerCase();
     return personaText.includes(domainLower);

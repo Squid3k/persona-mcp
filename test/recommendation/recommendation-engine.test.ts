@@ -25,22 +25,48 @@ describe('RecommendationEngine', () => {
         name: 'Software Architect',
         role: 'architect',
         core: {
-          identity: 'Software Architect focusing on system design and architecture',
+          identity:
+            'Software Architect focusing on system design and architecture',
           primaryObjective: 'Design scalable and maintainable systems',
-          constraints: ['Think big picture first', 'Consider scalability', 'Ensure maintainability']
+          constraints: [
+            'Think big picture first',
+            'Consider scalability',
+            'Ensure maintainability',
+          ],
         },
         behavior: {
           mindset: ['System thinking', 'Long-term view', 'Scalability focus'],
-          methodology: ['Analyze requirements', 'Design architecture', 'Document decisions', 'Review implementation'],
+          methodology: [
+            'Analyze requirements',
+            'Design architecture',
+            'Document decisions',
+            'Review implementation',
+          ],
           priorities: ['Scalability', 'Maintainability', 'Performance'],
-          antiPatterns: ['Over-engineering', 'Ignoring constraints', 'Short-term thinking']
+          antiPatterns: [
+            'Over-engineering',
+            'Ignoring constraints',
+            'Short-term thinking',
+          ],
         },
         expertise: {
           domains: ['system design', 'architecture', 'scalability', 'patterns'],
-          skills: ['system design', 'architecture patterns', 'scalability analysis', 'technology selection']
+          skills: [
+            'system design',
+            'architecture patterns',
+            'scalability analysis',
+            'technology selection',
+          ],
         },
-        decisionCriteria: ['Is it scalable?', 'Is it maintainable?', 'Does it meet requirements?'],
-        examples: ['Design microservices architecture', 'Create system blueprints'],
+        decisionCriteria: [
+          'Is it scalable?',
+          'Is it maintainable?',
+          'Does it meet requirements?',
+        ],
+        examples: [
+          'Design microservices architecture',
+          'Create system blueprints',
+        ],
         tags: ['architecture', 'design', 'system'],
       },
       {
@@ -50,19 +76,32 @@ describe('RecommendationEngine', () => {
         core: {
           identity: 'Developer focusing on code implementation',
           primaryObjective: 'Write clean, maintainable code',
-          constraints: ['Write clean code', 'Follow best practices', 'Ensure testability']
+          constraints: [
+            'Write clean code',
+            'Follow best practices',
+            'Ensure testability',
+          ],
         },
         behavior: {
           mindset: ['Code quality', 'Test-driven', 'Clean code'],
-          methodology: ['Write tests', 'Implement features', 'Refactor code', 'Code review'],
+          methodology: [
+            'Write tests',
+            'Implement features',
+            'Refactor code',
+            'Code review',
+          ],
           priorities: ['Code quality', 'Testing', 'Maintainability'],
-          antiPatterns: ['Spaghetti code', 'No tests', 'Poor naming']
+          antiPatterns: ['Spaghetti code', 'No tests', 'Poor naming'],
         },
         expertise: {
           domains: ['coding', 'implementation', 'testing', 'debugging'],
-          skills: ['programming', 'test writing', 'debugging', 'code review']
+          skills: ['programming', 'test writing', 'debugging', 'code review'],
         },
-        decisionCriteria: ['Is it testable?', 'Is it readable?', 'Is it maintainable?'],
+        decisionCriteria: [
+          'Is it testable?',
+          'Is it readable?',
+          'Is it maintainable?',
+        ],
         examples: ['Implement feature with tests', 'Refactor legacy code'],
         tags: ['coding', 'implementation'],
       },
@@ -73,19 +112,41 @@ describe('RecommendationEngine', () => {
         core: {
           identity: 'Code Reviewer focusing on quality and best practices',
           primaryObjective: 'Ensure code quality and security',
-          constraints: ['Ensure quality', 'Check security', 'Verify best practices']
+          constraints: [
+            'Ensure quality',
+            'Check security',
+            'Verify best practices',
+          ],
         },
         behavior: {
           mindset: ['Quality focus', 'Security awareness', 'Best practices'],
-          methodology: ['Review code', 'Check security', 'Verify tests', 'Provide feedback'],
+          methodology: [
+            'Review code',
+            'Check security',
+            'Verify tests',
+            'Provide feedback',
+          ],
           priorities: ['Security', 'Quality', 'Best practices'],
-          antiPatterns: ['Ignoring security', 'Poor code quality', 'No documentation']
+          antiPatterns: [
+            'Ignoring security',
+            'Poor code quality',
+            'No documentation',
+          ],
         },
         expertise: {
           domains: ['code review', 'quality', 'best practices', 'security'],
-          skills: ['code analysis', 'security review', 'quality assessment', 'feedback delivery']
+          skills: [
+            'code analysis',
+            'security review',
+            'quality assessment',
+            'feedback delivery',
+          ],
         },
-        decisionCriteria: ['Is it secure?', 'Is it quality code?', 'Does it follow best practices?'],
+        decisionCriteria: [
+          'Is it secure?',
+          'Is it quality code?',
+          'Does it follow best practices?',
+        ],
         examples: ['Review pull request', 'Security code audit'],
         tags: ['review', 'quality'],
       },

@@ -3,7 +3,11 @@ import path from 'path';
 import * as YAML from 'yaml';
 import glob from 'fast-glob';
 import { z } from 'zod';
-import { LoadedPersona, PersonaSource, YamlPersonaSchema } from '../types/yaml-persona.js';
+import {
+  LoadedPersona,
+  PersonaSource,
+  YamlPersonaSchema,
+} from '../types/yaml-persona.js';
 
 export class PersonaLoader {
   /**

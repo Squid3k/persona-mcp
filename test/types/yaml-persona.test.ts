@@ -89,21 +89,48 @@ describe('YamlPersonaSchema', () => {
     core: {
       identity: 'A test persona',
       primaryObjective: 'Ensure quality through testing',
-      constraints: ['Test thoroughly', 'Follow best practices', 'Document results']
+      constraints: [
+        'Test thoroughly',
+        'Follow best practices',
+        'Document results',
+      ],
     },
     behavior: {
       mindset: ['Quality-focused', 'Methodical', 'Detail-oriented'],
-      methodology: ['Plan tests', 'Execute tests', 'Analyze results', 'Report findings'],
+      methodology: [
+        'Plan tests',
+        'Execute tests',
+        'Analyze results',
+        'Report findings',
+      ],
       priorities: ['Test coverage', 'Bug detection', 'Quality assurance'],
-      antiPatterns: ['Skipping tests', 'Incomplete coverage', 'Poor documentation']
+      antiPatterns: [
+        'Skipping tests',
+        'Incomplete coverage',
+        'Poor documentation',
+      ],
     },
     expertise: {
-      domains: ['testing', 'quality-assurance', 'test-driven-development', 'continuous-integration'],
-      skills: ['test automation', 'bug tracking', 'test planning', 'regression testing']
+      domains: [
+        'testing',
+        'quality-assurance',
+        'test-driven-development',
+        'continuous-integration',
+      ],
+      skills: [
+        'test automation',
+        'bug tracking',
+        'test planning',
+        'regression testing',
+      ],
     },
-    decisionCriteria: ['Is it testable?', 'Does it improve quality?', 'Is coverage adequate?'],
+    decisionCriteria: [
+      'Is it testable?',
+      'Does it improve quality?',
+      'Is coverage adequate?',
+    ],
     examples: ['Example 1', 'Example 2'],
-    tags: ['test', 'quality', 'qa']
+    tags: ['test', 'quality', 'qa'],
   };
 
   it('should validate valid YAML persona', () => {
@@ -166,8 +193,12 @@ describe('YamlPersonaSchema', () => {
     const result = YamlPersonaSchema.safeParse(invalidPersona);
     expect(result.success).toBe(false);
     if (!result.success) {
-      const datetimeError = result.error.issues.find(issue => issue.path.includes('created'));
-      expect(datetimeError?.message || result.error.issues[0].message).toContain('Invalid');
+      const datetimeError = result.error.issues.find(issue =>
+        issue.path.includes('created')
+      );
+      expect(
+        datetimeError?.message || result.error.issues[0].message
+      ).toContain('Invalid');
     }
   });
 
@@ -180,7 +211,9 @@ describe('YamlPersonaSchema', () => {
     const result = YamlPersonaSchema.safeParse(personaWithExtraField);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some(issue => issue.code === 'unrecognized_keys')).toBe(true);
+      expect(
+        result.error.issues.some(issue => issue.code === 'unrecognized_keys')
+      ).toBe(true);
     }
   });
 
@@ -193,8 +226,12 @@ describe('YamlPersonaSchema', () => {
     const result = YamlPersonaSchema.safeParse(invalidPersona);
     expect(result.success).toBe(false);
     if (!result.success) {
-      const depsError = result.error.issues.find(issue => issue.path.includes('dependencies'));
-      expect(depsError?.message || result.error.issues[0].message).toContain('Expected');
+      const depsError = result.error.issues.find(issue =>
+        issue.path.includes('dependencies')
+      );
+      expect(depsError?.message || result.error.issues[0].message).toContain(
+        'Expected'
+      );
     }
   });
 });
@@ -203,9 +240,9 @@ describe('PersonaValidationError', () => {
   it('should create error with default message', () => {
     const filePath = '/test/path.yaml';
     const validationErrors = ['Error 1', 'Error 2'];
-    
+
     const error = new PersonaValidationError(filePath, validationErrors);
-    
+
     expect(error.name).toBe('PersonaValidationError');
     expect(error.message).toBe('Validation failed for /test/path.yaml');
     expect(error.filePath).toBe(filePath);
@@ -217,9 +254,13 @@ describe('PersonaValidationError', () => {
     const filePath = '/test/path.yaml';
     const validationErrors = ['Error 1'];
     const customMessage = 'Custom validation error';
-    
-    const error = new PersonaValidationError(filePath, validationErrors, customMessage);
-    
+
+    const error = new PersonaValidationError(
+      filePath,
+      validationErrors,
+      customMessage
+    );
+
     expect(error.name).toBe('PersonaValidationError');
     expect(error.message).toBe(customMessage);
     expect(error.filePath).toBe(filePath);
@@ -228,7 +269,7 @@ describe('PersonaValidationError', () => {
 
   it('should maintain error prototype chain', () => {
     const error = new PersonaValidationError('/test/path.yaml', ['Error']);
-    
+
     expect(error instanceof PersonaValidationError).toBe(true);
     expect(error instanceof Error).toBe(true);
   });
@@ -238,9 +279,9 @@ describe('PersonaLoadingError', () => {
   it('should create error with default message', () => {
     const filePath = '/test/path.yaml';
     const originalError = new Error('Original error');
-    
+
     const error = new PersonaLoadingError(filePath, originalError);
-    
+
     expect(error.name).toBe('PersonaLoadingError');
     expect(error.message).toBe('Failed to load persona from /test/path.yaml');
     expect(error.filePath).toBe(filePath);
@@ -253,9 +294,13 @@ describe('PersonaLoadingError', () => {
     const filePath = '/test/path.yaml';
     const originalError = new Error('Original error');
     const customMessage = 'Custom loading error';
-    
-    const error = new PersonaLoadingError(filePath, originalError, customMessage);
-    
+
+    const error = new PersonaLoadingError(
+      filePath,
+      originalError,
+      customMessage
+    );
+
     expect(error.name).toBe('PersonaLoadingError');
     expect(error.message).toBe(customMessage);
     expect(error.filePath).toBe(filePath);
@@ -266,7 +311,7 @@ describe('PersonaLoadingError', () => {
   it('should maintain error prototype chain', () => {
     const originalError = new Error('Original error');
     const error = new PersonaLoadingError('/test/path.yaml', originalError);
-    
+
     expect(error instanceof PersonaLoadingError).toBe(true);
     expect(error instanceof Error).toBe(true);
   });
@@ -294,17 +339,21 @@ describe('Type definitions', () => {
       core: {
         identity: 'Test persona',
         primaryObjective: 'Test objectives',
-        constraints: ['Test constraint 1', 'Test constraint 2', 'Test constraint 3']
+        constraints: [
+          'Test constraint 1',
+          'Test constraint 2',
+          'Test constraint 3',
+        ],
       },
       behavior: {
         mindset: ['Mindset 1', 'Mindset 2', 'Mindset 3'],
         methodology: ['Method 1', 'Method 2', 'Method 3', 'Method 4'],
         priorities: ['Priority 1', 'Priority 2', 'Priority 3'],
-        antiPatterns: ['Anti 1', 'Anti 2', 'Anti 3']
+        antiPatterns: ['Anti 1', 'Anti 2', 'Anti 3'],
       },
       expertise: {
         domains: ['testing'],
-        skills: ['test automation']
+        skills: ['test automation'],
       },
       decisionCriteria: ['Criteria 1', 'Criteria 2', 'Criteria 3'],
       examples: ['Example'],
@@ -336,17 +385,21 @@ describe('Type definitions', () => {
       core: {
         identity: 'Test persona',
         primaryObjective: 'Test objectives',
-        constraints: ['Test constraint 1', 'Test constraint 2', 'Test constraint 3']
+        constraints: [
+          'Test constraint 1',
+          'Test constraint 2',
+          'Test constraint 3',
+        ],
       },
       behavior: {
         mindset: ['Mindset 1', 'Mindset 2', 'Mindset 3'],
         methodology: ['Method 1', 'Method 2', 'Method 3', 'Method 4'],
         priorities: ['Priority 1', 'Priority 2', 'Priority 3'],
-        antiPatterns: ['Anti 1', 'Anti 2', 'Anti 3']
+        antiPatterns: ['Anti 1', 'Anti 2', 'Anti 3'],
       },
       expertise: {
         domains: ['testing'],
-        skills: ['test automation']
+        skills: ['test automation'],
       },
       decisionCriteria: ['Criteria 1', 'Criteria 2', 'Criteria 3'],
       examples: ['Example'],

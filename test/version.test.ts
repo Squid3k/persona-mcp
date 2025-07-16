@@ -16,11 +16,11 @@ describe('version.ts', () => {
   it('should match package.json version', async () => {
     const fs = await import('fs/promises');
     const path = await import('path');
-    
+
     const packageJsonPath = path.join(__dirname, '../package.json');
     const packageJsonContent = await fs.readFile(packageJsonPath, 'utf-8');
     const packageJson = JSON.parse(packageJsonContent);
-    
+
     expect(VERSION).toBe(packageJson.version);
   });
 
@@ -40,7 +40,7 @@ describe('version.ts', () => {
 
   it('should be immutable', () => {
     const originalVersion = VERSION;
-    
+
     // Test that VERSION is an import and cannot be reassigned
     // This test checks that VERSION maintains its value (immutability through const)
     expect(VERSION).toBe(originalVersion);

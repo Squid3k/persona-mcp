@@ -18,20 +18,45 @@ describe('PersonaScorer', () => {
       core: {
         identity: 'Test Architect focusing on system design and architecture',
         primaryObjective: 'Design scalable and maintainable systems',
-        constraints: ['Think big picture first', 'Consider scalability', 'Ensure maintainability']
+        constraints: [
+          'Think big picture first',
+          'Consider scalability',
+          'Ensure maintainability',
+        ],
       },
       behavior: {
         mindset: ['System thinking', 'Long-term view', 'Scalability focus'],
-        methodology: ['Analyze requirements', 'Design architecture', 'Document decisions', 'Review implementation'],
+        methodology: [
+          'Analyze requirements',
+          'Design architecture',
+          'Document decisions',
+          'Review implementation',
+        ],
         priorities: ['Scalability', 'Maintainability', 'Performance'],
-        antiPatterns: ['Over-engineering', 'Ignoring constraints', 'Short-term thinking']
+        antiPatterns: [
+          'Over-engineering',
+          'Ignoring constraints',
+          'Short-term thinking',
+        ],
       },
       expertise: {
         domains: ['system design', 'architecture', 'scalability', 'patterns'],
-        skills: ['system design', 'architecture patterns', 'scalability analysis', 'technology selection']
+        skills: [
+          'system design',
+          'architecture patterns',
+          'scalability analysis',
+          'technology selection',
+        ],
       },
-      decisionCriteria: ['Is it scalable?', 'Is it maintainable?', 'Does it meet requirements?'],
-      examples: ['Design microservices architecture', 'Create system blueprints'],
+      decisionCriteria: [
+        'Is it scalable?',
+        'Is it maintainable?',
+        'Does it meet requirements?',
+      ],
+      examples: [
+        'Design microservices architecture',
+        'Create system blueprints',
+      ],
       tags: ['architecture', 'design', 'system'],
     };
 
@@ -202,19 +227,50 @@ describe('PersonaScorer', () => {
         core: {
           identity: 'Test Debugger focusing on debugging and problem-solving',
           primaryObjective: 'Find and fix bugs systematically',
-          constraints: ['Systematic analysis', 'Evidence-based debugging', 'Reproduce issues']
+          constraints: [
+            'Systematic analysis',
+            'Evidence-based debugging',
+            'Reproduce issues',
+          ],
         },
         behavior: {
           mindset: ['Systematic approach', 'Evidence-based', 'Problem-solving'],
-          methodology: ['Reproduce issue', 'Analyze root cause', 'Fix systematically', 'Verify fix'],
-          priorities: ['Accuracy', 'Systematic approach', 'Root cause analysis'],
-          antiPatterns: ['Random fixes', 'Ignoring evidence', 'Surface-level fixes']
+          methodology: [
+            'Reproduce issue',
+            'Analyze root cause',
+            'Fix systematically',
+            'Verify fix',
+          ],
+          priorities: [
+            'Accuracy',
+            'Systematic approach',
+            'Root cause analysis',
+          ],
+          antiPatterns: [
+            'Random fixes',
+            'Ignoring evidence',
+            'Surface-level fixes',
+          ],
         },
         expertise: {
-          domains: ['debugging', 'troubleshooting', 'problem solving', 'analysis'],
-          skills: ['debugging tools', 'root cause analysis', 'systematic testing', 'problem isolation']
+          domains: [
+            'debugging',
+            'troubleshooting',
+            'problem solving',
+            'analysis',
+          ],
+          skills: [
+            'debugging tools',
+            'root cause analysis',
+            'systematic testing',
+            'problem isolation',
+          ],
         },
-        decisionCriteria: ['Can I reproduce this?', 'What does the evidence say?', 'Is this the root cause?'],
+        decisionCriteria: [
+          'Can I reproduce this?',
+          'What does the evidence say?',
+          'Is this the root cause?',
+        ],
         examples: ['Debug memory leak', 'Fix race condition'],
         tags: ['debugging', 'analysis'],
       };
@@ -227,7 +283,9 @@ describe('PersonaScorer', () => {
 
       const strengths = scorer.identifyStrengths(debuggerPersona, debugTask);
 
-      expect(strengths.some(s => s.includes('Systematic problem-solving'))).toBe(true);
+      expect(
+        strengths.some(s => s.includes('Systematic problem-solving'))
+      ).toBe(true);
     });
   });
 
@@ -269,19 +327,37 @@ describe('PersonaScorer', () => {
         core: {
           identity: 'Test Developer focusing on implementation',
           primaryObjective: 'Build high-quality code',
-          constraints: ['Write clean code', 'Follow standards', 'Test thoroughly']
+          constraints: [
+            'Write clean code',
+            'Follow standards',
+            'Test thoroughly',
+          ],
         },
         behavior: {
           mindset: ['Implementation-focused', 'Quality-conscious', 'Pragmatic'],
-          methodology: ['Understand requirements', 'Plan implementation', 'Write code', 'Test thoroughly'],
+          methodology: [
+            'Understand requirements',
+            'Plan implementation',
+            'Write code',
+            'Test thoroughly',
+          ],
           priorities: ['Code quality', 'Functionality', 'Maintainability'],
-          antiPatterns: ['Rushed code', 'Skipping tests', 'Poor documentation']
+          antiPatterns: ['Rushed code', 'Skipping tests', 'Poor documentation'],
         },
         expertise: {
-          domains: ['coding', 'implementation', 'software development', 'programming'],
-          skills: ['clean code', 'testing', 'refactoring', 'debugging']
+          domains: [
+            'coding',
+            'implementation',
+            'software development',
+            'programming',
+          ],
+          skills: ['clean code', 'testing', 'refactoring', 'debugging'],
         },
-        decisionCriteria: ['Is it clean?', 'Is it tested?', 'Is it maintainable?'],
+        decisionCriteria: [
+          'Is it clean?',
+          'Is it tested?',
+          'Is it maintainable?',
+        ],
         examples: ['Implement feature', 'Write unit tests'],
         tags: ['development', 'coding'],
       };
@@ -293,9 +369,14 @@ describe('PersonaScorer', () => {
         domain: 'backend',
       };
 
-      const limitations = scorer.identifyLimitations(developerPersona, expertTask);
+      const limitations = scorer.identifyLimitations(
+        developerPersona,
+        expertTask
+      );
 
-      expect(limitations.some(l => l.includes('architectural guidance'))).toBe(true);
+      expect(limitations.some(l => l.includes('architectural guidance'))).toBe(
+        true
+      );
     });
 
     it('should return empty array when no limitations identified', () => {
@@ -350,21 +431,21 @@ describe('PersonaScorer', () => {
         core: {
           identity: 'Basic persona',
           primaryObjective: 'Code',
-          constraints: ['Simple', 'Basic', 'Minimal']
+          constraints: ['Simple', 'Basic', 'Minimal'],
         },
         behavior: {
           mindset: ['Simple', 'Direct', 'Basic'],
           methodology: ['Code', 'Test', 'Deploy', 'Maintain'],
           priorities: ['Simplicity', 'Functionality', 'Clarity'],
-          antiPatterns: ['Complexity', 'Over-engineering', 'Waste']
+          antiPatterns: ['Complexity', 'Over-engineering', 'Waste'],
         },
         expertise: {
           domains: ['coding', 'programming'],
-          skills: ['implementation', 'debugging']
+          skills: ['implementation', 'debugging'],
         },
         decisionCriteria: ['Is it simple?', 'Does it work?', 'Is it clear?'],
         examples: ['Write code', 'Debug issues'],
-        tags: ['minimal', 'basic']
+        tags: ['minimal', 'basic'],
       };
 
       const score = scorer.scorePersona(minimalPersona, testTask);
@@ -407,21 +488,34 @@ describe('PersonaScorer', () => {
         core: {
           identity: 'Custom specialist',
           primaryObjective: 'Handle specialized tasks',
-          constraints: ['Domain focus', 'Specialized methods', 'Custom constraints']
+          constraints: [
+            'Domain focus',
+            'Specialized methods',
+            'Custom constraints',
+          ],
         },
         behavior: {
           mindset: ['Specialized thinking', 'Domain expertise', 'Focused'],
-          methodology: ['Analyze domain', 'Apply specialty', 'Validate results', 'Document'],
+          methodology: [
+            'Analyze domain',
+            'Apply specialty',
+            'Validate results',
+            'Document',
+          ],
           priorities: ['Domain accuracy', 'Specialization', 'Precision'],
-          antiPatterns: ['Generalization', 'Out-of-domain', 'Unfocused']
+          antiPatterns: ['Generalization', 'Out-of-domain', 'Unfocused'],
         },
         expertise: {
           domains: ['custom', 'specialized'],
-          skills: ['domain-specific', 'tailored']
+          skills: ['domain-specific', 'tailored'],
         },
-        decisionCriteria: ['Is it in domain?', 'Does it leverage specialty?', 'Is it precise?'],
+        decisionCriteria: [
+          'Is it in domain?',
+          'Does it leverage specialty?',
+          'Is it precise?',
+        ],
         examples: ['Apply specialty', 'Domain analysis'],
-        tags: ['custom', 'specialist']
+        tags: ['custom', 'specialist'],
       };
 
       const task: TaskDescription = {
@@ -433,7 +527,7 @@ describe('PersonaScorer', () => {
       // The complexity fit message should appear in the reasoning
       const score = scorer.scorePersona(customPersona, task);
       const reasoning = scorer.generateReasoning(customPersona, task, score);
-      
+
       expect(reasoning).toContain('Moderate fit for this complexity level');
     });
   });

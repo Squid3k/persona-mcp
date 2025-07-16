@@ -8,8 +8,8 @@ describe('version.ts', () => {
   });
 
   it('should have a valid semantic version format', () => {
-    // Test for semantic version format (x.y.z)
-    const semverRegex = /^\d+\.\d+\.\d+$/;
+    // Test for semantic version format (x.y.z or x.y.z-prerelease)
+    const semverRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9-]+)?$/;
     expect(VERSION).toMatch(semverRegex);
   });
 
@@ -35,7 +35,7 @@ describe('version.ts', () => {
 
   it('should be the expected version value', () => {
     // Test specific version value
-    expect(VERSION).toBe('0.1.0');
+    expect(VERSION).toBe('0.2.0-alpha');
   });
 
   it('should be immutable', () => {

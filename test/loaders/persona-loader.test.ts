@@ -239,17 +239,17 @@ describe('PersonaLoader', () => {
       const zodError = new z.ZodError([
         {
           code: 'invalid_type',
-          expected: 'string',
+          expected: 'object',
           received: 'undefined',
-          path: ['expertise'],
+          path: ['core'],
           message: 'Required'
         },
         {
           code: 'invalid_type',
-          expected: 'string',
+          expected: 'array',
           received: 'number',
-          path: ['approach'],
-          message: 'Expected string, received number'
+          path: ['behavior', 'mindset'],
+          message: 'Expected array, received number'
         }
       ]);
 
@@ -290,8 +290,8 @@ describe('PersonaLoader', () => {
         },
         isValid: false,
         validationErrors: [
-          'expertise: Required',
-          'approach: Expected string, received number'
+          'core: Required',
+          'behavior.mindset: Expected array, received number'
         ]
       });
     });

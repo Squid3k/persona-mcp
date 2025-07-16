@@ -19,10 +19,23 @@ describe('PersonaResolver', () => {
     id,
     name: `Test ${id}`,
     role,
-    description: `Test persona ${id}`,
-    expertise: ['testing'],
-    approach: 'Test approach',
-    promptTemplate: `You are ${id}`,
+    core: {
+      identity: `You are ${id}`,
+      primaryObjective: `Test objective for ${id}`,
+      constraints: ['Test constraint 1', 'Test constraint 2', 'Test constraint 3']
+    },
+    behavior: {
+      mindset: ['Test mindset 1', 'Test mindset 2', 'Test mindset 3'],
+      methodology: ['Test step 1', 'Test step 2', 'Test step 3', 'Test step 4'],
+      priorities: ['Test priority 1', 'Test priority 2', 'Test priority 3'],
+      antiPatterns: ['Test anti-pattern 1', 'Test anti-pattern 2', 'Test anti-pattern 3']
+    },
+    expertise: {
+      domains: ['testing', 'validation', 'quality', 'assurance'],
+      skills: ['test design', 'test execution', 'debugging', 'reporting']
+    },
+    decisionCriteria: ['Is it tested?', 'Is it valid?', 'Is it documented?'],
+    examples: ['Test example 1', 'Test example 2'],
     tags: ['test'],
     version,
     source: {

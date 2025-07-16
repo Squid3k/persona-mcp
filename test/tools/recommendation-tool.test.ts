@@ -391,9 +391,7 @@ describe('RecommendationTool', () => {
         },
         decisionCriteria: ['Is it scalable?', 'Is it maintainable?', 'Does it meet requirements?'],
         examples: ['Design microservices', 'Create system blueprints'],
-        tags: ['architecture', 'design', 'system'],
-        approach: 'Design first',
-        promptTemplate: 'You are an architect',
+        tags: ['architecture', 'design', 'system']
       };
 
       mockRecommendationEngine.explainPersonaFit.mockResolvedValue({

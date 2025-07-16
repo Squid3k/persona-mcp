@@ -203,7 +203,7 @@ describe('Recommendation System E2E', () => {
       );
 
       expect(result.success).toBe(true);
-      expect(result.data.totalPersonas).toBe(6);
+      expect(result.data.totalPersonas).toBe(13);
       expect(result.data.availableRoles).toEqual(
         expect.arrayContaining([
           'architect',

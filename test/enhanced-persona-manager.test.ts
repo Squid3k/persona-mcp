@@ -228,11 +228,11 @@ describe('EnhancedPersonaManager', () => {
         return map;
       }),
       getStatistics: vi.fn().mockReturnValue({
-        total: 5,
-        valid: 4,
+        total: 13,
+        valid: 12,
         invalid: 1,
         conflicts: 0,
-        bySource: { default: 4, user: 1, project: 0 }
+        bySource: { default: 12, user: 1, project: 0 }
       }),
       getInvalidPersonas: vi.fn().mockReturnValue([])
     };
@@ -362,7 +362,7 @@ describe('EnhancedPersonaManager', () => {
       const personas = manager.getAllPersonas();
       
       expect(mockResolver.resolveConflicts).toHaveBeenCalled();
-      expect(personas).toHaveLength(5); // 4 default + 1 test
+      expect(personas).toHaveLength(13); // 12 default + 1 test
     });
 
     it('should filter out invalid personas', () => {
@@ -835,17 +835,17 @@ describe('EnhancedPersonaManager', () => {
     it('should log statistics after loading', async () => {
       await manager.initialize();
       
-      expect(mockConsoleError).toHaveBeenCalledWith('Loaded 5 personas (4 valid, 1 invalid)');
-      expect(mockConsoleError).toHaveBeenCalledWith('Sources: 4 default, 1 user, 0 project');
+      expect(mockConsoleError).toHaveBeenCalledWith('Loaded 13 personas (12 valid, 1 invalid)');
+      expect(mockConsoleError).toHaveBeenCalledWith('Sources: 12 default, 1 user, 0 project');
     });
 
     it('should log conflicts when present', async () => {
       mockResolver.getStatistics.mockReturnValue({
-        total: 5,
-        valid: 4,
+        total: 13,
+        valid: 12,
         invalid: 1,
         conflicts: 2,
-        bySource: { default: 4, user: 1, project: 0 }
+        bySource: { default: 12, user: 1, project: 0 }
       });
       
       await manager.initialize();

@@ -16,6 +16,14 @@ import { architectPersona } from './personas/architect.js';
 import { developerPersona } from './personas/developer.js';
 import { reviewerPersona } from './personas/reviewer.js';
 import { debuggerPersona } from './personas/debugger.js';
+import { productManagerPersona } from './personas/product-manager.js';
+import { technicalWriterPersona } from './personas/technical-writer.js';
+import { engineeringManagerPersona } from './personas/engineering-manager.js';
+import { optimizerPersona } from './personas/optimizer.js';
+import { securityAnalystPersona } from './personas/security-analyst.js';
+import { testerPersona } from './personas/tester.js';
+import { uiDesignerPersona } from './personas/ui-designer.js';
+import { performanceAnalystPersona } from './personas/performance-analyst.js';
 
 export class EnhancedPersonaManager {
   private personas = new Map<string, LoadedPersona>();
@@ -277,6 +285,14 @@ export class EnhancedPersonaManager {
       developerPersona,
       reviewerPersona,
       debuggerPersona,
+      productManagerPersona,
+      technicalWriterPersona,
+      engineeringManagerPersona,
+      optimizerPersona,
+      securityAnalystPersona,
+      testerPersona,
+      uiDesignerPersona,
+      performanceAnalystPersona,
     ];
 
     return defaults.map(persona => ({

@@ -19,13 +19,13 @@ describe('Default Personas', () => {
       ({ persona }) => {
         const result = PersonaSchema.safeParse(persona);
 
-        expect(result.success).toBe(true);
         if (!result.success) {
           console.error(
             `Validation errors for ${persona.id}:`,
             result.error.errors
           );
         }
+        expect(result.success).toBe(true);
       }
     );
   });
@@ -39,18 +39,36 @@ describe('Default Personas', () => {
     });
 
     it('should have comprehensive expertise areas', () => {
-      expect(architectPersona.expertise.domains).toContain('System architecture patterns');
-      expect(architectPersona.expertise.domains).toContain('Distributed systems design');
-      expect(architectPersona.expertise.skills).toContain('Architectural decision making');
-      expect(architectPersona.expertise.domains.length).toBeGreaterThanOrEqual(4);
-      expect(architectPersona.expertise.skills.length).toBeGreaterThanOrEqual(4);
+      expect(architectPersona.expertise.domains).toContain(
+        'System architecture patterns'
+      );
+      expect(architectPersona.expertise.domains).toContain(
+        'Distributed systems design'
+      );
+      expect(architectPersona.expertise.skills).toContain(
+        'Architectural decision making'
+      );
+      expect(architectPersona.expertise.domains.length).toBeGreaterThanOrEqual(
+        4
+      );
+      expect(architectPersona.expertise.skills.length).toBeGreaterThanOrEqual(
+        4
+      );
     });
 
     it('should have detailed behavior structure', () => {
-      expect(architectPersona.behavior.mindset).toContain('Think in systems and interactions, not just components');
-      expect(architectPersona.behavior.methodology).toContain('Understand the problem domain and business requirements');
-      expect(architectPersona.behavior.priorities).toContain('System scalability and performance characteristics');
-      expect(architectPersona.behavior.antiPatterns).toContain('Creating tightly coupled monolithic designs');
+      expect(architectPersona.behavior.mindset).toContain(
+        'Think in systems and interactions, not just components'
+      );
+      expect(architectPersona.behavior.methodology).toContain(
+        'Understand the problem domain and business requirements'
+      );
+      expect(architectPersona.behavior.priorities).toContain(
+        'System scalability and performance characteristics'
+      );
+      expect(architectPersona.behavior.antiPatterns).toContain(
+        'Creating tightly coupled monolithic designs'
+      );
     });
 
     it('should have relevant examples', () => {
@@ -73,29 +91,43 @@ describe('Default Personas', () => {
       expect(developerPersona.id).toBe('developer');
       expect(developerPersona.name).toBe('Code Developer');
       expect(developerPersona.role).toBe(PersonaRole.DEVELOPER);
-      expect(developerPersona.core.identity).toContain(
-        'code craftsperson'
-      );
+      expect(developerPersona.core.identity).toContain('code craftsperson');
     });
 
     it('should have implementation-focused expertise', () => {
-      expect(developerPersona.expertise.domains).toContain('Clean code principles');
-      expect(developerPersona.expertise.domains).toContain('Test-driven development');
-      expect(developerPersona.expertise.domains).toContain('Refactoring techniques');
-      expect(developerPersona.expertise.skills).toContain('Performance profiling');
+      expect(developerPersona.expertise.domains).toContain(
+        'Clean code principles'
+      );
+      expect(developerPersona.expertise.domains).toContain(
+        'Test-driven development'
+      );
+      expect(developerPersona.expertise.domains).toContain(
+        'Refactoring techniques'
+      );
+      expect(developerPersona.expertise.skills).toContain(
+        'Performance profiling'
+      );
     });
 
     it('should have development-focused behavior structure', () => {
-      expect(developerPersona.behavior.mindset).toContain('Design is the foundation - code is the reflection of thoughtful design');
-      expect(developerPersona.behavior.methodology).toContain('Write failing tests first to define expected behavior');
-      expect(developerPersona.behavior.priorities).toContain('Correctness and reliability over speed of delivery');
+      expect(developerPersona.behavior.mindset).toContain(
+        'Design is the foundation - code is the reflection of thoughtful design'
+      );
+      expect(developerPersona.behavior.methodology).toContain(
+        'Write failing tests first to define expected behavior'
+      );
+      expect(developerPersona.behavior.priorities).toContain(
+        'Correctness and reliability over speed of delivery'
+      );
     });
 
     it('should have implementation examples', () => {
       expect(developerPersona.examples).toBeDefined();
       expect(developerPersona.examples.length).toBeGreaterThanOrEqual(2);
       expect(
-        developerPersona.examples.some(ex => ex.includes('test') || ex.includes('Refactoring'))
+        developerPersona.examples.some(
+          ex => ex.includes('test') || ex.includes('Refactoring')
+        )
       ).toBe(true);
     });
   });
@@ -111,23 +143,39 @@ describe('Default Personas', () => {
     });
 
     it('should have review-focused expertise', () => {
-      expect(reviewerPersona.expertise.domains).toContain('Security vulnerability patterns');
-      expect(reviewerPersona.expertise.domains).toContain('Performance optimization');
-      expect(reviewerPersona.expertise.skills).toContain('Pattern recognition for common bugs');
-      expect(reviewerPersona.expertise.skills).toContain('Risk assessment and mitigation');
+      expect(reviewerPersona.expertise.domains).toContain(
+        'Security vulnerability patterns'
+      );
+      expect(reviewerPersona.expertise.domains).toContain(
+        'Performance optimization'
+      );
+      expect(reviewerPersona.expertise.skills).toContain(
+        'Pattern recognition for common bugs'
+      );
+      expect(reviewerPersona.expertise.skills).toContain(
+        'Risk assessment and mitigation'
+      );
     });
 
     it('should have review-focused behavior structure', () => {
-      expect(reviewerPersona.behavior.mindset).toContain('Every review is a teaching opportunity');
-      expect(reviewerPersona.behavior.methodology).toContain('Third pass: assess security and performance');
-      expect(reviewerPersona.behavior.priorities).toContain('Security vulnerabilities over style issues');
+      expect(reviewerPersona.behavior.mindset).toContain(
+        'Every review is a teaching opportunity'
+      );
+      expect(reviewerPersona.behavior.methodology).toContain(
+        'Third pass: assess security and performance'
+      );
+      expect(reviewerPersona.behavior.priorities).toContain(
+        'Security vulnerabilities over style issues'
+      );
     });
 
     it('should have security and quality examples', () => {
       expect(reviewerPersona.examples).toBeDefined();
       expect(reviewerPersona.examples.length).toBeGreaterThanOrEqual(2);
       expect(
-        reviewerPersona.examples.some(ex => ex.includes('SQL injection') || ex.includes('race condition'))
+        reviewerPersona.examples.some(
+          ex => ex.includes('SQL injection') || ex.includes('race condition')
+        )
       ).toBe(true);
     });
   });
@@ -143,23 +191,37 @@ describe('Default Personas', () => {
     });
 
     it('should have debugging-focused expertise', () => {
-      expect(debuggerPersona.expertise.domains).toContain('Debugging techniques');
-      expect(debuggerPersona.expertise.domains).toContain('Root cause analysis');
+      expect(debuggerPersona.expertise.domains).toContain(
+        'Debugging techniques'
+      );
+      expect(debuggerPersona.expertise.domains).toContain(
+        'Root cause analysis'
+      );
       expect(debuggerPersona.expertise.skills).toContain('Pattern recognition');
-      expect(debuggerPersona.expertise.skills).toContain('Debugger tool mastery');
+      expect(debuggerPersona.expertise.skills).toContain(
+        'Debugger tool mastery'
+      );
     });
 
     it('should have systematic debugging approach', () => {
-      expect(debuggerPersona.behavior.mindset).toContain('Every bug has a logical explanation');
-      expect(debuggerPersona.behavior.methodology).toContain('Reproduce the issue consistently');
-      expect(debuggerPersona.behavior.priorities).toContain('Root cause over symptom treatment');
+      expect(debuggerPersona.behavior.mindset).toContain(
+        'Every bug has a logical explanation'
+      );
+      expect(debuggerPersona.behavior.methodology).toContain(
+        'Reproduce the issue consistently'
+      );
+      expect(debuggerPersona.behavior.priorities).toContain(
+        'Root cause over symptom treatment'
+      );
     });
 
     it('should have debugging examples', () => {
       expect(debuggerPersona.examples).toBeDefined();
       expect(debuggerPersona.examples.length).toBeGreaterThanOrEqual(2);
       expect(
-        debuggerPersona.examples.some(ex => ex.includes('Memory leak') || ex.includes('Race condition'))
+        debuggerPersona.examples.some(
+          ex => ex.includes('Memory leak') || ex.includes('Race condition')
+        )
       ).toBe(true);
     });
   });

@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { ServerConfig, PersonasMcpServer } from '../src/server.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import express, { Request, Response, Application } from 'express';
-import { createServer as createHttpServer, Server as HttpServer } from 'http';
+import express, { Request, Response } from 'express';
+import { createServer as createHttpServer } from 'http';
 import { EnhancedPersonaManager } from '../src/enhanced-persona-manager.js';
 import { RecommendationTool } from '../src/tools/recommendation-tool.js';
 
@@ -11,21 +11,21 @@ import { RecommendationTool } from '../src/tools/recommendation-tool.js';
 vi.mock('@modelcontextprotocol/sdk/server/index.js', () => ({
   Server: vi.fn().mockImplementation(() => ({
     setRequestHandler: vi.fn(),
-    connect: vi.fn().mockResolvedValue(undefined)
-  }))
+    connect: vi.fn().mockResolvedValue(undefined),
+  })),
 }));
 
 vi.mock('@modelcontextprotocol/sdk/server/streamableHttp.js', () => ({
   StreamableHTTPServerTransport: vi.fn().mockImplementation(() => ({
-    handleRequest: vi.fn().mockResolvedValue(undefined)
-  }))
+    handleRequest: vi.fn().mockResolvedValue(undefined),
+  })),
 }));
 
 vi.mock('express', () => {
   const mockApp = {
     use: vi.fn(),
     post: vi.fn(),
-    get: vi.fn()
+    get: vi.fn(),
   };
   const expressFn = vi.fn(() => mockApp);
   expressFn.json = vi.fn();
@@ -33,19 +33,19 @@ vi.mock('express', () => {
 });
 
 vi.mock('cors', () => ({
-  default: vi.fn(() => 'cors-middleware')
+  default: vi.fn(() => 'cors-middleware'),
 }));
 
 vi.mock('http', () => ({
-  createServer: vi.fn()
+  createServer: vi.fn(),
 }));
 
 vi.mock('crypto', () => ({
-  randomUUID: vi.fn(() => 'test-uuid-123')
+  randomUUID: vi.fn(() => 'test-uuid-123'),
 }));
 
 vi.mock('../src/enhanced-persona-manager.js', () => ({
-  EnhancedPersonaManager: vi.fn()
+  EnhancedPersonaManager: vi.fn(),
 }));
 
 vi.mock('../src/tools/recommendation-tool.js', () => ({
@@ -54,14 +54,14 @@ vi.mock('../src/tools/recommendation-tool.js', () => ({
       {
         name: 'recommend-persona',
         description: 'Recommend a persona',
-        inputSchema: {}
-      }
+        inputSchema: {},
+      },
     ]),
     handleToolCall: vi.fn().mockResolvedValue({
       success: true,
-      result: 'Tool executed successfully'
-    })
-  }))
+      result: 'Tool executed successfully',
+    }),
+  })),
 }));
 
 describe('PersonasMcpServer', () => {
@@ -82,11 +82,11 @@ describe('PersonasMcpServer', () => {
     mockHttpServer = {
       listen: vi.fn((port, host, callback) => callback()),
       on: vi.fn(),
-      close: vi.fn((callback) => callback())
+      close: vi.fn(callback => callback()),
     };
 
     vi.mocked(createHttpServer).mockReturnValue(mockHttpServer as any);
-    
+
     // Reset the persona manager mock for each test
     mockPersonaManager = {
       initialize: vi.fn().mockResolvedValue(undefined),
@@ -98,24 +98,51 @@ describe('PersonasMcpServer', () => {
           core: {
             identity: 'A test persona for testing purposes',
             primaryObjective: 'Test functionality',
-            constraints: ['Test constraints', 'Keep it simple', 'Follow test patterns']
+            constraints: [
+              'Test constraints',
+              'Keep it simple',
+              'Follow test patterns',
+            ],
           },
           behavior: {
             mindset: ['Test-focused', 'Systematic', 'Thorough'],
-            methodology: ['Plan tests', 'Execute tests', 'Verify results', 'Document findings'],
+            methodology: [
+              'Plan tests',
+              'Execute tests',
+              'Verify results',
+              'Document findings',
+            ],
             priorities: ['Test coverage', 'Quality', 'Reliability'],
-            antiPatterns: ['Skipping tests', 'Incomplete coverage', 'Poor documentation']
+            antiPatterns: [
+              'Skipping tests',
+              'Incomplete coverage',
+              'Poor documentation',
+            ],
           },
           expertise: {
-            domains: ['testing', 'quality assurance', 'test automation', 'verification'],
-            skills: ['test design', 'test execution', 'bug tracking', 'test documentation']
+            domains: [
+              'testing',
+              'quality assurance',
+              'test automation',
+              'verification',
+            ],
+            skills: [
+              'test design',
+              'test execution',
+              'bug tracking',
+              'test documentation',
+            ],
           },
-          decisionCriteria: ['Is it testable?', 'Does it improve quality?', 'Is it verifiable?'],
+          decisionCriteria: [
+            'Is it testable?',
+            'Does it improve quality?',
+            'Is it verifiable?',
+          ],
           examples: ['Write unit tests', 'Create test cases'],
-          tags: ['testing', 'quality', 'verification']
-        }
+          tags: ['testing', 'quality', 'verification'],
+        },
       ]),
-      getPersona: vi.fn((id) => {
+      getPersona: vi.fn(id => {
         if (id === 'test-persona') {
           return {
             id: 'test-persona',
@@ -124,44 +151,72 @@ describe('PersonasMcpServer', () => {
             core: {
               identity: 'A test persona for testing purposes',
               primaryObjective: 'Test functionality',
-              constraints: ['Test constraints', 'Keep it simple', 'Follow test patterns']
+              constraints: [
+                'Test constraints',
+                'Keep it simple',
+                'Follow test patterns',
+              ],
             },
             behavior: {
               mindset: ['Test-focused', 'Systematic', 'Thorough'],
-              methodology: ['Plan tests', 'Execute tests', 'Verify results', 'Document findings'],
+              methodology: [
+                'Plan tests',
+                'Execute tests',
+                'Verify results',
+                'Document findings',
+              ],
               priorities: ['Test coverage', 'Quality', 'Reliability'],
-              antiPatterns: ['Skipping tests', 'Incomplete coverage', 'Poor documentation']
+              antiPatterns: [
+                'Skipping tests',
+                'Incomplete coverage',
+                'Poor documentation',
+              ],
             },
             expertise: {
-              domains: ['testing', 'quality assurance', 'test automation', 'verification'],
-              skills: ['test design', 'test execution', 'bug tracking', 'test documentation']
+              domains: [
+                'testing',
+                'quality assurance',
+                'test automation',
+                'verification',
+              ],
+              skills: [
+                'test design',
+                'test execution',
+                'bug tracking',
+                'test documentation',
+              ],
             },
-            decisionCriteria: ['Is it testable?', 'Does it improve quality?', 'Is it verifiable?'],
+            decisionCriteria: [
+              'Is it testable?',
+              'Does it improve quality?',
+              'Is it verifiable?',
+            ],
             examples: ['Write unit tests', 'Create test cases'],
-            tags: ['testing', 'quality', 'verification']
+            tags: ['testing', 'quality', 'verification'],
           };
         }
         return null;
       }),
-      generatePrompt: vi.fn((persona, context) => `Generated prompt for ${persona.name} with context: ${context}`),
+      generatePrompt: vi.fn(
+        (persona, context) =>
+          `Generated prompt for ${persona.name} with context: ${context}`
+      ),
       getPersonaInfo: vi.fn(() => ({
         statistics: {
           total: 5,
           valid: 4,
-          invalid: 1
+          invalid: 1,
         },
-        conflicts: [
-          { id: 'conflict-1', sources: ['source1', 'source2'] }
-        ],
-        invalid: [
-          { id: 'invalid-1', errors: ['Error 1', 'Error 2'] }
-        ]
+        conflicts: [{ id: 'conflict-1', sources: ['source1', 'source2'] }],
+        invalid: [{ id: 'invalid-1', errors: ['Error 1', 'Error 2'] }],
       })),
-      shutdown: vi.fn().mockResolvedValue(undefined)
+      shutdown: vi.fn().mockResolvedValue(undefined),
     };
-    
-    vi.mocked(EnhancedPersonaManager).mockImplementation(() => mockPersonaManager);
-    
+
+    vi.mocked(EnhancedPersonaManager).mockImplementation(
+      () => mockPersonaManager
+    );
+
     vi.clearAllMocks();
   });
 
@@ -172,22 +227,22 @@ describe('PersonasMcpServer', () => {
 
   describe('constructor', () => {
     it('should create server with default config', () => {
-      const server = new PersonasMcpServer();
-      
+      const _server = new PersonasMcpServer();
+
       expect(Server).toHaveBeenCalledWith(
         {
           name: 'personas-mcp',
-          version: '1.0.0'
+          version: '1.0.0',
         },
         {
           capabilities: {
             resources: {},
             prompts: {},
-            tools: {}
-          }
+            tools: {},
+          },
         }
       );
-      
+
       expect(EnhancedPersonaManager).toHaveBeenCalledWith(undefined);
       expect(RecommendationTool).toHaveBeenCalled();
     });
@@ -202,21 +257,23 @@ describe('PersonasMcpServer', () => {
         http: {
           enableCors: false,
           allowedOrigins: ['http://localhost:3000'],
-          endpoint: '/custom-mcp'
-        }
+          endpoint: '/custom-mcp',
+        },
       };
-      
-      const server = new PersonasMcpServer(config);
-      
+
+      const _server = new PersonasMcpServer(config);
+
       expect(Server).toHaveBeenCalledWith(
         {
           name: 'custom-server',
-          version: '2.0.0'
+          version: '2.0.0',
         },
         expect.any(Object)
       );
-      
-      expect(EnhancedPersonaManager).toHaveBeenCalledWith({ watchDirs: ['./custom'] });
+
+      expect(EnhancedPersonaManager).toHaveBeenCalledWith({
+        watchDirs: ['./custom'],
+      });
     });
   });
 
@@ -231,9 +288,9 @@ describe('PersonasMcpServer', () => {
         setRequestHandler: vi.fn((schema, handler) => {
           handlers.set(schema, handler);
         }),
-        connect: vi.fn().mockResolvedValue(undefined)
+        connect: vi.fn().mockResolvedValue(undefined),
       };
-      
+
       vi.mocked(Server).mockImplementation(() => mockServer);
       server = new PersonasMcpServer();
     });
@@ -243,16 +300,16 @@ describe('PersonasMcpServer', () => {
       const handlersArray = Array.from(handlers.values());
       const handler = handlersArray[0];
       const result = await handler({ params: {} });
-      
+
       expect(result).toEqual({
         resources: [
           {
             uri: 'persona://test-persona',
             name: 'Test Persona',
             description: 'A test persona for testing purposes',
-            mimeType: 'application/json'
-          }
-        ]
+            mimeType: 'application/json',
+          },
+        ],
       });
     });
 
@@ -261,43 +318,76 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
-      
+
       // The second handler is ReadResourceRequest
       const handler = handlers[1];
-      const result = await handler({ params: { uri: 'persona://test-persona' } });
-      
+      const result = await handler({
+        params: { uri: 'persona://test-persona' },
+      });
+
       expect(result).toEqual({
         contents: [
           {
             uri: 'persona://test-persona',
             mimeType: 'application/json',
-            text: JSON.stringify({
-              id: 'test-persona',
-              name: 'Test Persona',
-              role: 'tester',
-              core: {
-                identity: 'A test persona for testing purposes',
-                primaryObjective: 'Test functionality',
-                constraints: ['Test constraints', 'Keep it simple', 'Follow test patterns']
+            text: JSON.stringify(
+              {
+                id: 'test-persona',
+                name: 'Test Persona',
+                role: 'tester',
+                core: {
+                  identity: 'A test persona for testing purposes',
+                  primaryObjective: 'Test functionality',
+                  constraints: [
+                    'Test constraints',
+                    'Keep it simple',
+                    'Follow test patterns',
+                  ],
+                },
+                behavior: {
+                  mindset: ['Test-focused', 'Systematic', 'Thorough'],
+                  methodology: [
+                    'Plan tests',
+                    'Execute tests',
+                    'Verify results',
+                    'Document findings',
+                  ],
+                  priorities: ['Test coverage', 'Quality', 'Reliability'],
+                  antiPatterns: [
+                    'Skipping tests',
+                    'Incomplete coverage',
+                    'Poor documentation',
+                  ],
+                },
+                expertise: {
+                  domains: [
+                    'testing',
+                    'quality assurance',
+                    'test automation',
+                    'verification',
+                  ],
+                  skills: [
+                    'test design',
+                    'test execution',
+                    'bug tracking',
+                    'test documentation',
+                  ],
+                },
+                decisionCriteria: [
+                  'Is it testable?',
+                  'Does it improve quality?',
+                  'Is it verifiable?',
+                ],
+                examples: ['Write unit tests', 'Create test cases'],
+                tags: ['testing', 'quality', 'verification'],
               },
-              behavior: {
-                mindset: ['Test-focused', 'Systematic', 'Thorough'],
-                methodology: ['Plan tests', 'Execute tests', 'Verify results', 'Document findings'],
-                priorities: ['Test coverage', 'Quality', 'Reliability'],
-                antiPatterns: ['Skipping tests', 'Incomplete coverage', 'Poor documentation']
-              },
-              expertise: {
-                domains: ['testing', 'quality assurance', 'test automation', 'verification'],
-                skills: ['test design', 'test execution', 'bug tracking', 'test documentation']
-              },
-              decisionCriteria: ['Is it testable?', 'Does it improve quality?', 'Is it verifiable?'],
-              examples: ['Write unit tests', 'Create test cases'],
-              tags: ['testing', 'quality', 'verification']
-            }, null, 2)
-          }
-        ]
+              null,
+              2
+            ),
+          },
+        ],
       });
     });
 
@@ -306,12 +396,13 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[1];
-      
-      await expect(handler({ params: { uri: 'invalid://uri' } }))
-        .rejects.toThrow('Invalid persona URI: invalid://uri');
+
+      await expect(
+        handler({ params: { uri: 'invalid://uri' } })
+      ).rejects.toThrow('Invalid persona URI: invalid://uri');
     });
 
     it('should handle ReadResourceRequest with non-existent persona', async () => {
@@ -319,12 +410,13 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[1];
-      
-      await expect(handler({ params: { uri: 'persona://non-existent' } }))
-        .rejects.toThrow('Persona not found: non-existent');
+
+      await expect(
+        handler({ params: { uri: 'persona://non-existent' } })
+      ).rejects.toThrow('Persona not found: non-existent');
     });
 
     it('should handle ListPromptsRequest', async () => {
@@ -332,11 +424,11 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[2]; // Third handler is ListPromptsRequest
       const result = await handler({ params: {} });
-      
+
       expect(result).toEqual({
         prompts: [
           {
@@ -346,11 +438,11 @@ describe('PersonasMcpServer', () => {
               {
                 name: 'context',
                 description: 'The specific problem or task context',
-                required: false
-              }
-            ]
-          }
-        ]
+                required: false,
+              },
+            ],
+          },
+        ],
       });
     });
 
@@ -359,16 +451,16 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[3]; // Fourth handler is GetPromptRequest
-      const result = await handler({ 
-        params: { 
+      const result = await handler({
+        params: {
           name: 'adopt-persona-test-persona',
-          arguments: { context: 'test context' }
-        } 
+          arguments: { context: 'test context' },
+        },
       });
-      
+
       expect(result).toEqual({
         description: 'Test Persona persona prompt',
         messages: [
@@ -376,10 +468,10 @@ describe('PersonasMcpServer', () => {
             role: 'user',
             content: {
               type: 'text',
-              text: 'Generated prompt for Test Persona with context: test context'
-            }
-          }
-        ]
+              text: 'Generated prompt for Test Persona with context: test context',
+            },
+          },
+        ],
       });
     });
 
@@ -388,16 +480,18 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[3];
-      const result = await handler({ 
-        params: { 
-          name: 'adopt-persona-test-persona'
-        } 
+      const result = await handler({
+        params: {
+          name: 'adopt-persona-test-persona',
+        },
       });
-      
-      expect(result.messages[0].content.text).toContain('Generated prompt for Test Persona with context: ');
+
+      expect(result.messages[0].content.text).toContain(
+        'Generated prompt for Test Persona with context: '
+      );
     });
 
     it('should handle GetPromptRequest with invalid prompt name', async () => {
@@ -405,12 +499,13 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[3];
-      
-      await expect(handler({ params: { name: 'invalid-prompt' } }))
-        .rejects.toThrow('Invalid prompt name: invalid-prompt');
+
+      await expect(
+        handler({ params: { name: 'invalid-prompt' } })
+      ).rejects.toThrow('Invalid prompt name: invalid-prompt');
     });
 
     it('should handle GetPromptRequest with non-existent persona', async () => {
@@ -418,12 +513,13 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[3];
-      
-      await expect(handler({ params: { name: 'adopt-persona-non-existent' } }))
-        .rejects.toThrow('Persona not found: non-existent');
+
+      await expect(
+        handler({ params: { name: 'adopt-persona-non-existent' } })
+      ).rejects.toThrow('Persona not found: non-existent');
     });
 
     it('should handle ListToolsRequest', async () => {
@@ -431,19 +527,19 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[4]; // Fifth handler is ListToolsRequest
       const result = await handler({ params: {} });
-      
+
       expect(result).toEqual({
         tools: [
           {
             name: 'recommend-persona',
             description: 'Recommend a persona',
-            inputSchema: {}
-          }
-        ]
+            inputSchema: {},
+          },
+        ],
       });
     });
 
@@ -452,26 +548,30 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[5]; // Sixth handler is CallToolRequest
-      const result = await handler({ 
-        params: { 
+      const result = await handler({
+        params: {
           name: 'recommend-persona',
-          arguments: { task: 'test task' }
-        } 
+          arguments: { task: 'test task' },
+        },
       });
-      
+
       expect(result).toEqual({
         content: [
           {
             type: 'text',
-            text: JSON.stringify({
-              success: true,
-              result: 'Tool executed successfully'
-            }, null, 2)
-          }
-        ]
+            text: JSON.stringify(
+              {
+                success: true,
+                result: 'Tool executed successfully',
+              },
+              null,
+              2
+            ),
+          },
+        ],
       });
     });
 
@@ -480,25 +580,29 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
       const handler = handlers[5];
-      const result = await handler({ 
-        params: { 
-          name: 'recommend-persona'
-        } 
+      const result = await handler({
+        params: {
+          name: 'recommend-persona',
+        },
       });
-      
+
       expect(result).toEqual({
         content: [
           {
             type: 'text',
-            text: JSON.stringify({
-              success: true,
-              result: 'Tool executed successfully'
-            }, null, 2)
-          }
-        ]
+            text: JSON.stringify(
+              {
+                success: true,
+                result: 'Tool executed successfully',
+              },
+              null,
+              2
+            ),
+          },
+        ],
       });
     });
 
@@ -507,32 +611,38 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
-      
+
       // Mock tool to throw error
       const mockTool = vi.mocked(server['recommendationTool']);
-      mockTool.handleToolCall = vi.fn().mockRejectedValue(new Error('Tool error'));
-      
+      mockTool.handleToolCall = vi
+        .fn()
+        .mockRejectedValue(new Error('Tool error'));
+
       const handler = handlers[5];
-      const result = await handler({ 
-        params: { 
+      const result = await handler({
+        params: {
           name: 'recommend-persona',
-          arguments: { task: 'test task' }
-        } 
+          arguments: { task: 'test task' },
+        },
       });
-      
+
       expect(result).toEqual({
         content: [
           {
             type: 'text',
-            text: JSON.stringify({
-              success: false,
-              error: 'Tool error'
-            }, null, 2)
-          }
+            text: JSON.stringify(
+              {
+                success: false,
+                error: 'Tool error',
+              },
+              null,
+              2
+            ),
+          },
         ],
-        isError: true
+        isError: true,
       });
     });
 
@@ -541,32 +651,36 @@ describe('PersonasMcpServer', () => {
       mockServer.setRequestHandler.mockImplementation((schema, handler) => {
         handlers.push(handler);
       });
-      
+
       server = new PersonasMcpServer();
-      
+
       // Mock tool to throw non-Error
       const mockTool = vi.mocked(server['recommendationTool']);
       mockTool.handleToolCall = vi.fn().mockRejectedValue('String error');
-      
+
       const handler = handlers[5];
-      const result = await handler({ 
-        params: { 
+      const result = await handler({
+        params: {
           name: 'recommend-persona',
-          arguments: { task: 'test task' }
-        } 
+          arguments: { task: 'test task' },
+        },
       });
-      
+
       expect(result).toEqual({
         content: [
           {
             type: 'text',
-            text: JSON.stringify({
-              success: false,
-              error: 'Unknown error occurred'
-            }, null, 2)
-          }
+            text: JSON.stringify(
+              {
+                success: false,
+                error: 'Unknown error occurred',
+              },
+              null,
+              2
+            ),
+          },
         ],
-        isError: true
+        isError: true,
       });
     });
   });
@@ -575,13 +689,25 @@ describe('PersonasMcpServer', () => {
     it('should initialize and log persona information', async () => {
       const server = new PersonasMcpServer();
       await server.initialize();
-      
-      expect(mockConsoleError).toHaveBeenCalledWith('Initializing Personas MCP Server...');
-      expect(mockConsoleError).toHaveBeenCalledWith('Loaded 5 personas (4 valid)');
-      expect(mockConsoleError).toHaveBeenCalledWith('Found 1 persona conflicts:');
-      expect(mockConsoleError).toHaveBeenCalledWith('  - conflict-1: source1 > source2');
-      expect(mockConsoleError).toHaveBeenCalledWith('Found 1 invalid personas:');
-      expect(mockConsoleError).toHaveBeenCalledWith('  - invalid-1: Error 1, Error 2');
+
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Initializing Personas MCP Server...'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Loaded 5 personas (4 valid)'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Found 1 persona conflicts:'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '  - conflict-1: source1 > source2'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Found 1 invalid personas:'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '  - invalid-1: Error 1, Error 2'
+      );
     });
 
     it('should initialize without conflicts or invalid personas', async () => {
@@ -591,36 +717,56 @@ describe('PersonasMcpServer', () => {
           statistics: {
             total: 3,
             valid: 3,
-            invalid: 0
+            invalid: 0,
           },
           conflicts: [],
-          invalid: []
-        }))
+          invalid: [],
+        })),
       };
-      
-      vi.mocked(EnhancedPersonaManager).mockImplementation(() => mockManager as any);
-      
+
+      vi.mocked(EnhancedPersonaManager).mockImplementation(
+        () => mockManager as any
+      );
+
       const server = new PersonasMcpServer();
       await server.initialize();
-      
-      expect(mockConsoleError).toHaveBeenCalledWith('Initializing Personas MCP Server...');
-      expect(mockConsoleError).toHaveBeenCalledWith('Loaded 3 personas (3 valid)');
-      expect(mockConsoleError).not.toHaveBeenCalledWith(expect.stringContaining('conflicts'));
-      expect(mockConsoleError).not.toHaveBeenCalledWith(expect.stringContaining('invalid'));
+
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Initializing Personas MCP Server...'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Loaded 3 personas (3 valid)'
+      );
+      expect(mockConsoleError).not.toHaveBeenCalledWith(
+        expect.stringContaining('conflicts')
+      );
+      expect(mockConsoleError).not.toHaveBeenCalledWith(
+        expect.stringContaining('invalid')
+      );
     });
   });
 
   describe('HTTP server', () => {
     it('should run HTTP server with default config', async () => {
       const server = new PersonasMcpServer();
-      const runPromise = server.run();
-      
+      void server.run();
+
       await new Promise(resolve => setTimeout(resolve, 10));
-      
-      expect(mockHttpServer.listen).toHaveBeenCalledWith(3000, 'localhost', expect.any(Function));
-      expect(mockConsoleError).toHaveBeenCalledWith('Personas MCP server running on http://localhost:3000');
-      expect(mockConsoleError).toHaveBeenCalledWith('MCP endpoint: http://localhost:3000/mcp');
-      expect(mockConsoleError).toHaveBeenCalledWith('Health check: http://localhost:3000/health');
+
+      expect(mockHttpServer.listen).toHaveBeenCalledWith(
+        3000,
+        'localhost',
+        expect.any(Function)
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Personas MCP server running on http://localhost:3000'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'MCP endpoint: http://localhost:3000/mcp'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Health check: http://localhost:3000/health'
+      );
     });
 
     it('should run HTTP server with custom config', async () => {
@@ -628,37 +774,45 @@ describe('PersonasMcpServer', () => {
         port: 8080,
         host: '0.0.0.0',
         http: {
-          endpoint: '/custom'
-        }
+          endpoint: '/custom',
+        },
       };
-      
+
       const server = new PersonasMcpServer(config);
-      const runPromise = server.run();
-      
+      void server.run();
+
       await new Promise(resolve => setTimeout(resolve, 10));
-      
-      expect(mockHttpServer.listen).toHaveBeenCalledWith(8080, '0.0.0.0', expect.any(Function));
-      expect(mockConsoleError).toHaveBeenCalledWith('Personas MCP server running on http://0.0.0.0:8080');
-      expect(mockConsoleError).toHaveBeenCalledWith('MCP endpoint: http://0.0.0.0:8080/custom');
+
+      expect(mockHttpServer.listen).toHaveBeenCalledWith(
+        8080,
+        '0.0.0.0',
+        expect.any(Function)
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Personas MCP server running on http://0.0.0.0:8080'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'MCP endpoint: http://0.0.0.0:8080/custom'
+      );
     });
 
     it('should configure CORS when enabled', async () => {
       const mockApp = {
         use: vi.fn(),
         post: vi.fn(),
-        get: vi.fn()
+        get: vi.fn(),
       };
       vi.mocked(express).mockReturnValue(mockApp as any);
-      
+
       const server = new PersonasMcpServer({
         http: {
           enableCors: true,
-          allowedOrigins: ['http://example.com']
-        }
+          allowedOrigins: ['http://example.com'],
+        },
       });
-      
+
       await server.run();
-      
+
       expect(mockApp.use).toHaveBeenCalledWith('cors-middleware');
     });
 
@@ -666,42 +820,42 @@ describe('PersonasMcpServer', () => {
       const mockApp = {
         use: vi.fn(),
         post: vi.fn(),
-        get: vi.fn()
+        get: vi.fn(),
       };
       vi.mocked(express).mockReturnValue(mockApp as any);
-      
+
       const server = new PersonasMcpServer({
         http: {
-          enableCors: false
-        }
+          enableCors: false,
+        },
       });
-      
+
       await server.run();
-      
+
       expect(mockApp.use).not.toHaveBeenCalledWith('cors-middleware');
     });
 
     it('should handle HTTP server error', async () => {
-      mockHttpServer.listen.mockImplementation((port, host, callback) => {
+      mockHttpServer.listen.mockImplementation(() => {
         // Don't call callback immediately
       });
-      
+
       mockHttpServer.on.mockImplementation((event, handler) => {
         if (event === 'error') {
           setTimeout(() => handler(new Error('Port in use')), 10);
         }
       });
-      
+
       const server = new PersonasMcpServer();
-      
+
       await expect(server.run()).rejects.toThrow('Port in use');
     });
 
     it('should reject if HTTP server is not initialized', async () => {
       vi.mocked(createHttpServer).mockReturnValue(null as any);
-      
+
       const server = new PersonasMcpServer();
-      
+
       await expect(server.run()).rejects.toThrow('HTTP server not initialized');
     });
   });
@@ -724,9 +878,9 @@ describe('PersonasMcpServer', () => {
           if (!routes.has('get')) routes.set('get', new Map());
           const handler = handlers[handlers.length - 1];
           routes.get('get')!.set(path, handler);
-        })
+        }),
       };
-      
+
       vi.mocked(express).mockReturnValue(mockApp);
       vi.mocked(express.json).mockReturnValue('json-middleware' as any);
     });
@@ -734,67 +888,80 @@ describe('PersonasMcpServer', () => {
     it('should handle POST /mcp endpoint', async () => {
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
         headersSent: false,
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       } as any as Response;
-      
+
       const handler = routes.get('post')!.get('/mcp');
       await handler(mockReq, mockRes);
-      
-      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock.results[0].value;
-      expect(mockTransport.handleRequest).toHaveBeenCalledWith(mockReq, mockRes);
+
+      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock
+        .results[0].value;
+      expect(mockTransport.handleRequest).toHaveBeenCalledWith(
+        mockReq,
+        mockRes
+      );
     });
 
     it('should handle POST /mcp endpoint error', async () => {
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
         headersSent: false,
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       } as any as Response;
-      
-      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock.results[0].value;
-      mockTransport.handleRequest = vi.fn().mockRejectedValue(new Error('Transport error'));
-      
+
+      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock
+        .results[0].value;
+      mockTransport.handleRequest = vi
+        .fn()
+        .mockRejectedValue(new Error('Transport error'));
+
       const handler = routes.get('post')!.get('/mcp');
       await handler(mockReq, mockRes);
-      
-      expect(mockConsoleError).toHaveBeenCalledWith('Error handling MCP request:', expect.any(Error));
+
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Error handling MCP request:',
+        expect.any(Error)
+      );
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         error: {
           code: -32603,
-          message: 'Internal server error'
+          message: 'Internal server error',
         },
-        id: null
+        id: null,
       });
     });
 
     it('should not send response if headers already sent', async () => {
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
         headersSent: true,
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       } as any as Response;
-      
-      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock.results[0].value;
-      mockTransport.handleRequest = vi.fn().mockRejectedValue(new Error('Transport error'));
-      
+
+      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock
+        .results[0].value;
+      mockTransport.handleRequest = vi
+        .fn()
+        .mockRejectedValue(new Error('Transport error'));
+
       const handler = routes.get('post')!.get('/mcp');
       await handler(mockReq, mockRes);
-      
+
       expect(mockRes.status).not.toHaveBeenCalled();
       expect(mockRes.json).not.toHaveBeenCalled();
     });
@@ -802,39 +969,49 @@ describe('PersonasMcpServer', () => {
     it('should handle GET /mcp endpoint', async () => {
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
         headersSent: false,
         status: vi.fn().mockReturnThis(),
-        send: vi.fn()
+        send: vi.fn(),
       } as any as Response;
-      
+
       const handler = routes.get('get')!.get('/mcp');
       await handler(mockReq, mockRes);
-      
-      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock.results[0].value;
-      expect(mockTransport.handleRequest).toHaveBeenCalledWith(mockReq, mockRes);
+
+      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock
+        .results[0].value;
+      expect(mockTransport.handleRequest).toHaveBeenCalledWith(
+        mockReq,
+        mockRes
+      );
     });
 
     it('should handle GET /mcp endpoint error', async () => {
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
         headersSent: false,
         status: vi.fn().mockReturnThis(),
-        send: vi.fn()
+        send: vi.fn(),
       } as any as Response;
-      
-      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock.results[0].value;
-      mockTransport.handleRequest = vi.fn().mockRejectedValue(new Error('Stream error'));
-      
+
+      const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock
+        .results[0].value;
+      mockTransport.handleRequest = vi
+        .fn()
+        .mockRejectedValue(new Error('Stream error'));
+
       const handler = routes.get('get')!.get('/mcp');
       await handler(mockReq, mockRes);
-      
-      expect(mockConsoleError).toHaveBeenCalledWith('Error handling MCP streaming request:', expect.any(Error));
+
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Error handling MCP streaming request:',
+        expect.any(Error)
+      );
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.send).toHaveBeenCalledWith('Internal server error');
     });
@@ -842,42 +1019,44 @@ describe('PersonasMcpServer', () => {
     it('should handle GET /sse with deprecation message', async () => {
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       } as any as Response;
-      
+
       const handler = routes.get('get')!.get('/sse');
       handler(mockReq, mockRes);
-      
+
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
+        error:
+          'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
         endpoint: '/mcp',
-        transport: 'streamable-http'
+        transport: 'streamable-http',
       });
     });
 
     it('should handle POST /sse with deprecation message', async () => {
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
         status: vi.fn().mockReturnThis(),
-        json: vi.fn()
+        json: vi.fn(),
       } as any as Response;
-      
+
       const handler = routes.get('post')!.get('/sse');
       handler(mockReq, mockRes);
-      
+
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
+        error:
+          'SSE transport is deprecated. Please use the streamable HTTP endpoint at /mcp',
         endpoint: '/mcp',
-        transport: 'streamable-http'
+        transport: 'streamable-http',
       });
     });
 
@@ -887,91 +1066,90 @@ describe('PersonasMcpServer', () => {
         statistics: {
           total: 5,
           valid: 4,
-          invalid: 1
+          invalid: 1,
         },
-        conflicts: [
-          { id: 'conflict-1', sources: ['source1', 'source2'] }
-        ],
-        invalid: [
-          { id: 'invalid-1', errors: ['Error 1', 'Error 2'] }
-        ]
+        conflicts: [{ id: 'conflict-1', sources: ['source1', 'source2'] }],
+        invalid: [{ id: 'invalid-1', errors: ['Error 1', 'Error 2'] }],
       }));
-      
+
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
-        json: vi.fn()
+        json: vi.fn(),
       } as any as Response;
-      
+
       const handler = routes.get('get')!.get('/health');
       handler(mockReq, mockRes);
-      
+
       expect(mockRes.json).toHaveBeenCalledWith({
         status: 'healthy',
         server: {
           name: 'personas-mcp',
           version: '1.0.0',
           transport: 'http',
-          endpoint: '/mcp'
+          endpoint: '/mcp',
         },
         personas: {
           total: 5,
           valid: 4,
           invalid: 1,
-          conflicts: 1
-        }
+          conflicts: 1,
+        },
       });
     });
 
     it('should handle GET /ready endpoint', async () => {
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
-        json: vi.fn()
+        json: vi.fn(),
       } as any as Response;
-      
+
       const handler = routes.get('get')!.get('/ready');
       handler(mockReq, mockRes);
-      
+
       expect(mockRes.json).toHaveBeenCalledWith({
         ready: true,
         server: 'connected',
         transport: 'streamable-http',
-        timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
+        timestamp: expect.stringMatching(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
+        ),
       });
     });
 
     it('should handle GET / endpoint', async () => {
       server = new PersonasMcpServer();
       await server.run();
-      
+
       const mockReq = {} as Request;
       const mockRes = {
-        json: vi.fn()
+        json: vi.fn(),
       } as any as Response;
-      
+
       const handler = routes.get('get')!.get('/');
       handler(mockReq, mockRes);
-      
+
       expect(mockRes.json).toHaveBeenCalledWith({
         name: 'personas-mcp',
         version: '1.0.0',
-        description: 'MCP server providing prompt personas for LLM problem-solving assistance',
+        description:
+          'MCP server providing prompt personas for LLM problem-solving assistance',
         transport: 'http',
         endpoints: {
           mcp: '/mcp',
           health: '/health',
-          ready: '/ready'
+          ready: '/ready',
         },
         features: {
           cors: true,
           fileWatching: true,
-          yamlPersonas: true
-        }
+          yamlPersonas: true,
+        },
       });
     });
   });
@@ -980,42 +1158,47 @@ describe('PersonasMcpServer', () => {
     it('should shutdown server and HTTP server', async () => {
       const server = new PersonasMcpServer();
       await server.run();
-      
+
       // Clear previous console.error calls from run()
       mockConsoleError.mockClear();
-      
+
       await server.shutdown();
-      
+
       expect(mockHttpServer.close).toHaveBeenCalled();
       expect(mockConsoleError).toHaveBeenCalledWith('HTTP server closed');
       // Note: "Personas MCP server shutdown complete" is NOT logged when HTTP server exists
       // because the function returns inside the HTTP server close callback
-      
+
       expect(mockPersonaManager.shutdown).toHaveBeenCalled();
     });
 
     it('should shutdown without HTTP server', async () => {
       const server = new PersonasMcpServer();
       // Don't run the server, so HTTP server is not created
-      
+
       await server.shutdown();
-      
-      expect(mockConsoleError).toHaveBeenCalledWith('Personas MCP server shutdown complete');
-      
-      const mockManager = vi.mocked(EnhancedPersonaManager).mock.results[0].value;
+
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Personas MCP server shutdown complete'
+      );
+
+      const mockManager = vi.mocked(EnhancedPersonaManager).mock.results[0]
+        .value;
       expect(mockManager.shutdown).toHaveBeenCalled();
     });
 
     it('should handle shutdown when httpServer becomes null', async () => {
       const server = new PersonasMcpServer();
       await server.run();
-      
+
       // Simulate httpServer becoming null during shutdown
       server['httpServer'] = null as any;
-      
+
       await server.shutdown();
-      
-      expect(mockConsoleError).toHaveBeenCalledWith('Personas MCP server shutdown complete');
+
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Personas MCP server shutdown complete'
+      );
     });
   });
 });

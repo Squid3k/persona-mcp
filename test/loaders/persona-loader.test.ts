@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { PersonaLoader } from '../../src/loaders/persona-loader.js';
-import { PersonaSource, LoadedPersona, YamlPersonaSchema } from '../../src/types/yaml-persona.js';
+import { YamlPersonaSchema } from '../../src/types/yaml-persona.js';
 import fs from 'fs/promises';
 import path from 'path';
 import * as YAML from 'yaml';
@@ -16,8 +16,8 @@ vi.mock('fast-glob');
 // Mock YamlPersonaSchema
 vi.mock('../../src/types/yaml-persona.js', () => ({
   YamlPersonaSchema: {
-    parse: vi.fn()
-  }
+    parse: vi.fn(),
+  },
 }));
 
 describe('PersonaLoader', () => {
@@ -32,22 +32,39 @@ describe('PersonaLoader', () => {
     core: {
       identity: 'A test persona',
       primaryObjective: 'Ensure quality through testing',
-      constraints: ['Test thoroughly', 'Follow best practices', 'Document results']
+      constraints: [
+        'Test thoroughly',
+        'Follow best practices',
+        'Document results',
+      ],
     },
     behavior: {
       mindset: ['Quality-focused', 'Methodical', 'Detail-oriented'],
-      methodology: ['Plan tests', 'Execute tests', 'Analyze results', 'Report findings'],
+      methodology: [
+        'Plan tests',
+        'Execute tests',
+        'Analyze results',
+        'Report findings',
+      ],
       priorities: ['Test coverage', 'Bug detection', 'Quality assurance'],
-      antiPatterns: ['Skipping tests', 'Incomplete coverage', 'Poor documentation']
+      antiPatterns: [
+        'Skipping tests',
+        'Incomplete coverage',
+        'Poor documentation',
+      ],
     },
     expertise: {
       domains: ['testing'],
-      skills: ['test automation']
+      skills: ['test automation'],
     },
-    decisionCriteria: ['Is it testable?', 'Does it improve quality?', 'Is coverage adequate?'],
+    decisionCriteria: [
+      'Is it testable?',
+      'Does it improve quality?',
+      'Is coverage adequate?',
+    ],
     examples: ['Write unit tests', 'Create integration tests'],
     tags: ['test'],
-    version: '1.0'
+    version: '1.0',
   };
 
   beforeEach(() => {
@@ -64,7 +81,7 @@ describe('PersonaLoader', () => {
       }
       return filePath.split('/').pop() || 'test.yaml';
     });
-    vi.mocked(path.extname).mockImplementation((filePath) => {
+    vi.mocked(path.extname).mockImplementation(filePath => {
       if (filePath.endsWith('.yaml')) return '.yaml';
       if (filePath.endsWith('.yml')) return '.yml';
       return '';
@@ -83,7 +100,7 @@ describe('PersonaLoader', () => {
       const mockFiles = [
         '/path/to/persona1.yaml',
         '/path/to/persona2.yml',
-        '/path/to/subdir/persona3.yaml'
+        '/path/to/subdir/persona3.yaml',
       ];
 
       vi.mocked(fs.access).mockResolvedValue(undefined);
@@ -96,7 +113,7 @@ describe('PersonaLoader', () => {
         cwd: '/path/to',
         absolute: true,
         onlyFiles: true,
-        ignore: ['**/node_modules/**', '**/.git/**']
+        ignore: ['**/node_modules/**', '**/.git/**'],
       });
       expect(result).toEqual(mockFiles);
     });
@@ -120,7 +137,7 @@ describe('PersonaLoader', () => {
 
   describe('loadPersonaFromFile', () => {
     const mockStats = {
-      mtime: new Date('2023-01-01T00:00:00Z')
+      mtime: new Date('2023-01-01T00:00:00Z'),
     };
 
     beforeEach(() => {
@@ -129,16 +146,21 @@ describe('PersonaLoader', () => {
 
     it('should load valid persona from file', async () => {
       const yamlContent = 'id: test-persona\nname: Test Persona\n';
-      
+
       vi.mocked(fs.readFile).mockResolvedValue(yamlContent);
       vi.mocked(YAML.parse).mockReturnValue(validPersonaData);
       vi.mocked(YamlPersonaSchema.parse).mockReturnValue(validPersonaData);
 
-      const result = await loader.loadPersonaFromFile('/path/to/test.yaml', 'user');
+      const result = await loader.loadPersonaFromFile(
+        '/path/to/test.yaml',
+        'user'
+      );
 
       expect(fs.readFile).toHaveBeenCalledWith('/path/to/test.yaml', 'utf-8');
       expect(YAML.parse).toHaveBeenCalledWith(yamlContent);
-      expect(vi.mocked(YamlPersonaSchema.parse)).toHaveBeenCalledWith(validPersonaData);
+      expect(vi.mocked(YamlPersonaSchema.parse)).toHaveBeenCalledWith(
+        validPersonaData
+      );
       expect(fs.stat).toHaveBeenCalledWith('/path/to/test.yaml');
 
       expect(result).toEqual({
@@ -146,16 +168,19 @@ describe('PersonaLoader', () => {
         source: {
           type: 'user',
           filePath: '/path/to/test.yaml',
-          lastModified: mockStats.mtime
+          lastModified: mockStats.mtime,
         },
-        isValid: true
+        isValid: true,
       });
     });
 
     it('should handle file read error', async () => {
       vi.mocked(fs.readFile).mockRejectedValue(new Error('File not found'));
 
-      const result = await loader.loadPersonaFromFile('/path/to/test.yaml', 'user');
+      const result = await loader.loadPersonaFromFile(
+        '/path/to/test.yaml',
+        'user'
+      );
 
       expect(result).toEqual({
         id: 'test',
@@ -164,17 +189,17 @@ describe('PersonaLoader', () => {
         core: {
           identity: 'This persona failed validation and cannot be used.',
           primaryObjective: 'N/A - Invalid persona',
-          constraints: ['Invalid persona - cannot be used']
+          constraints: ['Invalid persona - cannot be used'],
         },
         behavior: {
           mindset: ['Invalid'],
           methodology: ['Invalid'],
           priorities: ['Invalid'],
-          antiPatterns: ['Invalid']
+          antiPatterns: ['Invalid'],
         },
         expertise: {
           domains: [],
-          skills: []
+          skills: [],
         },
         decisionCriteria: ['Invalid'],
         examples: [],
@@ -182,10 +207,10 @@ describe('PersonaLoader', () => {
         version: '1.0',
         source: {
           type: 'user',
-          filePath: '/path/to/test.yaml'
+          filePath: '/path/to/test.yaml',
         },
         isValid: false,
-        validationErrors: ['File not found']
+        validationErrors: ['File not found'],
       });
     });
 
@@ -200,7 +225,10 @@ describe('PersonaLoader', () => {
         throw yamlError;
       });
 
-      const result = await loader.loadPersonaFromFile('/path/to/test.yaml', 'user');
+      const result = await loader.loadPersonaFromFile(
+        '/path/to/test.yaml',
+        'user'
+      );
 
       expect(result).toEqual({
         id: 'test',
@@ -209,17 +237,17 @@ describe('PersonaLoader', () => {
         core: {
           identity: 'This persona failed validation and cannot be used.',
           primaryObjective: 'N/A - Invalid persona',
-          constraints: ['Invalid persona - cannot be used']
+          constraints: ['Invalid persona - cannot be used'],
         },
         behavior: {
           mindset: ['Invalid'],
           methodology: ['Invalid'],
           priorities: ['Invalid'],
-          antiPatterns: ['Invalid']
+          antiPatterns: ['Invalid'],
         },
         expertise: {
           domains: [],
-          skills: []
+          skills: [],
         },
         decisionCriteria: ['Invalid'],
         examples: [],
@@ -227,10 +255,10 @@ describe('PersonaLoader', () => {
         version: '1.0',
         source: {
           type: 'user',
-          filePath: '/path/to/test.yaml'
+          filePath: '/path/to/test.yaml',
         },
         isValid: false,
-        validationErrors: ['YAML Parse Error: Invalid YAML syntax']
+        validationErrors: ['YAML Parse Error: Invalid YAML syntax'],
       });
     });
 
@@ -242,15 +270,15 @@ describe('PersonaLoader', () => {
           expected: 'object',
           received: 'undefined',
           path: ['core'],
-          message: 'Required'
+          message: 'Required',
         },
         {
           code: 'invalid_type',
           expected: 'array',
           received: 'number',
           path: ['behavior', 'mindset'],
-          message: 'Expected array, received number'
-        }
+          message: 'Expected array, received number',
+        },
       ]);
 
       vi.mocked(fs.readFile).mockResolvedValue(yamlContent);
@@ -259,7 +287,10 @@ describe('PersonaLoader', () => {
         throw zodError;
       });
 
-      const result = await loader.loadPersonaFromFile('/path/to/test.yaml', 'user');
+      const result = await loader.loadPersonaFromFile(
+        '/path/to/test.yaml',
+        'user'
+      );
 
       expect(result).toEqual({
         id: 'test',
@@ -268,17 +299,17 @@ describe('PersonaLoader', () => {
         core: {
           identity: 'This persona failed validation and cannot be used.',
           primaryObjective: 'N/A - Invalid persona',
-          constraints: ['Invalid persona - cannot be used']
+          constraints: ['Invalid persona - cannot be used'],
         },
         behavior: {
           mindset: ['Invalid'],
           methodology: ['Invalid'],
           priorities: ['Invalid'],
-          antiPatterns: ['Invalid']
+          antiPatterns: ['Invalid'],
         },
         expertise: {
           domains: [],
-          skills: []
+          skills: [],
         },
         decisionCriteria: ['Invalid'],
         examples: [],
@@ -286,13 +317,13 @@ describe('PersonaLoader', () => {
         version: '1.0',
         source: {
           type: 'user',
-          filePath: '/path/to/test.yaml'
+          filePath: '/path/to/test.yaml',
         },
         isValid: false,
         validationErrors: [
           'core: Required',
-          'behavior.mindset: Expected array, received number'
-        ]
+          'behavior.mindset: Expected array, received number',
+        ],
       });
     });
 
@@ -303,18 +334,20 @@ describe('PersonaLoader', () => {
         return 'test.yaml';
       });
 
-      const result = await loader.loadPersonaFromFile('/path/to/test.yaml', 'user');
+      const result = await loader.loadPersonaFromFile(
+        '/path/to/test.yaml',
+        'user'
+      );
 
-      expect(result.validationErrors).toEqual(['Unknown error occurred while loading persona']);
+      expect(result.validationErrors).toEqual([
+        'Unknown error occurred while loading persona',
+      ]);
     });
   });
 
   describe('loadPersonasFromDirectory', () => {
     it('should load multiple personas from directory', async () => {
-      const mockFiles = [
-        '/path/to/persona1.yaml',
-        '/path/to/persona2.yaml'
-      ];
+      const mockFiles = ['/path/to/persona1.yaml', '/path/to/persona2.yaml'];
 
       vi.mocked(fs.access).mockResolvedValue(undefined);
       vi.mocked(glob).mockResolvedValue(mockFiles);
@@ -333,10 +366,7 @@ describe('PersonaLoader', () => {
     });
 
     it('should handle mixed valid and invalid personas', async () => {
-      const mockFiles = [
-        '/path/to/valid.yaml',
-        '/path/to/invalid.yaml'
-      ];
+      const mockFiles = ['/path/to/valid.yaml', '/path/to/invalid.yaml'];
 
       vi.mocked(fs.access).mockResolvedValue(undefined);
       vi.mocked(glob).mockResolvedValue(mockFiles);
@@ -344,8 +374,16 @@ describe('PersonaLoader', () => {
       // Mock both calls with different results
       const mockLoadPersonaFromFile = vi.spyOn(loader, 'loadPersonaFromFile');
       mockLoadPersonaFromFile
-        .mockResolvedValueOnce({ ...validPersonaData, isValid: true, source: { type: 'user', filePath: '/path/to/valid.yaml' } } as any)
-        .mockResolvedValueOnce({ ...validPersonaData, isValid: false, source: { type: 'user', filePath: '/path/to/invalid.yaml' } } as any);
+        .mockResolvedValueOnce({
+          ...validPersonaData,
+          isValid: true,
+          source: { type: 'user', filePath: '/path/to/valid.yaml' },
+        } as any)
+        .mockResolvedValueOnce({
+          ...validPersonaData,
+          isValid: false,
+          source: { type: 'user', filePath: '/path/to/invalid.yaml' },
+        } as any);
 
       const result = await loader.loadPersonasFromDirectory('/path/to', 'user');
 
@@ -358,7 +396,7 @@ describe('PersonaLoader', () => {
   describe('validatePersonaFile', () => {
     it('should return true for valid persona file', async () => {
       const yamlContent = 'id: test-persona\nname: Test Persona\n';
-      
+
       vi.mocked(fs.readFile).mockResolvedValue(yamlContent);
       vi.mocked(YAML.parse).mockReturnValue(validPersonaData);
       vi.mocked(YamlPersonaSchema.parse).mockReturnValue(validPersonaData);
@@ -368,20 +406,24 @@ describe('PersonaLoader', () => {
       expect(result).toBe(true);
       expect(fs.readFile).toHaveBeenCalledWith('/path/to/test.yaml', 'utf-8');
       expect(YAML.parse).toHaveBeenCalledWith(yamlContent);
-      expect(vi.mocked(YamlPersonaSchema.parse)).toHaveBeenCalledWith(validPersonaData);
+      expect(vi.mocked(YamlPersonaSchema.parse)).toHaveBeenCalledWith(
+        validPersonaData
+      );
     });
 
     it('should return false for invalid persona file', async () => {
       vi.mocked(fs.readFile).mockRejectedValue(new Error('File not found'));
 
-      const result = await loader.validatePersonaFile('/path/to/nonexistent.yaml');
+      const result = await loader.validatePersonaFile(
+        '/path/to/nonexistent.yaml'
+      );
 
       expect(result).toBe(false);
     });
 
     it('should return false for YAML parse error', async () => {
       const yamlContent = 'invalid: yaml: content:';
-      
+
       vi.mocked(fs.readFile).mockResolvedValue(yamlContent);
       vi.mocked(YAML.parse).mockImplementation(() => {
         throw new Error('Invalid YAML');
@@ -394,7 +436,7 @@ describe('PersonaLoader', () => {
 
     it('should return false for Zod validation error', async () => {
       const yamlContent = 'id: test-persona\nname: Test Persona\n';
-      
+
       vi.mocked(fs.readFile).mockResolvedValue(yamlContent);
       vi.mocked(YAML.parse).mockReturnValue(validPersonaData);
       vi.mocked(YamlPersonaSchema.parse).mockImplementation(() => {
@@ -418,7 +460,10 @@ describe('PersonaLoader', () => {
       const result = loader.getPersonaIdFromPath('/path/to/test-persona.yaml');
 
       expect(result).toBe('test-persona');
-      expect(path.basename).toHaveBeenCalledWith('/path/to/test-persona.yaml', '.yaml');
+      expect(path.basename).toHaveBeenCalledWith(
+        '/path/to/test-persona.yaml',
+        '.yaml'
+      );
     });
 
     it('should handle .yml extension', () => {
@@ -428,10 +473,15 @@ describe('PersonaLoader', () => {
       });
       vi.mocked(path.extname).mockReturnValue('.yml');
 
-      const result = loader.getPersonaIdFromPath('/path/to/another-persona.yml');
+      const result = loader.getPersonaIdFromPath(
+        '/path/to/another-persona.yml'
+      );
 
       expect(result).toBe('another-persona');
-      expect(path.basename).toHaveBeenCalledWith('/path/to/another-persona.yml', '.yml');
+      expect(path.basename).toHaveBeenCalledWith(
+        '/path/to/another-persona.yml',
+        '.yml'
+      );
     });
   });
 
@@ -446,7 +496,11 @@ describe('PersonaLoader', () => {
 
     it('should create invalid persona with Error', () => {
       const error = new Error('Test error');
-      const result = (loader as any).createInvalidPersona('/path/to/test.yaml', 'user', error);
+      const result = (loader as any).createInvalidPersona(
+        '/path/to/test.yaml',
+        'user',
+        error
+      );
 
       expect(result).toEqual({
         id: 'test-persona',
@@ -473,10 +527,10 @@ describe('PersonaLoader', () => {
         version: '1.0',
         source: {
           type: 'user',
-          filePath: '/path/to/test.yaml'
+          filePath: '/path/to/test.yaml',
         },
         isValid: false,
-        validationErrors: ['Test error']
+        validationErrors: ['Test error'],
       });
     });
 
@@ -487,11 +541,15 @@ describe('PersonaLoader', () => {
           expected: 'string',
           received: 'undefined',
           path: ['name'],
-          message: 'Required'
-        }
+          message: 'Required',
+        },
       ]);
 
-      const result = (loader as any).createInvalidPersona('/path/to/test.yaml', 'project', zodError);
+      const result = (loader as any).createInvalidPersona(
+        '/path/to/test.yaml',
+        'project',
+        zodError
+      );
 
       expect(result).toEqual({
         id: 'test-persona',
@@ -518,10 +576,10 @@ describe('PersonaLoader', () => {
         version: '1.0',
         source: {
           type: 'project',
-          filePath: '/path/to/test.yaml'
+          filePath: '/path/to/test.yaml',
         },
         isValid: false,
-        validationErrors: ['name: Required']
+        validationErrors: ['name: Required'],
       });
     });
 
@@ -529,7 +587,11 @@ describe('PersonaLoader', () => {
       const yamlError = new Error('Invalid YAML syntax');
       Object.setPrototypeOf(yamlError, YAML.YAMLParseError.prototype);
       yamlError.name = 'YAMLParseError';
-      const result = (loader as any).createInvalidPersona('/path/to/test.yaml', 'default', yamlError);
+      const result = (loader as any).createInvalidPersona(
+        '/path/to/test.yaml',
+        'default',
+        yamlError
+      );
 
       expect(result).toEqual({
         id: 'test-persona',
@@ -556,16 +618,20 @@ describe('PersonaLoader', () => {
         version: '1.0',
         source: {
           type: 'default',
-          filePath: '/path/to/test.yaml'
+          filePath: '/path/to/test.yaml',
         },
         isValid: false,
-        validationErrors: ['YAML Parse Error: Invalid YAML syntax']
+        validationErrors: ['YAML Parse Error: Invalid YAML syntax'],
       });
     });
 
     it('should create invalid persona with unknown error', () => {
       const unknownError = { unknown: 'error' };
-      const result = (loader as any).createInvalidPersona('/path/to/test.yaml', 'user', unknownError);
+      const result = (loader as any).createInvalidPersona(
+        '/path/to/test.yaml',
+        'user',
+        unknownError
+      );
 
       expect(result).toEqual({
         id: 'test-persona',
@@ -592,10 +658,10 @@ describe('PersonaLoader', () => {
         version: '1.0',
         source: {
           type: 'user',
-          filePath: '/path/to/test.yaml'
+          filePath: '/path/to/test.yaml',
         },
         isValid: false,
-        validationErrors: ['Unknown error occurred while loading persona']
+        validationErrors: ['Unknown error occurred while loading persona'],
       });
     });
   });
@@ -608,22 +674,22 @@ describe('PersonaLoader', () => {
           expected: 'string',
           received: 'undefined',
           path: ['name'],
-          message: 'Required'
+          message: 'Required',
         },
         {
           code: 'invalid_type',
           expected: 'array',
           received: 'string',
           path: ['expertise', 0],
-          message: 'Expected array, received string'
-        }
+          message: 'Expected array, received string',
+        },
       ]);
 
       const result = (loader as any).extractValidationErrors(zodError);
 
       expect(result).toEqual([
         'name: Required',
-        'expertise.0: Expected array, received string'
+        'expertise.0: Expected array, received string',
       ]);
     });
 

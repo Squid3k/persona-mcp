@@ -23,7 +23,7 @@ export async function getRandomPort(): Promise<number> {
     server.listen(0, () => {
       const address = server.address() as { port: number } | null;
       const port = address?.port;
-      server.close((error) => {
+      server.close(error => {
         if (error) {
           reject(error);
         } else if (port) {
@@ -38,8 +38,11 @@ export async function getRandomPort(): Promise<number> {
 }
 
 // Check if a port is available
-export async function checkPortAvailable(port: number, host: string = 'localhost'): Promise<boolean> {
-  return new Promise((resolve) => {
+export async function checkPortAvailable(
+  port: number,
+  host: string = 'localhost'
+): Promise<boolean> {
+  return new Promise(resolve => {
     const server = createServer();
     server.listen(port, host, () => {
       server.close(() => resolve(true));
@@ -89,15 +92,17 @@ export class TestServer {
       let serverStarted = false;
       let outputBuffer = '';
       let errorBuffer = '';
-      
+
       const startTimeout = setTimeout(() => {
         if (!serverStarted) {
-          this.stop();
-          reject(new Error(
-            `Server failed to start within timeout.\n` +
-            `STDOUT: ${outputBuffer}\n` +
-            `STDERR: ${errorBuffer}`
-          ));
+          void this.stop();
+          reject(
+            new Error(
+              `Server failed to start within timeout.\n` +
+                `STDOUT: ${outputBuffer}\n` +
+                `STDERR: ${errorBuffer}`
+            )
+          );
         }
       }, 15000); // Increased timeout
 
@@ -141,8 +146,8 @@ export class TestServer {
           reject(
             new Error(
               `Server exited with code ${code} and signal ${signal}.\n` +
-              `STDOUT: ${outputBuffer}\n` +
-              `STDERR: ${errorBuffer}`
+                `STDOUT: ${outputBuffer}\n` +
+                `STDERR: ${errorBuffer}`
             )
           );
         }
@@ -177,13 +182,13 @@ export class TestServer {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000);
-        
+
         const response = await fetch(`${this.getUrl('/health')}`, {
           method: 'GET',
           headers: { Accept: 'application/json' },
           signal: controller.signal,
         });
-        
+
         clearTimeout(timeoutId);
 
         if (response.ok) {
@@ -197,7 +202,10 @@ export class TestServer {
         }
       } catch (error) {
         // Log the error for debugging but continue retrying
-        console.error(`[Server Health Check] Attempt ${attempt} failed:`, error instanceof Error ? error.message : 'Unknown error');
+        console.error(
+          `[Server Health Check] Attempt ${attempt} failed:`,
+          error instanceof Error ? error.message : 'Unknown error'
+        );
       }
 
       if (attempt < maxAttempts) {
@@ -239,7 +247,7 @@ export class TestServer {
   }
 
   stop(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (!this.process) {
         resolve();
         return;

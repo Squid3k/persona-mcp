@@ -92,7 +92,6 @@ describe('Recommendation System E2E', () => {
       expect(result.data.recommendations).toHaveLength(3);
 
       // Developer should be highly ranked for implementation tasks
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const developerRec = result.data.recommendations.find(
         (r: any) => r.personaId === 'developer'
       );
@@ -117,7 +116,6 @@ describe('Recommendation System E2E', () => {
       expect(result.data.recommendations).toHaveLength(3);
 
       // Debugger should be highly ranked for debugging tasks
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const debuggerRec = result.data.recommendations.find(
         (r: any) => r.personaId === 'debugger'
       );
@@ -142,7 +140,6 @@ describe('Recommendation System E2E', () => {
       expect(result.data.recommendations).toHaveLength(3);
 
       // Reviewer should be highly ranked for review tasks
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const reviewerRec = result.data.recommendations.find(
         (r: any) => r.personaId === 'reviewer'
       );
@@ -185,10 +182,8 @@ describe('Recommendation System E2E', () => {
       expect(result.data.comparisons).toHaveLength(3);
 
       // Results should be sorted by score
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
       const scores = result.data.comparisons.map((c: any) => c.score);
       for (let i = 0; i < scores.length - 1; i++) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         expect(scores[i]).toBeGreaterThanOrEqual(scores[i + 1]);
       }
 
@@ -232,7 +227,6 @@ describe('Recommendation System E2E', () => {
       expect(result.data.recommendations).toHaveLength(3);
 
       // All recommendations should have valid scores
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       result.data.recommendations.forEach((rec: any) => {
         expect(rec.score).toBeGreaterThanOrEqual(0);
         expect(rec.score).toBeLessThanOrEqual(100);

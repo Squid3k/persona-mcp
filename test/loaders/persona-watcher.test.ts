@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { PersonaWatcher } from '../../src/loaders/persona-watcher.js';
-import type { FSWatcher } from 'chokidar';
+// FSWatcher type is used implicitly through mocked chokidar
 
 // Mock chokidar
 vi.mock('chokidar', () => ({
@@ -39,7 +39,7 @@ describe('PersonaWatcher', () => {
 
   beforeEach(async () => {
     watcher = new PersonaWatcher();
-    
+
     originalConsoleError = console.error;
     originalConsoleWarn = console.warn;
     mockConsoleError = vi.fn();
@@ -59,7 +59,7 @@ describe('PersonaWatcher', () => {
 
     // Reset mocks
     vi.clearAllMocks();
-    
+
     // Setup default behavior for chokidar mock
     vi.mocked(mockChokidar.watch).mockReturnValue(mockWatcher);
   });
@@ -73,7 +73,7 @@ describe('PersonaWatcher', () => {
     it('should start watching valid directories', async () => {
       const directories = ['/valid/dir1', '/valid/dir2'];
       const callback = vi.fn();
-      
+
       // Mock fs.access to succeed for all directories
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
@@ -89,28 +89,40 @@ describe('PersonaWatcher', () => {
             stabilityThreshold: 100,
             pollInterval: 50,
           },
-          ignored: [
-            '**/node_modules/**',
-            '**/.git/**',
-            '**/.*',
-          ],
+          ignored: ['**/node_modules/**', '**/.git/**', '**/.*'],
         }
       );
 
       expect(mockWatcher.on).toHaveBeenCalledWith('add', expect.any(Function));
-      expect(mockWatcher.on).toHaveBeenCalledWith('change', expect.any(Function));
-      expect(mockWatcher.on).toHaveBeenCalledWith('unlink', expect.any(Function));
-      expect(mockWatcher.on).toHaveBeenCalledWith('error', expect.any(Function));
-      expect(mockWatcher.on).toHaveBeenCalledWith('ready', expect.any(Function));
+      expect(mockWatcher.on).toHaveBeenCalledWith(
+        'change',
+        expect.any(Function)
+      );
+      expect(mockWatcher.on).toHaveBeenCalledWith(
+        'unlink',
+        expect.any(Function)
+      );
+      expect(mockWatcher.on).toHaveBeenCalledWith(
+        'error',
+        expect.any(Function)
+      );
+      expect(mockWatcher.on).toHaveBeenCalledWith(
+        'ready',
+        expect.any(Function)
+      );
 
-      expect(mockConsoleError).toHaveBeenCalledWith('Watching directory /valid/dir1 for persona changes');
-      expect(mockConsoleError).toHaveBeenCalledWith('Watching directory /valid/dir2 for persona changes');
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Watching directory /valid/dir1 for persona changes'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Watching directory /valid/dir2 for persona changes'
+      );
     });
 
     it('should skip non-existent directories', async () => {
       const directories = ['/valid/dir', '/invalid/dir'];
       const callback = vi.fn();
-      
+
       // Mock fs.access to fail for one directory
       const { access } = await import('fs/promises');
       vi.mocked(access)
@@ -124,14 +136,18 @@ describe('PersonaWatcher', () => {
         expect.any(Object)
       );
 
-      expect(mockConsoleError).toHaveBeenCalledWith('Watching directory /valid/dir for persona changes');
-      expect(mockConsoleError).not.toHaveBeenCalledWith('Watching directory /invalid/dir for persona changes');
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Watching directory /valid/dir for persona changes'
+      );
+      expect(mockConsoleError).not.toHaveBeenCalledWith(
+        'Watching directory /invalid/dir for persona changes'
+      );
     });
 
     it('should handle case when no directories exist', async () => {
       const directories = ['/invalid/dir1', '/invalid/dir2'];
       const callback = vi.fn();
-      
+
       // Mock fs.access to fail for all directories
       const { access } = await import('fs/promises');
       vi.mocked(access).mockRejectedValue(new Error('Directory not found'));
@@ -139,21 +155,25 @@ describe('PersonaWatcher', () => {
       await watcher.startWatching(directories, callback);
 
       expect(vi.mocked(mockChokidar.watch)).not.toHaveBeenCalled();
-      expect(mockConsoleWarn).toHaveBeenCalledWith('No valid directories to watch for personas');
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        'No valid directories to watch for personas'
+      );
     });
 
     it('should stop existing watcher before starting new one', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       // Start watching first time
       await watcher.startWatching(directories, callback);
-      
+
       // Simulate ready event to make watcher active
-      const readyCallback = mockWatcher.on.mock.calls.find(call => call[0] === 'ready')?.[1];
+      const readyCallback = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'ready'
+      )?.[1];
       readyCallback?.();
 
       // Start watching second time (should stop first watcher)
@@ -165,22 +185,24 @@ describe('PersonaWatcher', () => {
     it('should handle watcher initialization failure', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       // Mock chokidar.watch to return null
       vi.mocked(mockChokidar.watch).mockReturnValueOnce(null);
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback);
 
-      expect(mockConsoleError).toHaveBeenCalledWith('Watcher initialization failed');
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Watcher initialization failed'
+      );
     });
 
     it('should set isWatching to true on ready event', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
@@ -200,16 +222,22 @@ describe('PersonaWatcher', () => {
     it('should handle file events through debounced callback', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback, 50);
 
       // Get the event handlers
-      const addHandler = mockWatcher.on.mock.calls.find(call => call[0] === 'add')?.[1];
-      const changeHandler = mockWatcher.on.mock.calls.find(call => call[0] === 'change')?.[1];
-      const unlinkHandler = mockWatcher.on.mock.calls.find(call => call[0] === 'unlink')?.[1];
+      const addHandler = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'add'
+      )?.[1];
+      const changeHandler = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'change'
+      )?.[1];
+      const unlinkHandler = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'unlink'
+      )?.[1];
 
       expect(addHandler).toBeDefined();
       expect(changeHandler).toBeDefined();
@@ -223,29 +251,43 @@ describe('PersonaWatcher', () => {
       // Wait for debounce
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      expect(callback).toHaveBeenCalledWith({ type: 'add', filePath: '/test/file1.yaml' });
-      expect(callback).toHaveBeenCalledWith({ type: 'change', filePath: '/test/file2.yaml' });
-      expect(callback).toHaveBeenCalledWith({ type: 'unlink', filePath: '/test/file3.yaml' });
+      expect(callback).toHaveBeenCalledWith({
+        type: 'add',
+        filePath: '/test/file1.yaml',
+      });
+      expect(callback).toHaveBeenCalledWith({
+        type: 'change',
+        filePath: '/test/file2.yaml',
+      });
+      expect(callback).toHaveBeenCalledWith({
+        type: 'unlink',
+        filePath: '/test/file3.yaml',
+      });
     });
 
     it('should handle error events', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback);
 
       // Get the error handler
-      const errorHandler = mockWatcher.on.mock.calls.find(call => call[0] === 'error')?.[1];
+      const errorHandler = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'error'
+      )?.[1];
       expect(errorHandler).toBeDefined();
 
       // Simulate error event
       const testError = new Error('Test error');
       errorHandler?.(testError);
 
-      expect(mockConsoleError).toHaveBeenCalledWith('File watcher error:', testError);
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'File watcher error:',
+        testError
+      );
     });
   });
 
@@ -253,14 +295,16 @@ describe('PersonaWatcher', () => {
     it('should stop watching and cleanup', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback);
-      
+
       // Simulate ready event
-      const readyCallback = mockWatcher.on.mock.calls.find(call => call[0] === 'ready')?.[1];
+      const readyCallback = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'ready'
+      )?.[1];
       readyCallback?.();
 
       expect(watcher.watching).toBe(true);
@@ -281,14 +325,16 @@ describe('PersonaWatcher', () => {
     it('should clear debounced callbacks', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback, 500);
 
       // Trigger a debounced callback
-      const addHandler = mockWatcher.on.mock.calls.find(call => call[0] === 'add')?.[1];
+      const addHandler = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'add'
+      )?.[1];
       addHandler?.('/test/file.yaml');
 
       // Stop watching before debounce completes
@@ -310,14 +356,16 @@ describe('PersonaWatcher', () => {
     it('should return true when watching', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback);
 
       // Simulate ready event
-      const readyCallback = mockWatcher.on.mock.calls.find(call => call[0] === 'ready')?.[1];
+      const readyCallback = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'ready'
+      )?.[1];
       readyCallback?.();
 
       expect(watcher.watching).toBe(true);
@@ -333,7 +381,7 @@ describe('PersonaWatcher', () => {
     it('should return watched paths', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
@@ -342,7 +390,7 @@ describe('PersonaWatcher', () => {
       // Mock getWatched return value
       mockWatcher.getWatched.mockReturnValue({
         '/valid/dir': ['file1.yaml', 'file2.yml'],
-        '/another/dir': ['file3.yaml']
+        '/another/dir': ['file3.yaml'],
       });
 
       const paths = watcher.getWatchedPaths();
@@ -350,14 +398,14 @@ describe('PersonaWatcher', () => {
       expect(paths).toEqual([
         '/valid/dir/file1.yaml',
         '/valid/dir/file2.yml',
-        '/another/dir/file3.yaml'
+        '/another/dir/file3.yaml',
       ]);
     });
 
     it('should handle non-array entries in getWatched', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
@@ -365,7 +413,7 @@ describe('PersonaWatcher', () => {
 
       // Mock getWatched with non-array value
       mockWatcher.getWatched.mockReturnValue({
-        '/valid/dir': 'not-an-array'
+        '/valid/dir': 'not-an-array',
       });
 
       const paths = watcher.getWatchedPaths();
@@ -378,13 +426,15 @@ describe('PersonaWatcher', () => {
     it('should debounce rapid callbacks', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback, 100);
 
-      const addHandler = mockWatcher.on.mock.calls.find(call => call[0] === 'add')?.[1];
+      const addHandler = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'add'
+      )?.[1];
 
       // Trigger multiple rapid events
       addHandler?.('/test/file.yaml');
@@ -396,19 +446,24 @@ describe('PersonaWatcher', () => {
 
       // Should only be called once
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback).toHaveBeenCalledWith({ type: 'add', filePath: '/test/file.yaml' });
+      expect(callback).toHaveBeenCalledWith({
+        type: 'add',
+        filePath: '/test/file.yaml',
+      });
     });
 
     it('should handle callback errors', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn().mockRejectedValue(new Error('Callback error'));
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback, 50);
 
-      const addHandler = mockWatcher.on.mock.calls.find(call => call[0] === 'add')?.[1];
+      const addHandler = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'add'
+      )?.[1];
       addHandler?.('/test/file.yaml');
 
       // Wait for debounce
@@ -425,7 +480,7 @@ describe('PersonaWatcher', () => {
     it('should add directory to existing watcher', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
@@ -446,7 +501,7 @@ describe('PersonaWatcher', () => {
     it('should handle directory access error', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access)
         .mockResolvedValueOnce(undefined) // For startWatching
@@ -467,7 +522,7 @@ describe('PersonaWatcher', () => {
     it('should remove directory from watcher', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn();
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
@@ -475,7 +530,9 @@ describe('PersonaWatcher', () => {
 
       watcher.removeDirectory('/valid/dir');
 
-      expect(mockWatcher.unwatch).toHaveBeenCalledWith('/valid/dir/**/*.{yaml,yml}');
+      expect(mockWatcher.unwatch).toHaveBeenCalledWith(
+        '/valid/dir/**/*.{yaml,yml}'
+      );
     });
 
     it('should handle remove when not watching', () => {
@@ -488,47 +545,59 @@ describe('PersonaWatcher', () => {
   describe('edge cases', () => {
     it('should handle empty directories array', async () => {
       const callback = vi.fn();
-      
+
       await watcher.startWatching([], callback);
 
-      expect(mockConsoleWarn).toHaveBeenCalledWith('No valid directories to watch for personas');
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        'No valid directories to watch for personas'
+      );
       expect(vi.mocked(mockChokidar.watch)).not.toHaveBeenCalled();
     });
 
     it('should handle synchronous callback', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn(); // Synchronous callback
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback, 50);
 
-      const addHandler = mockWatcher.on.mock.calls.find(call => call[0] === 'add')?.[1];
+      const addHandler = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'add'
+      )?.[1];
       addHandler?.('/test/file.yaml');
 
       // Wait for debounce
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      expect(callback).toHaveBeenCalledWith({ type: 'add', filePath: '/test/file.yaml' });
+      expect(callback).toHaveBeenCalledWith({
+        type: 'add',
+        filePath: '/test/file.yaml',
+      });
     });
 
     it('should handle async callback', async () => {
       const directories = ['/valid/dir'];
       const callback = vi.fn().mockResolvedValue(undefined); // Async callback
-      
+
       const { access } = await import('fs/promises');
       vi.mocked(access).mockResolvedValue(undefined);
 
       await watcher.startWatching(directories, callback, 50);
 
-      const addHandler = mockWatcher.on.mock.calls.find(call => call[0] === 'add')?.[1];
+      const addHandler = mockWatcher.on.mock.calls.find(
+        call => call[0] === 'add'
+      )?.[1];
       addHandler?.('/test/file.yaml');
 
       // Wait for debounce
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      expect(callback).toHaveBeenCalledWith({ type: 'add', filePath: '/test/file.yaml' });
+      expect(callback).toHaveBeenCalledWith({
+        type: 'add',
+        filePath: '/test/file.yaml',
+      });
     });
   });
 });

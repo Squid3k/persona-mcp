@@ -21,7 +21,7 @@ describe('CLI Integration', () => {
 
   beforeEach(() => {
     originalArgv = process.argv;
-    originalExit = process.exit;
+    originalExit = process.exit.bind(process);
 
     mockExit = vi.fn((code?: number) => {
       throw new Error(`process.exit(${code})`);
@@ -39,56 +39,56 @@ describe('CLI Integration', () => {
 
   it('should handle version flag and exit', async () => {
     process.argv = ['node', 'cli.js', '--version'];
-    
+
     const { printVersion } = await import('../src/cli-functions.js');
-    
+
     try {
       await import('../src/cli.js');
     } catch (error: any) {
       expect(error.message).toBe('process.exit(0)');
     }
-    
+
     expect(printVersion).toHaveBeenCalled();
     expect(mockExit).toHaveBeenCalledWith(0);
   });
 
   it('should handle -v flag and exit', async () => {
     process.argv = ['node', 'cli.js', '-v'];
-    
+
     const { printVersion } = await import('../src/cli-functions.js');
-    
+
     try {
       await import('../src/cli.js');
     } catch (error: any) {
       expect(error.message).toBe('process.exit(0)');
     }
-    
+
     expect(printVersion).toHaveBeenCalled();
     expect(mockExit).toHaveBeenCalledWith(0);
   });
 
   it('should handle help flag and exit', async () => {
     process.argv = ['node', 'cli.js', '--help'];
-    
+
     const { printHelp } = await import('../src/cli-functions.js');
-    
+
     try {
       await import('../src/cli.js');
     } catch (error: any) {
       expect(error.message).toBe('process.exit(0)');
     }
-    
+
     expect(printHelp).toHaveBeenCalled();
     expect(mockExit).toHaveBeenCalledWith(0);
   });
 
   it('should prepare to start server when no special flags', async () => {
     process.argv = ['node', 'cli.js'];
-    
+
     // Import modules to ensure they're loaded
     const { PersonasMcpServer } = await import('../src/server.js');
     await import('../src/cli-functions.js');
-    
+
     // Since the CLI runs immediately and we can't easily test the full flow,
     // we're verifying that the mocks are set up correctly
     expect(PersonasMcpServer).toBeDefined();

@@ -2,6 +2,7 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   ListPromptsRequestSchema,
   ListResourcesRequestSchema,
@@ -23,6 +24,7 @@ export interface ServerConfig {
   version?: string;
   port?: number;
   host?: string;
+  forceHttpMode?: boolean; // Force HTTP mode even in non-TTY environments
   personas?: Partial<PersonaConfig>;
   http?: {
     enableCors?: boolean;
@@ -36,7 +38,8 @@ export class PersonasMcpServer {
   private personaManager: EnhancedPersonaManager;
   private config: ServerConfig;
   private httpServer?: ReturnType<typeof createServer>;
-  private transport?: StreamableHTTPServerTransport;
+  private httpTransport?: StreamableHTTPServerTransport;
+  private stdioTransport?: StdioServerTransport;
   private recommendationTool: RecommendationTool;
 
   constructor(config: ServerConfig = {}) {
@@ -238,7 +241,34 @@ export class PersonasMcpServer {
   }
 
   async run(): Promise<void> {
-    await this.runHttp();
+    // If running in STDIO mode (not TTY) and not forced to HTTP mode, only start stdio transport
+    if (
+      process.stdin &&
+      process.stdout &&
+      !process.stdin.isTTY &&
+      !this.config.forceHttpMode
+    ) {
+      await this.runStdio();
+    } else {
+      await this.runHttp();
+    }
+  }
+
+  private async runStdio(): Promise<void> {
+    await this.initialize();
+
+    // Set up stdio transport only
+    this.stdioTransport = new StdioServerTransport();
+    await this.server.connect(this.stdioTransport);
+    console.error('Stdio transport connected for command-line usage');
+
+    // Keep the process alive
+    return new Promise<void>(resolve => {
+      process.stdin.on('end', () => {
+        console.error('Stdio transport disconnected');
+        resolve();
+      });
+    });
   }
 
   private async runHttp(): Promise<void> {
@@ -269,8 +299,8 @@ export class PersonasMcpServer {
     // Create HTTP server
     this.httpServer = createServer(app);
 
-    // Create MCP transport
-    this.transport = new StreamableHTTPServerTransport({
+    // Create HTTP MCP transport
+    this.httpTransport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
       enableJsonResponse: true, // Enable JSON responses for compatibility
       enableDnsRebindingProtection: true,
@@ -283,8 +313,8 @@ export class PersonasMcpServer {
       ],
     });
 
-    // Connect MCP server to transport BEFORE setting up HTTP routes
-    await this.server.connect(this.transport);
+    // Connect MCP server to HTTP transport BEFORE setting up HTTP routes
+    await this.server.connect(this.httpTransport);
 
     // Mount the MCP endpoint
     const endpoint = this.config.http?.endpoint || '/mcp';
@@ -292,10 +322,10 @@ export class PersonasMcpServer {
     // Handle MCP POST requests
     app.post(endpoint, async (req, res) => {
       try {
-        if (!this.transport) {
-          throw new Error('Transport not initialized');
+        if (!this.httpTransport) {
+          throw new Error('HTTP transport not initialized');
         }
-        await this.transport.handleRequest(req, res);
+        await this.httpTransport.handleRequest(req, res);
       } catch (error) {
         console.error('Error handling MCP request:', error);
         if (!res.headersSent) {
@@ -314,10 +344,10 @@ export class PersonasMcpServer {
     // Handle MCP GET requests for streaming
     app.get(endpoint, async (req, res) => {
       try {
-        if (!this.transport) {
-          throw new Error('Transport not initialized');
+        if (!this.httpTransport) {
+          throw new Error('HTTP transport not initialized');
         }
-        await this.transport.handleRequest(req, res);
+        await this.httpTransport.handleRequest(req, res);
       } catch (error) {
         console.error('Error handling MCP streaming request:', error);
         if (!res.headersSent) {
@@ -387,13 +417,153 @@ export class PersonasMcpServer {
           mcp: endpoint,
           health: '/health',
           ready: '/ready',
+          api: '/api',
         },
         features: {
           cors: this.config.http?.enableCors || false,
           fileWatching: true,
           yamlPersonas: true,
+          restApi: true,
         },
       });
+    });
+
+    // REST API endpoints for direct HTTP access (non-MCP)
+    app.use('/api', express.json());
+
+    // Get all personas
+    app.get('/api/personas', (req, res) => {
+      try {
+        const personas = this.personaManager.getAllPersonas();
+        res.json({
+          success: true,
+          data: personas.map(persona => ({
+            id: persona.id,
+            name: persona.name,
+            role: persona.role,
+            core: persona.core,
+            behavior: persona.behavior,
+            expertise: persona.expertise,
+            decisionCriteria: persona.decisionCriteria,
+            tags: persona.tags,
+          })),
+          total: personas.length,
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    });
+
+    // Get specific persona by ID
+    app.get('/api/personas/:id', (req, res) => {
+      try {
+        const persona = this.personaManager.getPersona(req.params.id);
+        if (!persona) {
+          return res.status(404).json({
+            success: false,
+            error: `Persona with ID '${req.params.id}' not found`,
+          });
+        }
+        res.json({
+          success: true,
+          data: {
+            id: persona.id,
+            name: persona.name,
+            role: persona.role,
+            core: persona.core,
+            behavior: persona.behavior,
+            expertise: persona.expertise,
+            decisionCriteria: persona.decisionCriteria,
+            tags: persona.tags,
+          },
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    });
+
+    // Get persona recommendations
+    app.post('/api/recommend', async (req, res) => {
+      try {
+        const body = req.body as { query?: unknown; limit?: unknown };
+        const query = body.query;
+        const limit = typeof body.limit === 'number' ? body.limit : 3;
+
+        if (!query || typeof query !== 'string') {
+          return res.status(400).json({
+            success: false,
+            error: 'Query string is required',
+          });
+        }
+
+        const result = await this.recommendationTool.handleToolCall(
+          'recommend-persona',
+          {
+            description: query,
+            title: query,
+            limit,
+          }
+        );
+        res.json({
+          success: true,
+          data: result,
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    });
+
+    // Compare personas
+    app.post('/api/compare', async (req, res) => {
+      try {
+        const body = req.body as {
+          persona1?: unknown;
+          persona2?: unknown;
+          context?: unknown;
+        };
+        const persona1 = body.persona1;
+        const persona2 = body.persona2;
+        const context = typeof body.context === 'string' ? body.context : '';
+
+        if (
+          !persona1 ||
+          typeof persona1 !== 'string' ||
+          !persona2 ||
+          typeof persona2 !== 'string'
+        ) {
+          return res.status(400).json({
+            success: false,
+            error: 'Both persona1 and persona2 are required',
+          });
+        }
+
+        const result = await this.recommendationTool.handleToolCall(
+          'compare-personas',
+          {
+            persona1,
+            persona2,
+            context,
+          }
+        );
+        res.json({
+          success: true,
+          data: result,
+        });
+      } catch (error) {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
     });
 
     // MCP server already connected above
@@ -427,21 +597,54 @@ export class PersonasMcpServer {
     });
   }
 
+  private async setupStdioTransport(): Promise<void> {
+    // Only set up stdio transport if stdin/stdout are available and not TTY
+    // This allows the server to work with both HTTP and stdio simultaneously
+    if (process.stdin && process.stdout && !process.stdin.isTTY) {
+      try {
+        this.stdioTransport = new StdioServerTransport();
+        await this.server.connect(this.stdioTransport);
+        console.error('Stdio transport connected for command-line usage');
+      } catch (error) {
+        // Don't fail if stdio transport setup fails, just log it
+        console.error('Failed to setup stdio transport:', error);
+      }
+    }
+  }
+
   async shutdown(): Promise<void> {
     console.error('Starting graceful shutdown...');
 
     // Shutdown persona manager (stops file watchers)
     await this.personaManager.shutdown();
 
-    // Disconnect MCP server from transport
-    if (this.transport) {
+    // Disconnect MCP server from transports
+    if (this.httpTransport) {
       try {
-        await this.server.close();
-        console.error('MCP server disconnected');
+        await this.httpTransport.close();
+        console.error('HTTP transport disconnected');
       } catch (error) {
-        console.error('Error disconnecting MCP server:', error);
+        console.error('Error disconnecting HTTP transport:', error);
       }
-      this.transport = undefined;
+      this.httpTransport = undefined;
+    }
+
+    if (this.stdioTransport) {
+      try {
+        await this.stdioTransport.close();
+        console.error('Stdio transport disconnected');
+      } catch (error) {
+        console.error('Error disconnecting stdio transport:', error);
+      }
+      this.stdioTransport = undefined;
+    }
+
+    // Close the MCP server after all transports are disconnected
+    try {
+      await this.server.close();
+      console.error('MCP server closed');
+    } catch (error) {
+      console.error('Error closing MCP server:', error);
     }
 
     // Close HTTP server if running

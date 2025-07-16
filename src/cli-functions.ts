@@ -51,6 +51,7 @@ export function parseArgs(args: string[]): ServerConfig {
       case '-p':
         if (nextArg && !isNaN(parseInt(nextArg))) {
           config.port = parseInt(nextArg);
+          config.forceHttpMode = true; // Force HTTP mode when port is specified
           i++;
         } else {
           console.error('Invalid port number');
@@ -62,6 +63,7 @@ export function parseArgs(args: string[]): ServerConfig {
       case '-h':
         if (nextArg) {
           config.host = nextArg;
+          config.forceHttpMode = true; // Force HTTP mode when host is specified
           i++;
         } else {
           console.error('Host value required');

@@ -69,14 +69,14 @@ describe('CLI Functions', () => {
     it('should parse --port with valid number', () => {
       const config = parseArgs(['--port', '8080']);
 
-      expect(config).toEqual({ port: 8080 });
+      expect(config).toEqual({ port: 8080, forceHttpMode: true });
       expect(mockExit).not.toHaveBeenCalled();
     });
 
     it('should parse -p with valid number', () => {
       const config = parseArgs(['-p', '3000']);
 
-      expect(config).toEqual({ port: 3000 });
+      expect(config).toEqual({ port: 3000, forceHttpMode: true });
       expect(mockExit).not.toHaveBeenCalled();
     });
 
@@ -97,14 +97,14 @@ describe('CLI Functions', () => {
     it('should parse --host with value', () => {
       const config = parseArgs(['--host', '0.0.0.0']);
 
-      expect(config).toEqual({ host: '0.0.0.0' });
+      expect(config).toEqual({ host: '0.0.0.0', forceHttpMode: true });
       expect(mockExit).not.toHaveBeenCalled();
     });
 
     it('should parse -h with value', () => {
       const config = parseArgs(['-h', 'localhost']);
 
-      expect(config).toEqual({ host: 'localhost' });
+      expect(config).toEqual({ host: 'localhost', forceHttpMode: true });
       expect(mockExit).not.toHaveBeenCalled();
     });
 
@@ -136,6 +136,7 @@ describe('CLI Functions', () => {
       expect(config).toEqual({
         port: 8080,
         host: '0.0.0.0',
+        forceHttpMode: true,
         http: { enableCors: false },
       });
       expect(mockExit).not.toHaveBeenCalled();
@@ -151,7 +152,7 @@ describe('CLI Functions', () => {
     it('should skip non-option arguments', () => {
       const config = parseArgs(['somevalue', '--port', '8080']);
 
-      expect(config).toEqual({ port: 8080 });
+      expect(config).toEqual({ port: 8080, forceHttpMode: true });
       expect(mockExit).not.toHaveBeenCalled();
     });
 

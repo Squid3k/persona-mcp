@@ -151,10 +151,38 @@ npm start -- --help
 
 When running as an HTTP server, the following endpoints are available:
 
+#### MCP Protocol Endpoints
 - **MCP Endpoint**: `http://localhost:3000/mcp` - Main MCP protocol endpoint
 - **Health Check**: `http://localhost:3000/health` - Server health status
 - **Info**: `http://localhost:3000/` - Server information and capabilities
 - **Ready Check**: `http://localhost:3000/ready` - Server readiness status
+
+#### REST API Endpoints
+For direct HTTP access (non-MCP clients), the following REST endpoints are available:
+
+- **GET `/api/personas`** - Get all available personas
+  ```bash
+  curl http://localhost:3000/api/personas
+  ```
+
+- **GET `/api/personas/:id`** - Get a specific persona by ID
+  ```bash
+  curl http://localhost:3000/api/personas/architect
+  ```
+
+- **POST `/api/recommend`** - Get persona recommendations for a task
+  ```bash
+  curl -X POST http://localhost:3000/api/recommend \
+    -H "Content-Type: application/json" \
+    -d '{"query": "debug memory leak", "limit": 3}'
+  ```
+
+- **POST `/api/compare`** - Compare multiple personas for a task
+  ```bash
+  curl -X POST http://localhost:3000/api/compare \
+    -H "Content-Type: application/json" \
+    -d '{"persona1": "architect", "persona2": "developer", "context": "API design"}'
+  ```
 
 ### Testing the Connection
 
@@ -169,6 +197,15 @@ curl http://localhost:3000/health
 
 # Test MCP endpoint (expects proper MCP protocol headers)
 curl -H "Accept: text/event-stream" http://localhost:3000/mcp
+
+# Test REST API endpoints
+curl http://localhost:3000/api/personas
+curl http://localhost:3000/api/personas/architect
+
+# Test persona recommendations
+curl -X POST http://localhost:3000/api/recommend \
+  -H "Content-Type: application/json" \
+  -d '{"query": "debug memory leak", "limit": 3}'
 ```
 
 ### Troubleshooting Connection Issues
@@ -346,6 +383,8 @@ npm run format
 - **Multi-Factor Scoring**: Advanced algorithm considering keywords, expertise, and complexity
 - **Extensible Architecture**: Easy to add new personas
 - **Full MCP Support**: Resources, prompts, tools, and streaming responses
+- **Multi-Transport Support**: Supports both HTTP and stdio transports simultaneously
+- **REST API**: Direct HTTP endpoints for non-MCP clients
 - **CORS Support**: Configurable for different environments
 
 ## Available Resources

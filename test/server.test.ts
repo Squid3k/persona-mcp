@@ -781,6 +781,14 @@ describe('PersonasMcpServer', () => {
   });
 
   describe('HTTP server', () => {
+    beforeEach(() => {
+      // Mock process.stdin.isTTY to ensure HTTP mode
+      Object.defineProperty(process.stdin, 'isTTY', {
+        value: true,
+        configurable: true,
+      });
+    });
+
     it('should run HTTP server with default config', async () => {
       const server = new PersonasMcpServer();
       void server.run();
@@ -1178,11 +1186,13 @@ describe('PersonasMcpServer', () => {
           mcp: '/mcp',
           health: '/health',
           ready: '/ready',
+          api: '/api',
         },
         features: {
           cors: true,
           fileWatching: true,
           yamlPersonas: true,
+          restApi: true,
         },
       });
     });

@@ -212,40 +212,19 @@ vi.mock('../src/personas/debugger.js', () => ({
 
 // Type definitions for mocks
 type MockPersonaLoader = {
-  loadPersonasFromDirectory: Mock<
-    Promise<LoadedPersona[]>,
-    [string, PersonaSource['type']]
-  >;
-  loadPersonaFromFile: Mock<
-    Promise<LoadedPersona>,
-    [string, PersonaSource['type']]
-  >;
+  loadPersonasFromDirectory: Mock;
+  loadPersonaFromFile: Mock;
 };
 
 type MockPersonaWatcher = {
-  startWatching: Mock<
-    Promise<void>,
-    [string[], (event: WatchEvent) => Promise<void>, number]
-  >;
-  stopWatching: Mock<Promise<void>, []>;
+  startWatching: Mock;
+  stopWatching: Mock;
 };
 
 type MockPersonaResolver = {
-  resolveConflicts: Mock<
-    Map<string, { persona: LoadedPersona; conflicts: LoadedPersona[] }>,
-    [LoadedPersona[]]
-  >;
-  getStatistics: Mock<
-    {
-      total: number;
-      valid: number;
-      invalid: number;
-      conflicts: number;
-      bySource: { default: number; user: number; project: number };
-    },
-    []
-  >;
-  getInvalidPersonas: Mock<LoadedPersona[], []>;
+  resolveConflicts: Mock;
+  getStatistics: Mock;
+  getInvalidPersonas: Mock;
 };
 
 describe('EnhancedPersonaManager', () => {
@@ -511,7 +490,7 @@ describe('EnhancedPersonaManager', () => {
 
     it('should skip watching when disabled', async () => {
       manager = new EnhancedPersonaManager({
-        watchOptions: { enabled: false },
+        watchOptions: { enabled: false, debounceMs: 150 },
       });
 
       await manager.initialize();
@@ -602,7 +581,7 @@ describe('EnhancedPersonaManager', () => {
     });
 
     it('should generate prompt with template only', () => {
-      const persona = { ...testBasicPersona, examples: undefined };
+      const persona = { ...testBasicPersona, examples: [] };
 
       const prompt = manager.generatePrompt(persona);
 
@@ -614,7 +593,7 @@ describe('EnhancedPersonaManager', () => {
     });
 
     it('should generate prompt with context', () => {
-      const persona = { ...testBasicPersona, examples: undefined };
+      const persona = { ...testBasicPersona, examples: [] };
       const context = 'Build a REST API';
 
       const prompt = manager.generatePrompt(persona, context);
@@ -651,6 +630,38 @@ describe('EnhancedPersonaManager', () => {
 
       expect(prompt).toContain('You are a test persona.');
       expect(prompt).not.toContain('Examples:');
+    });
+
+    it('should include behavior diagrams in prompt', () => {
+      const personaWithDiagrams = {
+        ...testBasicPersona,
+        behaviorDiagrams: [
+          {
+            title: 'Test Workflow',
+            mermaidDSL: 'flowchart TD\n    A[Start] --> B[End]',
+            diagramType: 'flowchart' as const,
+            description: 'A simple test workflow diagram',
+          },
+        ],
+      };
+
+      const prompt = manager.generatePrompt(personaWithDiagrams);
+
+      expect(prompt).toContain('Behavior Diagrams:');
+      expect(prompt).toContain('1. Test Workflow');
+      expect(prompt).toContain('A simple test workflow diagram');
+      expect(prompt).toContain('```mermaid');
+      expect(prompt).toContain('flowchart TD');
+      expect(prompt).toContain('A[Start] --> B[End]');
+    });
+
+    it('should handle empty behavior diagrams array', () => {
+      const persona = { ...testBasicPersona, behaviorDiagrams: [] };
+
+      const prompt = manager.generatePrompt(persona);
+
+      expect(prompt).toContain('You are a test persona.');
+      expect(prompt).not.toContain('Behavior Diagrams:');
     });
   });
 

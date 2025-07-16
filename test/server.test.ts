@@ -27,7 +27,7 @@ vi.mock('express', () => {
     post: vi.fn(),
     get: vi.fn(),
   };
-  const expressFn = vi.fn(() => mockApp);
+  const expressFn = vi.fn(() => mockApp) as any;
   expressFn.json = vi.fn();
   return { default: expressFn };
 });
@@ -253,7 +253,12 @@ describe('PersonasMcpServer', () => {
         version: '2.0.0',
         port: 8080,
         host: '0.0.0.0',
-        personas: { watchDirs: ['./custom'] },
+        personas: {
+          directories: {
+            user: '~/.ai/personas',
+            project: './custom',
+          },
+        } as any,
         http: {
           enableCors: false,
           allowedOrigins: ['http://localhost:3000'],
@@ -272,7 +277,10 @@ describe('PersonasMcpServer', () => {
       );
 
       expect(EnhancedPersonaManager).toHaveBeenCalledWith({
-        watchDirs: ['./custom'],
+        directories: {
+          user: '~/.ai/personas',
+          project: './custom',
+        },
       });
     });
   });
@@ -314,10 +322,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle ReadResourceRequest with valid URI', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
 
@@ -392,10 +402,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle ReadResourceRequest with invalid URI', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[1];
@@ -406,10 +418,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle ReadResourceRequest with non-existent persona', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[1];
@@ -420,10 +434,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle ListPromptsRequest', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[2]; // Third handler is ListPromptsRequest
@@ -447,10 +463,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle GetPromptRequest with valid prompt name', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[3]; // Fourth handler is GetPromptRequest
@@ -476,10 +494,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle GetPromptRequest without context', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[3];
@@ -495,10 +515,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle GetPromptRequest with invalid prompt name', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[3];
@@ -509,10 +531,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle GetPromptRequest with non-existent persona', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[3];
@@ -523,10 +547,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle ListToolsRequest', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[4]; // Fifth handler is ListToolsRequest
@@ -544,10 +570,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle CallToolRequest successfully', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[5]; // Sixth handler is CallToolRequest
@@ -576,10 +604,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle CallToolRequest with no arguments', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
       const handler = handlers[5];
@@ -607,10 +637,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle CallToolRequest with Error', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
 
@@ -647,10 +679,12 @@ describe('PersonasMcpServer', () => {
     });
 
     it('should handle CallToolRequest with non-Error exception', async () => {
-      const handlers = [];
-      mockServer.setRequestHandler.mockImplementation((schema, handler) => {
-        handlers.push(handler);
-      });
+      const handlers: any[] = [];
+      mockServer.setRequestHandler.mockImplementation(
+        (schema: any, handler: any) => {
+          handlers.push(handler);
+        }
+      );
 
       server = new PersonasMcpServer();
 
@@ -869,14 +903,14 @@ describe('PersonasMcpServer', () => {
       routes = new Map();
       mockApp = {
         use: vi.fn(),
-        post: vi.fn((path, ...handlers) => {
+        post: vi.fn((path: string, ...handlers: any[]) => {
           if (!routes.has('post')) routes.set('post', new Map());
-          const handler = handlers[handlers.length - 1];
+          const handler = handlers[handlers.length - 1] as Function;
           routes.get('post')!.set(path, handler);
         }),
-        get: vi.fn((path, ...handlers) => {
+        get: vi.fn((path: string, ...handlers: any[]) => {
           if (!routes.has('get')) routes.set('get', new Map());
-          const handler = handlers[handlers.length - 1];
+          const handler = handlers[handlers.length - 1] as Function;
           routes.get('get')!.set(path, handler);
         }),
       };
@@ -896,7 +930,7 @@ describe('PersonasMcpServer', () => {
         json: vi.fn(),
       } as any as Response;
 
-      const handler = routes.get('post')!.get('/mcp');
+      const handler = routes.get('post')!.get('/mcp')!;
       await handler(mockReq, mockRes);
 
       const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock
@@ -924,7 +958,7 @@ describe('PersonasMcpServer', () => {
         .fn()
         .mockRejectedValue(new Error('Transport error'));
 
-      const handler = routes.get('post')!.get('/mcp');
+      const handler = routes.get('post')!.get('/mcp')!;
       await handler(mockReq, mockRes);
 
       expect(mockConsoleError).toHaveBeenCalledWith(
@@ -959,7 +993,7 @@ describe('PersonasMcpServer', () => {
         .fn()
         .mockRejectedValue(new Error('Transport error'));
 
-      const handler = routes.get('post')!.get('/mcp');
+      const handler = routes.get('post')!.get('/mcp')!;
       await handler(mockReq, mockRes);
 
       expect(mockRes.status).not.toHaveBeenCalled();
@@ -977,7 +1011,7 @@ describe('PersonasMcpServer', () => {
         send: vi.fn(),
       } as any as Response;
 
-      const handler = routes.get('get')!.get('/mcp');
+      const handler = routes.get('get')!.get('/mcp')!;
       await handler(mockReq, mockRes);
 
       const mockTransport = vi.mocked(StreamableHTTPServerTransport).mock
@@ -1005,7 +1039,7 @@ describe('PersonasMcpServer', () => {
         .fn()
         .mockRejectedValue(new Error('Stream error'));
 
-      const handler = routes.get('get')!.get('/mcp');
+      const handler = routes.get('get')!.get('/mcp')!;
       await handler(mockReq, mockRes);
 
       expect(mockConsoleError).toHaveBeenCalledWith(
@@ -1026,7 +1060,7 @@ describe('PersonasMcpServer', () => {
         json: vi.fn(),
       } as any as Response;
 
-      const handler = routes.get('get')!.get('/sse');
+      const handler = routes.get('get')!.get('/sse')!;
       handler(mockReq, mockRes);
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -1048,7 +1082,7 @@ describe('PersonasMcpServer', () => {
         json: vi.fn(),
       } as any as Response;
 
-      const handler = routes.get('post')!.get('/sse');
+      const handler = routes.get('post')!.get('/sse')!;
       handler(mockReq, mockRes);
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -1080,7 +1114,7 @@ describe('PersonasMcpServer', () => {
         json: vi.fn(),
       } as any as Response;
 
-      const handler = routes.get('get')!.get('/health');
+      const handler = routes.get('get')!.get('/health')!;
       handler(mockReq, mockRes);
 
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -1109,7 +1143,7 @@ describe('PersonasMcpServer', () => {
         json: vi.fn(),
       } as any as Response;
 
-      const handler = routes.get('get')!.get('/ready');
+      const handler = routes.get('get')!.get('/ready')!;
       handler(mockReq, mockRes);
 
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -1131,7 +1165,7 @@ describe('PersonasMcpServer', () => {
         json: vi.fn(),
       } as any as Response;
 
-      const handler = routes.get('get')!.get('/');
+      const handler = routes.get('get')!.get('/')!;
       handler(mockReq, mockRes);
 
       expect(mockRes.json).toHaveBeenCalledWith({

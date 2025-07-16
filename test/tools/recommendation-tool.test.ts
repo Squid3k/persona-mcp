@@ -129,7 +129,10 @@ describe('RecommendationTool', () => {
         processingTimeMs: 100,
       });
 
-      const result = await tool.handleToolCall('recommend-persona', args);
+      const result = (await tool.handleToolCall(
+        'recommend-persona',
+        args
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.recommendations).toHaveLength(1);
@@ -181,7 +184,10 @@ describe('RecommendationTool', () => {
         confidence: 0.8,
       });
 
-      const result = await tool.handleToolCall('explain-persona-fit', args);
+      const result = (await tool.handleToolCall(
+        'explain-persona-fit',
+        args
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.persona.id).toBe('test');
@@ -213,7 +219,10 @@ describe('RecommendationTool', () => {
         },
       ]);
 
-      const result = await tool.handleToolCall('compare-personas', args);
+      const result = (await tool.handleToolCall(
+        'compare-personas',
+        args
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.comparisons).toHaveLength(2);
@@ -234,7 +243,10 @@ describe('RecommendationTool', () => {
         },
       });
 
-      const result = await tool.handleToolCall('get-recommendation-stats', {});
+      const result = (await tool.handleToolCall(
+        'get-recommendation-stats',
+        {}
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.totalPersonas).toBe(4);
@@ -275,7 +287,10 @@ describe('RecommendationTool', () => {
         processingTimeMs: 50,
       });
 
-      const result = await tool.handleToolCall('recommend-persona', args);
+      const result = (await tool.handleToolCall(
+        'recommend-persona',
+        args
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.recommendations).toHaveLength(1);
@@ -306,7 +321,10 @@ describe('RecommendationTool', () => {
         processingTimeMs: 30,
       });
 
-      const result = await tool.handleToolCall('recommend-persona', args);
+      const result = (await tool.handleToolCall(
+        'recommend-persona',
+        args
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.recommendations).toHaveLength(1);
@@ -318,7 +336,10 @@ describe('RecommendationTool', () => {
         description: 'Test description',
       };
 
-      const result = await tool.handleToolCall('recommend-persona', args);
+      const result = (await tool.handleToolCall(
+        'recommend-persona',
+        args
+      )) as any;
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -334,7 +355,10 @@ describe('RecommendationTool', () => {
         new Error('Processing failed')
       );
 
-      const result = await tool.handleToolCall('recommend-persona', args);
+      const result = (await tool.handleToolCall(
+        'recommend-persona',
+        args
+      )) as any;
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Processing failed');
@@ -377,7 +401,6 @@ describe('RecommendationTool', () => {
         id: 'architect',
         name: 'Software Architect',
         role: 'architect',
-        description: 'System design expert',
         core: {
           identity: 'Architecture expert',
           primaryObjective: 'Design scalable systems',
@@ -429,7 +452,10 @@ describe('RecommendationTool', () => {
         confidence: 0.9,
       });
 
-      const result = await tool.handleToolCall('explain-persona-fit', args);
+      const result = (await tool.handleToolCall(
+        'explain-persona-fit',
+        args
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.persona.id).toBe('architect');
@@ -448,7 +474,10 @@ describe('RecommendationTool', () => {
 
       mockRecommendationEngine.explainPersonaFit.mockResolvedValue(null);
 
-      const result = await tool.handleToolCall('explain-persona-fit', args);
+      const result = (await tool.handleToolCall(
+        'explain-persona-fit',
+        args
+      )) as any;
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Persona not found: nonexistent');
@@ -461,7 +490,10 @@ describe('RecommendationTool', () => {
         description: 'Test description',
       };
 
-      const result = await tool.handleToolCall('explain-persona-fit', args);
+      const result = (await tool.handleToolCall(
+        'explain-persona-fit',
+        args
+      )) as any;
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -493,7 +525,10 @@ describe('RecommendationTool', () => {
         },
       ]);
 
-      const result = await tool.handleToolCall('compare-personas', args);
+      const result = (await tool.handleToolCall(
+        'compare-personas',
+        args
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.comparisons).toHaveLength(2);
@@ -511,7 +546,10 @@ describe('RecommendationTool', () => {
 
       mockRecommendationEngine.comparePersonas.mockResolvedValue([]);
 
-      const result = await tool.handleToolCall('compare-personas', args);
+      const result = (await tool.handleToolCall(
+        'compare-personas',
+        args
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.comparisons).toHaveLength(0);
@@ -527,7 +565,10 @@ describe('RecommendationTool', () => {
       const testError = new Error('Comparison failed');
       mockRecommendationEngine.comparePersonas.mockRejectedValue(testError);
 
-      const result = await tool.handleToolCall('compare-personas', args);
+      const result = (await tool.handleToolCall(
+        'compare-personas',
+        args
+      )) as any;
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Comparison failed');
@@ -544,7 +585,10 @@ describe('RecommendationTool', () => {
         'String error'
       );
 
-      const result = await tool.handleToolCall('compare-personas', args);
+      const result = (await tool.handleToolCall(
+        'compare-personas',
+        args
+      )) as any;
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Unknown error occurred');
@@ -565,7 +609,10 @@ describe('RecommendationTool', () => {
         },
       });
 
-      const result = await tool.handleToolCall('get-recommendation-stats', {});
+      const result = (await tool.handleToolCall(
+        'get-recommendation-stats',
+        {}
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.totalPersonas).toBe(4);
@@ -581,7 +628,10 @@ describe('RecommendationTool', () => {
         throw new Error('Stats unavailable');
       });
 
-      const result = await tool.handleToolCall('get-recommendation-stats', {});
+      const result = (await tool.handleToolCall(
+        'get-recommendation-stats',
+        {}
+      )) as any;
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Stats unavailable');

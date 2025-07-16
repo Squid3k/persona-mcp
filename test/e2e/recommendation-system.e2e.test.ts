@@ -51,7 +51,7 @@ describe('Recommendation System E2E', () => {
     });
 
     it('should recommend personas for architecture tasks', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'recommend-persona',
         {
           title: 'Design microservices architecture',
@@ -61,7 +61,7 @@ describe('Recommendation System E2E', () => {
           complexity: 'complex',
           domain: 'backend',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.recommendations).toHaveLength(3);
@@ -76,7 +76,7 @@ describe('Recommendation System E2E', () => {
     });
 
     it('should recommend personas for development tasks', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'recommend-persona',
         {
           title: 'Implement user authentication',
@@ -86,7 +86,7 @@ describe('Recommendation System E2E', () => {
           complexity: 'moderate',
           domain: 'backend',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.recommendations).toHaveLength(3);
@@ -100,7 +100,7 @@ describe('Recommendation System E2E', () => {
     });
 
     it('should recommend personas for debugging tasks', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'recommend-persona',
         {
           title: 'Debug memory leak',
@@ -110,7 +110,7 @@ describe('Recommendation System E2E', () => {
           complexity: 'complex',
           domain: 'backend',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.recommendations).toHaveLength(3);
@@ -124,7 +124,7 @@ describe('Recommendation System E2E', () => {
     });
 
     it('should recommend personas for code review tasks', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'recommend-persona',
         {
           title: 'Review security implementation',
@@ -134,7 +134,7 @@ describe('Recommendation System E2E', () => {
           complexity: 'moderate',
           domain: 'security',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.recommendations).toHaveLength(3);
@@ -148,7 +148,7 @@ describe('Recommendation System E2E', () => {
     });
 
     it('should explain persona fit accurately', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'explain-persona-fit',
         {
           personaId: 'architect',
@@ -156,7 +156,7 @@ describe('Recommendation System E2E', () => {
           description: 'Design a high-performance distributed system',
           complexity: 'expert',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.persona.id).toBe('architect');
@@ -168,7 +168,7 @@ describe('Recommendation System E2E', () => {
     });
 
     it('should compare personas accurately', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'compare-personas',
         {
           personaIds: ['architect', 'developer', 'reviewer'],
@@ -176,7 +176,7 @@ describe('Recommendation System E2E', () => {
           description: 'Design RESTful APIs for the microservices',
           complexity: 'moderate',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.comparisons).toHaveLength(3);
@@ -192,10 +192,10 @@ describe('Recommendation System E2E', () => {
     });
 
     it('should provide system statistics', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'get-recommendation-stats',
         {}
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.totalPersonas).toBe(13);
@@ -215,13 +215,13 @@ describe('Recommendation System E2E', () => {
 
     it('should handle edge cases gracefully', async () => {
       // Test with minimal input
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'recommend-persona',
         {
           title: 'Task',
           description: 'Do something',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.recommendations).toHaveLength(3);
@@ -236,7 +236,7 @@ describe('Recommendation System E2E', () => {
     });
 
     it('should handle complex tasks with multiple keywords', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'recommend-persona',
         {
           title: 'Full-stack development project',
@@ -254,7 +254,7 @@ describe('Recommendation System E2E', () => {
           domain: 'web development',
           urgency: 'high',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.recommendations).toHaveLength(3);
@@ -274,14 +274,14 @@ describe('Recommendation System E2E', () => {
         complexity: 'moderate',
       };
 
-      const result1 = await recommendationTool.handleToolCall(
+      const result1 = (await recommendationTool.handleToolCall(
         'recommend-persona',
         taskArgs
-      );
-      const result2 = await recommendationTool.handleToolCall(
+      )) as any;
+      const result2 = (await recommendationTool.handleToolCall(
         'recommend-persona',
         taskArgs
-      );
+      )) as any;
 
       expect(result1.success).toBe(true);
       expect(result2.success).toBe(true);
@@ -301,41 +301,41 @@ describe('Recommendation System E2E', () => {
     });
 
     it('should handle malformed input gracefully', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'recommend-persona',
         {
           title: '', // Invalid empty title
           description: 'Test',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });
 
     it('should handle non-existent persona in explain-persona-fit', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'explain-persona-fit',
         {
           personaId: 'nonexistent',
           title: 'Test task',
           description: 'Test description',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Persona not found: nonexistent');
     });
 
     it('should handle empty persona list in compare-personas', async () => {
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'compare-personas',
         {
           personaIds: [],
           title: 'Test task',
           description: 'Test description',
         }
-      );
+      )) as any;
 
       expect(result.success).toBe(true);
       expect(result.data.comparisons).toHaveLength(0);
@@ -346,14 +346,14 @@ describe('Recommendation System E2E', () => {
     it('should process recommendations within reasonable time', async () => {
       const start = Date.now();
 
-      const result = await recommendationTool.handleToolCall(
+      const result = (await recommendationTool.handleToolCall(
         'recommend-persona',
         {
           title: 'Performance test',
           description: 'Test recommendation performance',
           maxRecommendations: 5,
         }
-      );
+      )) as any;
 
       const duration = Date.now() - start;
 
@@ -375,7 +375,7 @@ describe('Recommendation System E2E', () => {
 
       const results = await Promise.all(tasks);
 
-      results.forEach(result => {
+      results.forEach((result: any) => {
         expect(result.success).toBe(true);
         expect(result.data.recommendations).toHaveLength(3);
       });

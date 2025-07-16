@@ -119,34 +119,34 @@ export class EnhancedPersonaManager {
   generatePrompt(persona: Persona, context: string = ''): string {
     // Build prompt from new structure
     let prompt = `${persona.core.identity}\n\n`;
-    
+
     prompt += `Primary Objective: ${persona.core.primaryObjective}\n\n`;
-    
+
     prompt += `Key Constraints:\n`;
     persona.core.constraints.forEach(constraint => {
       prompt += `- ${constraint}\n`;
     });
-    
+
     prompt += `\nMindset:\n`;
     persona.behavior.mindset.forEach(mindset => {
       prompt += `- ${mindset}\n`;
     });
-    
+
     prompt += `\nMethodology:\n`;
     persona.behavior.methodology.forEach((step, index) => {
       prompt += `${index + 1}. ${step}\n`;
     });
-    
+
     prompt += `\nPriorities (in order):\n`;
     persona.behavior.priorities.forEach((priority, index) => {
       prompt += `${index + 1}. ${priority}\n`;
     });
-    
+
     prompt += `\nAvoid:\n`;
     persona.behavior.antiPatterns.forEach(pattern => {
       prompt += `- ${pattern}\n`;
     });
-    
+
     prompt += `\nDecision Criteria:\n`;
     persona.decisionCriteria.forEach(criteria => {
       prompt += `- ${criteria}\n`;
@@ -160,6 +160,17 @@ export class EnhancedPersonaManager {
       prompt += '\n\nExamples:\n';
       persona.examples.forEach((example, index) => {
         prompt += `${index + 1}. ${example}\n`;
+      });
+    }
+
+    if (persona.behaviorDiagrams && persona.behaviorDiagrams.length > 0) {
+      prompt += '\n\nBehavior Diagrams:\n';
+      persona.behaviorDiagrams.forEach((diagram, index) => {
+        prompt += `\n${index + 1}. ${diagram.title}\n`;
+        prompt += `   ${diagram.description}\n`;
+        prompt += `   \`\`\`mermaid\n`;
+        prompt += `   ${diagram.mermaidDSL}\n`;
+        prompt += `   \`\`\`\n`;
       });
     }
 

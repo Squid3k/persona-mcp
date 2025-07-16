@@ -36,6 +36,7 @@ export class PersonasMcpServer {
   private personaManager: EnhancedPersonaManager;
   private config: ServerConfig;
   private httpServer?: ReturnType<typeof createServer>;
+  private transport?: StreamableHTTPServerTransport;
   private recommendationTool: RecommendationTool;
 
   constructor(config: ServerConfig = {}) {
@@ -269,7 +270,7 @@ export class PersonasMcpServer {
     this.httpServer = createServer(app);
 
     // Create MCP transport
-    const transport = new StreamableHTTPServerTransport({
+    this.transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
       enableJsonResponse: true, // Enable JSON responses for compatibility
       enableDnsRebindingProtection: true,
@@ -283,7 +284,7 @@ export class PersonasMcpServer {
     });
 
     // Connect MCP server to transport BEFORE setting up HTTP routes
-    await this.server.connect(transport);
+    await this.server.connect(this.transport);
 
     // Mount the MCP endpoint
     const endpoint = this.config.http?.endpoint || '/mcp';
@@ -291,7 +292,10 @@ export class PersonasMcpServer {
     // Handle MCP POST requests
     app.post(endpoint, async (req, res) => {
       try {
-        await transport.handleRequest(req, res);
+        if (!this.transport) {
+          throw new Error('Transport not initialized');
+        }
+        await this.transport.handleRequest(req, res);
       } catch (error) {
         console.error('Error handling MCP request:', error);
         if (!res.headersSent) {
@@ -310,7 +314,10 @@ export class PersonasMcpServer {
     // Handle MCP GET requests for streaming
     app.get(endpoint, async (req, res) => {
       try {
-        await transport.handleRequest(req, res);
+        if (!this.transport) {
+          throw new Error('Transport not initialized');
+        }
+        await this.transport.handleRequest(req, res);
       } catch (error) {
         console.error('Error handling MCP streaming request:', error);
         if (!res.headersSent) {
@@ -421,19 +428,45 @@ export class PersonasMcpServer {
   }
 
   async shutdown(): Promise<void> {
+    console.error('Starting graceful shutdown...');
+
+    // Shutdown persona manager (stops file watchers)
     await this.personaManager.shutdown();
+
+    // Disconnect MCP server from transport
+    if (this.transport) {
+      try {
+        await this.server.close();
+        console.error('MCP server disconnected');
+      } catch (error) {
+        console.error('Error disconnecting MCP server:', error);
+      }
+      this.transport = undefined;
+    }
 
     // Close HTTP server if running
     if (this.httpServer) {
-      return new Promise<void>(resolve => {
+      return new Promise<void>((resolve, reject) => {
         if (!this.httpServer) {
           resolve();
           return;
         }
 
-        this.httpServer.close(() => {
-          console.error('HTTP server closed');
-          resolve();
+        // Set a timeout to prevent hanging
+        const timeout = setTimeout(() => {
+          console.error('HTTP server close timeout, forcing shutdown');
+          reject(new Error('HTTP server close timeout'));
+        }, 5000);
+
+        this.httpServer.close(error => {
+          clearTimeout(timeout);
+          if (error) {
+            console.error('Error closing HTTP server:', error);
+            reject(error);
+          } else {
+            console.error('HTTP server closed');
+            resolve();
+          }
         });
       });
     }

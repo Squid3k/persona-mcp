@@ -172,7 +172,7 @@ describe('PersonaWatcher', () => {
 
       // Simulate ready event to make watcher active
       const readyCallback = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'ready'
+        (call: any) => call[0] === 'ready'
       )?.[1];
       readyCallback?.();
 
@@ -212,7 +212,7 @@ describe('PersonaWatcher', () => {
 
       // Simulate ready event
       const readyCallback = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'ready'
+        (call: any) => call[0] === 'ready'
       )?.[1];
       readyCallback?.();
 
@@ -230,13 +230,13 @@ describe('PersonaWatcher', () => {
 
       // Get the event handlers
       const addHandler = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'add'
+        (call: any) => call[0] === 'add'
       )?.[1];
       const changeHandler = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'change'
+        (call: any) => call[0] === 'change'
       )?.[1];
       const unlinkHandler = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'unlink'
+        (call: any) => call[0] === 'unlink'
       )?.[1];
 
       expect(addHandler).toBeDefined();
@@ -276,7 +276,7 @@ describe('PersonaWatcher', () => {
 
       // Get the error handler
       const errorHandler = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'error'
+        (call: any) => call[0] === 'error'
       )?.[1];
       expect(errorHandler).toBeDefined();
 
@@ -303,7 +303,7 @@ describe('PersonaWatcher', () => {
 
       // Simulate ready event
       const readyCallback = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'ready'
+        (call: any) => call[0] === 'ready'
       )?.[1];
       readyCallback?.();
 
@@ -333,7 +333,7 @@ describe('PersonaWatcher', () => {
 
       // Trigger a debounced callback
       const addHandler = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'add'
+        (call: any) => call[0] === 'add'
       )?.[1];
       addHandler?.('/test/file.yaml');
 
@@ -364,7 +364,7 @@ describe('PersonaWatcher', () => {
 
       // Simulate ready event
       const readyCallback = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'ready'
+        (call: any) => call[0] === 'ready'
       )?.[1];
       readyCallback?.();
 
@@ -433,7 +433,7 @@ describe('PersonaWatcher', () => {
       await watcher.startWatching(directories, callback, 100);
 
       const addHandler = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'add'
+        (call: any) => call[0] === 'add'
       )?.[1];
 
       // Trigger multiple rapid events
@@ -462,7 +462,7 @@ describe('PersonaWatcher', () => {
       await watcher.startWatching(directories, callback, 50);
 
       const addHandler = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'add'
+        (call: any) => call[0] === 'add'
       )?.[1];
       addHandler?.('/test/file.yaml');
 
@@ -564,7 +564,7 @@ describe('PersonaWatcher', () => {
       await watcher.startWatching(directories, callback, 50);
 
       const addHandler = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'add'
+        (call: any) => call[0] === 'add'
       )?.[1];
       addHandler?.('/test/file.yaml');
 
@@ -587,7 +587,7 @@ describe('PersonaWatcher', () => {
       await watcher.startWatching(directories, callback, 50);
 
       const addHandler = mockWatcher.on.mock.calls.find(
-        call => call[0] === 'add'
+        (call: any) => call[0] === 'add'
       )?.[1];
       addHandler?.('/test/file.yaml');
 

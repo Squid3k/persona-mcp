@@ -19,14 +19,19 @@ async function main(): Promise<void> {
   const server = new PersonasMcpServer(config);
 
   // Handle graceful shutdown
-  const shutdown = async () => {
-    console.error('Shutting down gracefully...');
-    await server.shutdown();
-    process.exit(0);
+  const shutdown = async (signal: string) => {
+    console.error(`Received ${signal}, shutting down gracefully...`);
+    try {
+      await server.shutdown();
+      process.exit(0);
+    } catch (error) {
+      console.error('Error during shutdown:', error);
+      process.exit(1);
+    }
   };
 
-  process.on('SIGINT', () => void shutdown());
-  process.on('SIGTERM', () => void shutdown());
+  process.on('SIGINT', () => void shutdown('SIGINT'));
+  process.on('SIGTERM', () => void shutdown('SIGTERM'));
 
   try {
     await server.run();

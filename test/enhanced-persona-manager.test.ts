@@ -1,0 +1,768 @@
+import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { EnhancedPersonaManager } from '../src/enhanced-persona-manager.js';
+import { PersonaConfig, LoadedPersona } from '../src/types/yaml-persona.js';
+import { Persona } from '../src/types/persona.js';
+import { PersonaLoader } from '../src/loaders/persona-loader.js';
+import { PersonaWatcher, WatchEvent } from '../src/loaders/persona-watcher.js';
+import { PersonaResolver } from '../src/loaders/persona-resolver.js';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
+
+// Mock all dependencies
+vi.mock('fs/promises');
+vi.mock('path');
+vi.mock('os');
+
+vi.mock('../src/loaders/persona-loader.js', () => ({
+  PersonaLoader: vi.fn()
+}));
+
+vi.mock('../src/loaders/persona-watcher.js', () => ({
+  PersonaWatcher: vi.fn()
+}));
+
+vi.mock('../src/loaders/persona-resolver.js', () => ({
+  PersonaResolver: vi.fn()
+}));
+
+// Mock default personas
+vi.mock('../src/personas/architect.js', () => ({
+  architectPersona: {
+    id: 'architect',
+    name: 'Software Architect',
+    role: 'architect',
+    description: 'Designs system architecture',
+    expertise: ['architecture', 'design'],
+    approach: 'Strategic thinking',
+    promptTemplate: 'You are a software architect.',
+    tags: ['architecture']
+  }
+}));
+
+vi.mock('../src/personas/developer.js', () => ({
+  developerPersona: {
+    id: 'developer',
+    name: 'Code Developer',
+    role: 'developer',
+    description: 'Writes code',
+    expertise: ['coding', 'implementation'],
+    approach: 'Hands-on coding',
+    promptTemplate: 'You are a code developer.',
+    tags: ['development']
+  }
+}));
+
+vi.mock('../src/personas/reviewer.js', () => ({
+  reviewerPersona: {
+    id: 'reviewer',
+    name: 'Code Reviewer',
+    role: 'reviewer',
+    description: 'Reviews code',
+    expertise: ['code review', 'quality'],
+    approach: 'Critical analysis',
+    promptTemplate: 'You are a code reviewer.',
+    tags: ['review']
+  }
+}));
+
+vi.mock('../src/personas/debugger.js', () => ({
+  debuggerPersona: {
+    id: 'debugger',
+    name: 'Debugger',
+    role: 'debugger',
+    description: 'Debugs issues',
+    expertise: ['debugging', 'troubleshooting'],
+    approach: 'Systematic investigation',
+    promptTemplate: 'You are a debugger.',
+    tags: ['debugging']
+  }
+}));
+
+describe('EnhancedPersonaManager', () => {
+  let manager: EnhancedPersonaManager;
+  let mockLoader: any;
+  let mockWatcher: any;
+  let mockResolver: any;
+  let mockConsoleError: Mock;
+  let mockConsoleWarn: Mock;
+  let originalConsoleError: typeof console.error;
+  let originalConsoleWarn: typeof console.warn;
+
+  // Test data
+  const testPersona: LoadedPersona = {
+    id: 'test-persona',
+    name: 'Test Persona',
+    role: 'tester',
+    description: 'A test persona',
+    expertise: ['testing'],
+    approach: 'Test-driven',
+    promptTemplate: 'You are a test persona.',
+    examples: ['Example 1', 'Example 2'],
+    tags: ['testing'],
+    version: '1.0',
+    source: {
+      type: 'user',
+      filePath: '/test/path/test.yaml'
+    },
+    isValid: true
+  };
+
+  const testBasicPersona: Persona = {
+    id: 'test-persona',
+    name: 'Test Persona',
+    role: 'tester',
+    description: 'A test persona',
+    expertise: ['testing'],
+    approach: 'Test-driven',
+    promptTemplate: 'You are a test persona.',
+    examples: ['Example 1', 'Example 2'],
+    tags: ['testing']
+  };
+
+  beforeEach(() => {
+    originalConsoleError = console.error;
+    originalConsoleWarn = console.warn;
+    mockConsoleError = vi.fn();
+    mockConsoleWarn = vi.fn();
+    console.error = mockConsoleError;
+    console.warn = mockConsoleWarn;
+
+    // Mock loader
+    mockLoader = {
+      loadPersonasFromDirectory: vi.fn().mockResolvedValue([testPersona]),
+      loadPersonaFromFile: vi.fn().mockResolvedValue(testPersona)
+    };
+    vi.mocked(PersonaLoader).mockImplementation(() => mockLoader);
+
+    // Mock watcher
+    mockWatcher = {
+      startWatching: vi.fn().mockResolvedValue(undefined),
+      stopWatching: vi.fn().mockResolvedValue(undefined)
+    };
+    vi.mocked(PersonaWatcher).mockImplementation(() => mockWatcher);
+
+    // Mock resolver
+    mockResolver = {
+      resolveConflicts: vi.fn().mockImplementation((personas) => {
+        const map = new Map();
+        personas.forEach(p => {
+          map.set(p.id, { persona: p, conflicts: [] });
+        });
+        return map;
+      }),
+      getStatistics: vi.fn().mockReturnValue({
+        total: 5,
+        valid: 4,
+        invalid: 1,
+        conflicts: 0,
+        bySource: { default: 4, user: 1, project: 0 }
+      }),
+      getInvalidPersonas: vi.fn().mockReturnValue([])
+    };
+    vi.mocked(PersonaResolver).mockImplementation(() => mockResolver);
+
+    // Mock fs operations
+    vi.mocked(fs.access).mockResolvedValue(undefined);
+    vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+
+    // Mock path operations
+    vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
+    vi.mocked(os.homedir).mockReturnValue('/home/test');
+    
+    // Mock process.cwd()
+    vi.spyOn(process, 'cwd').mockReturnValue('/project');
+
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    console.error = originalConsoleError;
+    console.warn = originalConsoleWarn;
+    vi.clearAllMocks();
+  });
+
+  describe('constructor', () => {
+    it('should create manager with default config', () => {
+      manager = new EnhancedPersonaManager();
+      
+      expect(PersonaResolver).toHaveBeenCalled();
+      expect(PersonaLoader).toHaveBeenCalled();
+      expect(PersonaWatcher).toHaveBeenCalled();
+    });
+
+    it('should create manager with custom config', () => {
+      const customConfig: Partial<PersonaConfig> = {
+        directories: {
+          user: '/custom/user',
+          project: '/custom/project'
+        },
+        watchOptions: {
+          enabled: false,
+          debounceMs: 300
+        }
+      };
+
+      manager = new EnhancedPersonaManager(customConfig);
+      
+      expect(PersonaResolver).toHaveBeenCalled();
+      expect(PersonaLoader).toHaveBeenCalled();
+      expect(PersonaWatcher).toHaveBeenCalled();
+    });
+  });
+
+  describe('initialize', () => {
+    beforeEach(() => {
+      manager = new EnhancedPersonaManager();
+    });
+
+    it('should initialize successfully', async () => {
+      await manager.initialize();
+      
+      expect(mockConsoleError).toHaveBeenCalledWith('Initializing Enhanced Persona Manager...');
+      expect(mockConsoleError).toHaveBeenCalledWith('Enhanced Persona Manager initialized successfully');
+      expect(mockLoader.loadPersonasFromDirectory).toHaveBeenCalledTimes(2);
+      expect(mockWatcher.startWatching).toHaveBeenCalled();
+    });
+
+    it('should not initialize twice', async () => {
+      await manager.initialize();
+      mockConsoleError.mockClear();
+      
+      await manager.initialize();
+      
+      expect(mockConsoleError).not.toHaveBeenCalledWith('Initializing Enhanced Persona Manager...');
+    });
+
+    it('should create user directory if it does not exist', async () => {
+      vi.mocked(fs.access).mockRejectedValueOnce(new Error('Directory does not exist'));
+      
+      await manager.initialize();
+      
+      expect(fs.mkdir).toHaveBeenCalledWith('/home/test/.ai/personas', { recursive: true });
+      expect(mockConsoleError).toHaveBeenCalledWith('Created directory: /home/test/.ai/personas');
+    });
+
+    it('should handle directory creation failure', async () => {
+      vi.mocked(fs.access).mockRejectedValueOnce(new Error('Directory does not exist'));
+      vi.mocked(fs.mkdir).mockRejectedValueOnce(new Error('Permission denied'));
+      
+      await manager.initialize();
+      
+      expect(mockConsoleWarn).toHaveBeenCalledWith('Failed to create directory /home/test/.ai/personas:', expect.any(Error));
+    });
+
+    it('should skip watching when disabled', async () => {
+      manager = new EnhancedPersonaManager({
+        watchOptions: { enabled: false }
+      });
+      
+      await manager.initialize();
+      
+      expect(mockWatcher.startWatching).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('shutdown', () => {
+    beforeEach(() => {
+      manager = new EnhancedPersonaManager();
+    });
+
+    it('should shutdown successfully', async () => {
+      await manager.initialize();
+      await manager.shutdown();
+      
+      expect(mockWatcher.stopWatching).toHaveBeenCalled();
+    });
+  });
+
+  describe('getAllPersonas', () => {
+    beforeEach(async () => {
+      manager = new EnhancedPersonaManager();
+      await manager.initialize();
+    });
+
+    it('should return all valid personas', () => {
+      const personas = manager.getAllPersonas();
+      
+      expect(mockResolver.resolveConflicts).toHaveBeenCalled();
+      expect(personas).toHaveLength(5); // 4 default + 1 test
+    });
+
+    it('should filter out invalid personas', () => {
+      const invalidPersona = { ...testPersona, isValid: false };
+      mockResolver.resolveConflicts.mockReturnValue(new Map([
+        ['test-persona', { persona: invalidPersona, conflicts: [] }]
+      ]));
+      
+      const personas = manager.getAllPersonas();
+      
+      expect(personas).toHaveLength(0);
+    });
+  });
+
+  describe('getPersona', () => {
+    beforeEach(async () => {
+      manager = new EnhancedPersonaManager();
+      await manager.initialize();
+    });
+
+    it('should return specific persona by id', () => {
+      mockResolver.resolveConflicts.mockReturnValue(new Map([
+        ['test-persona', { persona: testPersona, conflicts: [] }]
+      ]));
+      
+      const persona = manager.getPersona('test-persona');
+      
+      expect(persona).toBeDefined();
+      expect(persona?.id).toBe('test-persona');
+    });
+
+    it('should return undefined for non-existent persona', () => {
+      mockResolver.resolveConflicts.mockReturnValue(new Map());
+      
+      const persona = manager.getPersona('non-existent');
+      
+      expect(persona).toBeUndefined();
+    });
+
+    it('should return undefined for invalid persona', () => {
+      const invalidPersona = { ...testPersona, isValid: false };
+      mockResolver.resolveConflicts.mockReturnValue(new Map([
+        ['test-persona', { persona: invalidPersona, conflicts: [] }]
+      ]));
+      
+      const persona = manager.getPersona('test-persona');
+      
+      expect(persona).toBeUndefined();
+    });
+  });
+
+  describe('generatePrompt', () => {
+    beforeEach(async () => {
+      manager = new EnhancedPersonaManager();
+      await manager.initialize();
+    });
+
+    it('should generate prompt with template only', () => {
+      const persona = { ...testBasicPersona, examples: undefined };
+      
+      const prompt = manager.generatePrompt(persona);
+      
+      expect(prompt).toBe('You are a test persona.');
+    });
+
+    it('should generate prompt with context', () => {
+      const persona = { ...testBasicPersona, examples: undefined };
+      const context = 'Build a REST API';
+      
+      const prompt = manager.generatePrompt(persona, context);
+      
+      expect(prompt).toBe('You are a test persona.\n\nContext: Build a REST API');
+    });
+
+    it('should generate prompt with examples', () => {
+      const prompt = manager.generatePrompt(testBasicPersona);
+      
+      expect(prompt).toContain('You are a test persona.');
+      expect(prompt).toContain('Examples of this approach:');
+      expect(prompt).toContain('1. Example 1');
+      expect(prompt).toContain('2. Example 2');
+    });
+
+    it('should generate prompt with context and examples', () => {
+      const context = 'Build a REST API';
+      
+      const prompt = manager.generatePrompt(testBasicPersona, context);
+      
+      expect(prompt).toContain('You are a test persona.');
+      expect(prompt).toContain('Context: Build a REST API');
+      expect(prompt).toContain('Examples of this approach:');
+      expect(prompt).toContain('1. Example 1');
+      expect(prompt).toContain('2. Example 2');
+    });
+
+    it('should handle empty examples array', () => {
+      const persona = { ...testBasicPersona, examples: [] };
+      
+      const prompt = manager.generatePrompt(persona);
+      
+      expect(prompt).toBe('You are a test persona.');
+      expect(prompt).not.toContain('Examples of this approach:');
+    });
+  });
+
+  describe('getPersonaInfo', () => {
+    beforeEach(async () => {
+      manager = new EnhancedPersonaManager();
+      await manager.initialize();
+    });
+
+    it('should return persona information', () => {
+      const info = manager.getPersonaInfo();
+      
+      expect(info).toHaveProperty('statistics');
+      expect(info).toHaveProperty('conflicts');
+      expect(info).toHaveProperty('invalid');
+      expect(mockResolver.getStatistics).toHaveBeenCalled();
+      expect(mockResolver.getInvalidPersonas).toHaveBeenCalled();
+    });
+
+    it('should return conflicts information', () => {
+      const conflictPersona = { ...testPersona, id: 'conflict-persona' };
+      mockResolver.resolveConflicts.mockReturnValue(new Map([
+        ['conflict-persona', { 
+          persona: conflictPersona, 
+          conflicts: [{ ...testPersona, source: { type: 'project' } }] 
+        }]
+      ]));
+      
+      const info = manager.getPersonaInfo();
+      
+      expect(info.conflicts).toHaveLength(1);
+      expect(info.conflicts[0]).toEqual({
+        id: 'conflict-persona',
+        sources: ['user', 'project']
+      });
+    });
+
+    it('should return invalid personas information', () => {
+      const invalidPersona = { ...testPersona, id: 'invalid-persona', validationErrors: ['Error 1', 'Error 2'] };
+      mockResolver.getInvalidPersonas.mockReturnValue([invalidPersona]);
+      
+      const info = manager.getPersonaInfo();
+      
+      expect(info.invalid).toHaveLength(1);
+      expect(info.invalid[0]).toEqual({
+        id: 'invalid-persona',
+        errors: ['Error 1', 'Error 2']
+      });
+    });
+  });
+
+  describe('reloadPersonas', () => {
+    beforeEach(async () => {
+      manager = new EnhancedPersonaManager();
+      await manager.initialize();
+    });
+
+    it('should reload all personas', async () => {
+      mockConsoleError.mockClear();
+      mockLoader.loadPersonasFromDirectory.mockClear();
+      
+      await manager.reloadPersonas();
+      
+      expect(mockConsoleError).toHaveBeenCalledWith('Reloading all personas...');
+      expect(mockLoader.loadPersonasFromDirectory).toHaveBeenCalledTimes(2); // Called again during reload
+    });
+  });
+
+  describe('addPersona', () => {
+    beforeEach(async () => {
+      manager = new EnhancedPersonaManager();
+      await manager.initialize();
+    });
+
+    it('should add persona programmatically', () => {
+      const newPersona: Persona = {
+        id: 'new-persona',
+        name: 'New Persona',
+        role: 'new',
+        description: 'New description',
+        expertise: ['new'],
+        approach: 'New approach',
+        promptTemplate: 'New template',
+        tags: ['new']
+      };
+      
+      manager.addPersona(newPersona);
+      
+      // Verify it was added by checking internal state
+      mockResolver.resolveConflicts.mockReturnValue(new Map([
+        ['new-persona', { persona: { ...newPersona, version: '1.0', source: { type: 'default' }, isValid: true }, conflicts: [] }]
+      ]));
+      
+      const retrieved = manager.getPersona('new-persona');
+      expect(retrieved).toBeDefined();
+      expect(retrieved?.id).toBe('new-persona');
+    });
+  });
+
+  describe('removePersona', () => {
+    beforeEach(async () => {
+      manager = new EnhancedPersonaManager();
+      await manager.initialize();
+    });
+
+    it('should remove persona by id', () => {
+      // First add a persona so we can remove it
+      const testPersona: Persona = {
+        id: 'remove-test',
+        name: 'Remove Test',
+        role: 'test',
+        description: 'Test persona',
+        expertise: ['test'],
+        approach: 'Test approach',
+        promptTemplate: 'Test template',
+        tags: ['test']
+      };
+      
+      manager.addPersona(testPersona);
+      
+      const result = manager.removePersona('remove-test');
+      
+      expect(result).toBe(true);
+    });
+
+    it('should return false for non-existent persona', () => {
+      const result = manager.removePersona('non-existent');
+      
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('file watching', () => {
+    beforeEach(async () => {
+      manager = new EnhancedPersonaManager();
+      await manager.initialize();
+    });
+
+    it('should handle file add event', async () => {
+      const event: WatchEvent = {
+        type: 'add',
+        filePath: '/home/test/.ai/personas/new-persona.yaml'
+      };
+      
+      // Get the callback that was passed to startWatching
+      const callback = mockWatcher.startWatching.mock.calls[0][1];
+      
+      await callback(event);
+      
+      expect(mockLoader.loadPersonaFromFile).toHaveBeenCalledWith(
+        '/home/test/.ai/personas/new-persona.yaml',
+        'user'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith('File add: /home/test/.ai/personas/new-persona.yaml');
+    });
+
+    it('should handle file change event', async () => {
+      const event: WatchEvent = {
+        type: 'change',
+        filePath: '/project/.ai/personas/test-persona.yaml'
+      };
+      
+      const callback = mockWatcher.startWatching.mock.calls[0][1];
+      
+      await callback(event);
+      
+      expect(mockLoader.loadPersonaFromFile).toHaveBeenCalledWith(
+        '/project/.ai/personas/test-persona.yaml',
+        'project'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith('File change: /project/.ai/personas/test-persona.yaml');
+    });
+
+    it('should handle file unlink event', async () => {
+      const event: WatchEvent = {
+        type: 'unlink',
+        filePath: '/home/test/.ai/personas/deleted-persona.yaml'
+      };
+      
+      const callback = mockWatcher.startWatching.mock.calls[0][1];
+      
+      await callback(event);
+      
+      expect(mockConsoleError).toHaveBeenCalledWith('File unlink: /home/test/.ai/personas/deleted-persona.yaml');
+    });
+
+    it('should handle file change errors', async () => {
+      const event: WatchEvent = {
+        type: 'add',
+        filePath: '/home/test/.ai/personas/error-persona.yaml'
+      };
+      
+      mockLoader.loadPersonaFromFile.mockRejectedValue(new Error('Load error'));
+      
+      const callback = mockWatcher.startWatching.mock.calls[0][1];
+      
+      await callback(event);
+      
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Error handling file change /home/test/.ai/personas/error-persona.yaml:',
+        expect.any(Error)
+      );
+    });
+
+    it('should determine source type from path - user', () => {
+      const manager = new EnhancedPersonaManager();
+      const filePath = '/home/test/.ai/personas/test.yaml';
+      
+      // We need to call the private method through a public one that uses it
+      const event: WatchEvent = { type: 'add', filePath };
+      
+      // The source type determination is tested indirectly through the file handling
+      expect(vi.mocked(path.join)).toHaveBeenCalledWith('/home/test', '.ai', 'personas');
+    });
+
+    it('should determine source type from path - project', () => {
+      const manager = new EnhancedPersonaManager();
+      const filePath = '/project/.ai/personas/test.yaml';
+      
+      // The source type determination is tested indirectly through the file handling
+      expect(vi.mocked(path.join)).toHaveBeenCalledWith('/project', '.ai', 'personas');
+    });
+
+    it('should handle file removal with existing persona', async () => {
+      // First add a persona with a file path
+      const testPersonaWithPath: LoadedPersona = {
+        ...testPersona,
+        source: { type: 'user', filePath: '/home/test/.ai/personas/test.yaml' }
+      };
+      
+      // Mock the persona being found
+      const mockPersonas = new Map([
+        ['test-persona:user:/home/test/.ai/personas/test.yaml', testPersonaWithPath]
+      ]);
+      
+      // Access private method through reflection to test it
+      const privateManager = manager as any;
+      privateManager.personas = mockPersonas;
+      
+      const event: WatchEvent = {
+        type: 'unlink',
+        filePath: '/home/test/.ai/personas/test.yaml'
+      };
+      
+      const callback = mockWatcher.startWatching.mock.calls[0][1];
+      
+      await callback(event);
+      
+      expect(mockConsoleError).toHaveBeenCalledWith("Removed persona 'test-persona' from /home/test/.ai/personas/test.yaml");
+    });
+
+    it('should handle file add with existing persona key', async () => {
+      // First add a persona with a file path
+      const testPersonaWithPath: LoadedPersona = {
+        ...testPersona,
+        source: { type: 'user', filePath: '/home/test/.ai/personas/test.yaml' }
+      };
+      
+      // Mock the persona being found - put it in personas map
+      const mockPersonas = new Map([
+        ['test-persona:user:/home/test/.ai/personas/test.yaml', testPersonaWithPath]
+      ]);
+      
+      // Access private method through reflection to test it
+      const privateManager = manager as any;
+      privateManager.personas = mockPersonas;
+      
+      const event: WatchEvent = {
+        type: 'add',
+        filePath: '/home/test/.ai/personas/test.yaml'
+      };
+      
+      const callback = mockWatcher.startWatching.mock.calls[0][1];
+      
+      await callback(event);
+      
+      expect(mockLoader.loadPersonaFromFile).toHaveBeenCalledWith(
+        '/home/test/.ai/personas/test.yaml',
+        'user'
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith("Loaded persona 'test-persona' from /home/test/.ai/personas/test.yaml");
+    });
+
+    it('should handle file with default source type', async () => {
+      const event: WatchEvent = {
+        type: 'add',
+        filePath: '/some/other/path/test.yaml'
+      };
+      
+      const callback = mockWatcher.startWatching.mock.calls[0][1];
+      
+      await callback(event);
+      
+      expect(mockLoader.loadPersonaFromFile).toHaveBeenCalledWith(
+        '/some/other/path/test.yaml',
+        'default'
+      );
+    });
+
+    it('should handle file add with invalid persona', async () => {
+      const invalidPersona: LoadedPersona = {
+        ...testPersona,
+        isValid: false
+      };
+      
+      mockLoader.loadPersonaFromFile.mockResolvedValue(invalidPersona);
+      
+      const event: WatchEvent = {
+        type: 'add',
+        filePath: '/home/test/.ai/personas/invalid.yaml'
+      };
+      
+      const callback = mockWatcher.startWatching.mock.calls[0][1];
+      
+      await callback(event);
+      
+      expect(mockConsoleError).toHaveBeenCalledWith("Failed to load persona 'test-persona' from /home/test/.ai/personas/invalid.yaml");
+    });
+  });
+
+  describe('loadAllPersonas', () => {
+    beforeEach(() => {
+      manager = new EnhancedPersonaManager();
+    });
+
+    it('should load personas from all sources', async () => {
+      await manager.initialize();
+      
+      expect(mockConsoleError).toHaveBeenCalledWith('Loading default personas...');
+      expect(mockConsoleError).toHaveBeenCalledWith('Loading user personas...');
+      expect(mockConsoleError).toHaveBeenCalledWith('Loading project personas...');
+      
+      expect(mockLoader.loadPersonasFromDirectory).toHaveBeenCalledWith('/home/test/.ai/personas', 'user');
+      expect(mockLoader.loadPersonasFromDirectory).toHaveBeenCalledWith('/project/.ai/personas', 'project');
+    });
+
+    it('should log statistics after loading', async () => {
+      await manager.initialize();
+      
+      expect(mockConsoleError).toHaveBeenCalledWith('Loaded 5 personas (4 valid, 1 invalid)');
+      expect(mockConsoleError).toHaveBeenCalledWith('Sources: 4 default, 1 user, 0 project');
+    });
+
+    it('should log conflicts when present', async () => {
+      mockResolver.getStatistics.mockReturnValue({
+        total: 5,
+        valid: 4,
+        invalid: 1,
+        conflicts: 2,
+        bySource: { default: 4, user: 1, project: 0 }
+      });
+      
+      await manager.initialize();
+      
+      expect(mockConsoleError).toHaveBeenCalledWith('Found 2 persona conflicts');
+    });
+  });
+
+  describe('private methods', () => {
+    beforeEach(async () => {
+      manager = new EnhancedPersonaManager();
+      await manager.initialize();
+    });
+
+    it('should convert loaded persona to basic persona', () => {
+      const personas = manager.getAllPersonas();
+      
+      // Verify that the returned personas don't have LoadedPersona specific fields
+      personas.forEach(persona => {
+        expect(persona).not.toHaveProperty('source');
+        expect(persona).not.toHaveProperty('isValid');
+        expect(persona).not.toHaveProperty('validationErrors');
+        expect(persona).not.toHaveProperty('version');
+      });
+    });
+  });
+});

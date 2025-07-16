@@ -113,8 +113,17 @@ describe('PersonaScorer', () => {
   });
 
   describe('generateReasoning', () => {
+    it('should generate excellent match reasoning for very high scores', () => {
+      const score = 0.85;
+      const reasoning = scorer.generateReasoning(testPersona, testTask, score);
+
+      expect(reasoning).toContain('Excellent match');
+      expect(reasoning).toContain(testTask.title);
+      expect(reasoning.length).toBeGreaterThan(10);
+    });
+
     it('should generate meaningful reasoning for high scores', () => {
-      const score = 0.8;
+      const score = 0.7;
       const reasoning = scorer.generateReasoning(testPersona, testTask, score);
 
       expect(reasoning).toContain('Good match');
@@ -171,6 +180,29 @@ describe('PersonaScorer', () => {
         )
       ).toBe(true);
     });
+
+    it('should identify debugger role strengths', () => {
+      const debuggerPersona: Persona = {
+        id: 'test-debugger',
+        name: 'Test Debugger',
+        role: 'debugger',
+        description: 'Focuses on debugging and problem-solving',
+        expertise: ['debugging', 'troubleshooting'],
+        approach: 'Systematic analysis',
+        promptTemplate: 'You are a debugger...',
+        tags: ['debugging', 'analysis'],
+      };
+
+      const debugTask: TaskDescription = {
+        title: 'Debug performance issue',
+        description: 'Find root cause of performance degradation',
+        domain: 'backend',
+      };
+
+      const strengths = scorer.identifyStrengths(debuggerPersona, debugTask);
+
+      expect(strengths.some(s => s.includes('Systematic problem-solving'))).toBe(true);
+    });
   });
 
   describe('identifyLimitations', () => {
@@ -201,6 +233,30 @@ describe('PersonaScorer', () => {
       const limitations = scorer.identifyLimitations(testPersona, simpleTask);
 
       expect(limitations.some(l => l.includes('overcomplicate'))).toBe(true);
+    });
+
+    it('should identify architectural guidance needed for expert tasks with non-architect persona', () => {
+      const developerPersona: Persona = {
+        id: 'test-developer',
+        name: 'Test Developer',
+        role: 'developer',
+        description: 'Focuses on implementation',
+        expertise: ['coding', 'implementation'],
+        approach: 'Code first',
+        promptTemplate: 'You are a developer...',
+        tags: ['development', 'coding'],
+      };
+
+      const expertTask: TaskDescription = {
+        title: 'Complex distributed system',
+        description: 'Design a complex distributed system',
+        complexity: 'expert',
+        domain: 'backend',
+      };
+
+      const limitations = scorer.identifyLimitations(developerPersona, expertTask);
+
+      expect(limitations.some(l => l.includes('architectural guidance'))).toBe(true);
     });
 
     it('should return empty array when no limitations identified', () => {
@@ -285,6 +341,33 @@ describe('PersonaScorer', () => {
       const score = scorer.scorePersona(testPersona, taskWithEmptyKeywords);
       expect(score).toBeGreaterThanOrEqual(0);
       expect(score).toBeLessThanOrEqual(1);
+    });
+  });
+
+  describe('complexity fit in reasoning', () => {
+    it('should include default complexity fit message for unknown role', () => {
+      // Test with a custom persona that has an unusual role
+      const customPersona: Persona = {
+        id: 'custom',
+        name: 'Custom Role',
+        role: 'specialist' as any, // Role not in the predefined list
+        description: 'Custom specialist',
+        expertise: ['custom'],
+        approach: 'Custom approach',
+        promptTemplate: 'Custom template',
+      };
+
+      const task: TaskDescription = {
+        title: 'Task',
+        description: 'Some task',
+        complexity: 'moderate',
+      };
+
+      // The complexity fit message should appear in the reasoning
+      const score = scorer.scorePersona(customPersona, task);
+      const reasoning = scorer.generateReasoning(customPersona, task, score);
+      
+      expect(reasoning).toContain('Moderate fit for this complexity level');
     });
   });
 });

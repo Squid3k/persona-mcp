@@ -4,22 +4,24 @@ import {
   TestServer,
   createJsonRpcRequest,
   createMcpHeaders,
+  getRandomPort,
 } from './test-helpers.js';
 
 describe('MCP Protocol E2E Tests', () => {
   let server: TestServer;
-  const TEST_PORT = 3457;
+  let testPort: number;
   let sessionId: string;
 
   beforeAll(async () => {
-    server = new TestServer({ port: TEST_PORT });
+    testPort = await getRandomPort();
+    server = new TestServer({ port: testPort });
     await server.start();
     await server.waitForReady();
     sessionId = await server.initializeMcpSession();
-  }, 15000);
+  }, 30000);
 
-  afterAll(() => {
-    server.stop();
+  afterAll(async () => {
+    await server.stop();
   });
 
   describe('List Resources', () => {

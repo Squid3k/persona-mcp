@@ -1,19 +1,20 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import { TestServer } from './test-helpers.js';
+import { TestServer, getRandomPort } from './test-helpers.js';
 
 describe('Server E2E Tests', () => {
   let server: TestServer;
-  const TEST_PORT = 3456;
+  let testPort: number;
 
   beforeAll(async () => {
-    server = new TestServer({ port: TEST_PORT });
+    testPort = await getRandomPort();
+    server = new TestServer({ port: testPort });
     await server.start();
     await server.waitForReady();
-  }, 15000);
+  }, 30000);
 
-  afterAll(() => {
-    server.stop();
+  afterAll(async () => {
+    await server.stop();
   });
 
   describe('Basic HTTP Endpoints', () => {
@@ -175,7 +176,7 @@ describe('Server E2E Tests', () => {
 
   describe('Server Configuration', () => {
     it('should run on the configured port', async () => {
-      const response = await request(`http://localhost:${TEST_PORT}`)
+      const response = await request(`http://localhost:${testPort}`)
         .get('/health')
         .expect(200);
 

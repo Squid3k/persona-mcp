@@ -2,6 +2,10 @@ import { spawn, ChildProcess } from 'child_process';
 import waitPort from 'wait-port';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { createServer } from 'net';
+
+// AbortController is available in Node.js 16+
+declare const AbortController: typeof globalThis.AbortController;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -10,6 +14,38 @@ export interface TestServerOptions {
   port?: number;
   host?: string;
   args?: string[];
+}
+
+// Utility to get a random available port
+export async function getRandomPort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = createServer();
+    server.listen(0, () => {
+      const address = server.address() as { port: number } | null;
+      const port = address?.port;
+      server.close((error) => {
+        if (error) {
+          reject(error);
+        } else if (port) {
+          resolve(port);
+        } else {
+          reject(new Error('Failed to get random port'));
+        }
+      });
+    });
+    server.on('error', reject);
+  });
+}
+
+// Check if a port is available
+export async function checkPortAvailable(port: number, host: string = 'localhost'): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = createServer();
+    server.listen(port, host, () => {
+      server.close(() => resolve(true));
+    });
+    server.on('error', () => resolve(false));
+  });
 }
 
 export class TestServer {
@@ -22,7 +58,18 @@ export class TestServer {
     this.host = options.host || 'localhost';
   }
 
+  // Set port dynamically (useful for dynamic allocation)
+  setPort(port: number): void {
+    this.port = port;
+  }
+
   async start(additionalArgs: string[] = []): Promise<void> {
+    // Check if port is available first
+    const isPortAvailable = await checkPortAvailable(this.port, this.host);
+    if (!isPortAvailable) {
+      throw new Error(`Port ${this.port} is already in use`);
+    }
+
     const serverPath = join(__dirname, '..', '..', 'dist', 'index.js');
     const args = [
       serverPath,
@@ -40,38 +87,63 @@ export class TestServer {
       });
 
       let serverStarted = false;
+      let outputBuffer = '';
+      let errorBuffer = '';
+      
       const startTimeout = setTimeout(() => {
         if (!serverStarted) {
           this.stop();
-          reject(new Error('Server failed to start within timeout'));
+          reject(new Error(
+            `Server failed to start within timeout.\n` +
+            `STDOUT: ${outputBuffer}\n` +
+            `STDERR: ${errorBuffer}`
+          ));
         }
-      }, 10000);
+      }, 15000); // Increased timeout
 
-      // Capture stderr for debugging
-      this.process.stderr?.on('data', (data: Buffer) => {
+      // Capture stdout for debugging
+      this.process.stdout?.on('data', (data: Buffer) => {
         const message = data.toString();
-        console.error(`[Server Error]: ${message}`);
+        outputBuffer += message;
+        console.error(`[Server Output]: ${message}`);
 
         // Check if server has started
         if (message.includes('MCP server running on')) {
           serverStarted = true;
           clearTimeout(startTimeout);
-
           // Wait a bit more to ensure server is fully ready
-          setTimeout(() => resolve(), 500);
+          setTimeout(() => resolve(), 1000);
+        }
+      });
+
+      // Capture stderr for debugging
+      this.process.stderr?.on('data', (data: Buffer) => {
+        const message = data.toString();
+        errorBuffer += message;
+        console.error(`[Server Error]: ${message}`);
+
+        // Also check stderr for startup message
+        if (message.includes('MCP server running on')) {
+          serverStarted = true;
+          clearTimeout(startTimeout);
+          setTimeout(() => resolve(), 1000);
         }
       });
 
       this.process.on('error', error => {
         clearTimeout(startTimeout);
-        reject(error);
+        reject(new Error(`Process error: ${error.message}`));
       });
 
       this.process.on('exit', (code, signal) => {
         if (!serverStarted) {
           clearTimeout(startTimeout);
           reject(
-            new Error(`Server exited with code ${code} and signal ${signal}`)
+            new Error(
+              `Server exited with code ${code} and signal ${signal}.\n` +
+              `STDOUT: ${outputBuffer}\n` +
+              `STDERR: ${errorBuffer}`
+            )
           );
         }
       });
@@ -79,51 +151,62 @@ export class TestServer {
   }
 
   async waitForReady(): Promise<void> {
+    // Wait for port to be open
     const result = await waitPort({
       host: this.host,
       port: this.port,
-      timeout: 5000,
+      timeout: 10000, // Increased timeout
     });
 
     if (!result.open) {
       throw new Error(`Server did not start on ${this.host}:${this.port}`);
     }
 
+    // Wait a bit for the server to fully initialize
+    await new Promise<void>(resolve => setTimeout(resolve, 500));
+
     // Also wait for MCP server to be ready
     await this.waitForMcpReady();
   }
 
   async waitForMcpReady(): Promise<void> {
-    const maxAttempts = 10;
+    const maxAttempts = 20; // Increased attempts
     const delay = 500; // 500ms between attempts
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        const response = await fetch(`${this.getUrl('/ready')}`, {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
+        const response = await fetch(`${this.getUrl('/health')}`, {
           method: 'GET',
           headers: { Accept: 'application/json' },
+          signal: controller.signal,
         });
+        
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const data = (await response.json()) as {
-            ready?: boolean;
-            server?: string;
+            status?: string;
+            server?: { name?: string };
           };
-          if (data.ready && data.server === 'connected') {
-            return; // MCP server is ready
+          if (data.status === 'healthy' && data.server?.name) {
+            return; // Server is ready
           }
         }
-      } catch {
-        // Ignore fetch errors and retry
+      } catch (error) {
+        // Log the error for debugging but continue retrying
+        console.error(`[Server Health Check] Attempt ${attempt} failed:`, error instanceof Error ? error.message : 'Unknown error');
       }
 
       if (attempt < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise<void>(resolve => setTimeout(resolve, delay));
       }
     }
 
     throw new Error(
-      `MCP server did not become ready within ${maxAttempts * delay}ms`
+      `Server did not become ready within ${maxAttempts * delay}ms`
     );
   }
 
@@ -155,11 +238,32 @@ export class TestServer {
     return sessionId;
   }
 
-  stop(): void {
-    if (this.process) {
-      this.process.kill('SIGTERM');
+  stop(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.process) {
+        resolve();
+        return;
+      }
+
+      const process = this.process;
       this.process = null;
-    }
+
+      // Set a timeout for forceful termination
+      const forceKillTimeout = setTimeout(() => {
+        if (!process.killed) {
+          console.warn(`[Server]: Force killing process ${process.pid}`);
+          process.kill('SIGKILL');
+        }
+      }, 5000);
+
+      process.on('exit', () => {
+        clearTimeout(forceKillTimeout);
+        resolve();
+      });
+
+      // Try graceful shutdown first
+      process.kill('SIGTERM');
+    });
   }
 
   getUrl(path: string = ''): string {

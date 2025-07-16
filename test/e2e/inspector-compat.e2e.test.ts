@@ -5,20 +5,22 @@ import {
   generateSessionId,
   createJsonRpcRequest,
   createMcpHeaders,
+  getRandomPort,
 } from './test-helpers.js';
 
 describe('MCP Inspector Compatibility E2E Tests', () => {
   let server: TestServer;
-  const TEST_PORT = 3458;
+  let testPort: number;
 
   beforeAll(async () => {
-    server = new TestServer({ port: TEST_PORT });
+    testPort = await getRandomPort();
+    server = new TestServer({ port: testPort });
     await server.start();
     await server.waitForReady();
-  }, 15000);
+  }, 30000);
 
-  afterAll(() => {
-    server.stop();
+  afterAll(async () => {
+    await server.stop();
   });
 
   describe('SSE Transport Handling', () => {

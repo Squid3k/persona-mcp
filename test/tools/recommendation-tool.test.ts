@@ -461,6 +461,37 @@ describe('RecommendationTool', () => {
       expect(result.success).toBe(true);
       expect(result.data.comparisons).toHaveLength(0);
     });
+
+    it('should handle errors during persona comparison', async () => {
+      const args = {
+        personaIds: ['architect', 'developer'],
+        title: 'Test task',
+        description: 'Test description',
+      };
+
+      const testError = new Error('Comparison failed');
+      mockRecommendationEngine.comparePersonas.mockRejectedValue(testError);
+
+      const result = await tool.handleToolCall('compare-personas', args);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Comparison failed');
+    });
+
+    it('should handle non-Error exceptions during comparison', async () => {
+      const args = {
+        personaIds: ['architect', 'developer'],
+        title: 'Test task',
+        description: 'Test description',
+      };
+
+      mockRecommendationEngine.comparePersonas.mockRejectedValue('String error');
+
+      const result = await tool.handleToolCall('compare-personas', args);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Unknown error occurred');
+    });
   });
 
   describe('handleGetStats', () => {

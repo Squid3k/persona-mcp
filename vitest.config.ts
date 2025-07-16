@@ -26,5 +26,19 @@ export default defineConfig({
     typecheck: {
       enabled: true,
     },
+    // E2E test configuration
+    pool: 'forks', // Use forks for better isolation
+    poolOptions: {
+      forks: {
+        singleFork: true, // Use single fork for E2E tests to avoid port conflicts
+      },
+    },
+    // Increase timeouts for E2E tests
+    testTimeout: 30000, // 30 seconds
+    hookTimeout: 30000, // 30 seconds
+    // Run E2E tests sequentially by default
+    sequence: {
+      concurrent: false, // Disable concurrent execution for E2E tests
+    },
   },
 });

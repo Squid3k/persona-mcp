@@ -2,15 +2,18 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { PersonasMcpServer } from '../../src/server.js';
 import { RecommendationTool } from '../../src/tools/recommendation-tool.js';
 import { EnhancedPersonaManager } from '../../src/enhanced-persona-manager.js';
+import { getRandomPort } from './test-helpers.js';
 
 describe('Recommendation System E2E', () => {
   let server: PersonasMcpServer;
   let personaManager: EnhancedPersonaManager;
   let recommendationTool: RecommendationTool;
+  let testPort: number;
 
   beforeEach(async () => {
+    testPort = await getRandomPort();
     server = new PersonasMcpServer({
-      port: 3001, // Use different port for tests
+      port: testPort,
     });
 
     await server.initialize();

@@ -1,250 +1,95 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fs from 'fs/promises';
+import path from 'path';
 
-// Mock the MCP SDK modules
-vi.mock('@modelcontextprotocol/sdk/server/index.js', () => ({
-  Server: vi.fn(() => ({
-    setRequestHandler: vi.fn(),
-    connect: vi.fn(),
-  })),
+// Mock the cli module to prevent actual CLI execution during tests
+vi.mock('../src/cli.js', () => ({
+  // Empty mock - we don't want to run the actual CLI
 }));
 
-vi.mock('@modelcontextprotocol/sdk/server/stdio.js', () => ({
-  StdioServerTransport: vi.fn(),
-}));
-
-vi.mock('@modelcontextprotocol/sdk/types.js', () => ({
-  ListPromptsRequestSchema: 'list-prompts',
-  ListResourcesRequestSchema: 'list-resources',
-  ReadResourceRequestSchema: 'read-resource',
-  GetPromptRequestSchema: 'get-prompt',
-  CallToolRequestSchema: 'call-tool',
-}));
-
-// Import after mocking
-import { PersonaManager } from '../src/persona-manager.js';
-
-describe('MCP Server Integration', () => {
-  let originalConsoleError: typeof console.error;
-  let personaManager: PersonaManager;
+describe('index.ts', () => {
+  let originalArgv: string[];
+  let originalExit: typeof process.exit;
+  let mockExit: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    // Mock console.error to prevent test output pollution
-    originalConsoleError = console.error;
-    console.error = vi.fn();
-
-    personaManager = new PersonaManager();
+    // Save original values
+    originalArgv = process.argv;
+    originalExit = process.exit;
+    
+    // Mock process.exit to prevent actual exit during tests
+    mockExit = vi.fn();
+    process.exit = mockExit as any;
   });
 
   afterEach(() => {
-    console.error = originalConsoleError;
+    // Restore original values
+    process.argv = originalArgv;
+    process.exit = originalExit;
     vi.clearAllMocks();
   });
 
-  describe('PersonaManager Integration', () => {
-    it('should load default personas correctly', () => {
-      const personas = personaManager.getAllPersonas();
-
-      expect(personas).toHaveLength(4);
-      expect(personas.map(p => p.id)).toEqual(
-        expect.arrayContaining([
-          'architect',
-          'developer',
-          'reviewer',
-          'debugger',
-        ])
-      );
-    });
-
-    it('should generate MCP resource format correctly', () => {
-      const personas = personaManager.getAllPersonas();
-
-      // Simulate how the MCP server would format resources
-      const resources = personas.map(persona => ({
-        uri: `persona://${persona.id}`,
-        name: persona.name,
-        description: persona.description,
-        mimeType: 'application/json',
-      }));
-
-      expect(resources).toHaveLength(4);
-      expect(resources[0]).toMatchObject({
-        uri: expect.stringMatching(/^persona:\/\/\w+$/),
-        name: expect.any(String),
-        description: expect.any(String),
-        mimeType: 'application/json',
-      });
-    });
-
-    it('should generate MCP prompt format correctly', () => {
-      const personas = personaManager.getAllPersonas();
-
-      // Simulate how the MCP server would format prompts
-      const prompts = personas.map(persona => ({
-        name: `adopt-persona-${persona.id}`,
-        description: `Adopt the ${persona.name} persona for ${persona.role} tasks`,
-        arguments: [
-          {
-            name: 'context',
-            description: 'The specific problem or task context',
-            required: false,
-          },
-        ],
-      }));
-
-      expect(prompts).toHaveLength(4);
-      expect(prompts[0]).toMatchObject({
-        name: expect.stringMatching(/^adopt-persona-\w+$/),
-        description: expect.stringContaining('Adopt the'),
-        arguments: expect.arrayContaining([
-          expect.objectContaining({
-            name: 'context',
-            required: false,
-          }),
-        ]),
-      });
-    });
-
-    it('should handle persona URI parsing correctly', () => {
-      const testUris = [
-        'persona://architect',
-        'persona://developer',
-        'persona://reviewer',
-        'persona://debugger',
-      ];
-
-      for (const uri of testUris) {
-        const match = uri.match(/^persona:\/\/(.+)$/);
-        expect(match).toBeTruthy();
-
-        if (match) {
-          const personaId = match[1];
-          const persona = personaManager.getPersona(personaId);
-          expect(persona).toBeDefined();
-          expect(persona?.id).toBe(personaId);
-        }
-      }
-    });
-
-    it('should handle invalid persona URIs gracefully', () => {
-      const invalidUris = [
-        'invalid://architect',
-        'persona://',
-        'persona://non-existent',
-        'not-a-uri',
-      ];
-
-      for (const uri of invalidUris) {
-        const match = uri.match(/^persona:\/\/(.+)$/);
-
-        if (!match) {
-          // Should fail URI pattern matching
-          expect(match).toBeFalsy();
-        } else {
-          // Should handle non-existent persona IDs
-          const personaId = match[1];
-          if (personaId === 'non-existent') {
-            expect(personaManager.getPersona(personaId)).toBeUndefined();
-          }
-        }
-      }
-    });
-
-    it('should handle prompt name parsing correctly', () => {
-      const testPromptNames = [
-        'adopt-persona-architect',
-        'adopt-persona-developer',
-        'adopt-persona-reviewer',
-        'adopt-persona-debugger',
-      ];
-
-      for (const promptName of testPromptNames) {
-        const match = promptName.match(/^adopt-persona-(.+)$/);
-        expect(match).toBeTruthy();
-
-        if (match) {
-          const personaId = match[1];
-          const persona = personaManager.getPersona(personaId);
-          expect(persona).toBeDefined();
-          expect(persona?.id).toBe(personaId);
-        }
-      }
-    });
-
-    it('should generate complete prompt with context', () => {
-      const persona = personaManager.getPersona('developer');
-      expect(persona).toBeDefined();
-
-      if (persona) {
-        const context = 'Build a REST API for user management';
-        const prompt = personaManager.generatePrompt(persona, context);
-
-        expect(prompt).toContain(persona.promptTemplate);
-        expect(prompt).toContain(`Context: ${context}`);
-
-        // Should contain examples if available
-        if (persona.examples && persona.examples.length > 0) {
-          expect(prompt).toContain('Examples of this approach:');
-        }
-      }
-    });
-
-    it('should format JSON response correctly', () => {
-      const persona = personaManager.getPersona('architect');
-      expect(persona).toBeDefined();
-
-      if (persona) {
-        // Simulate the JSON response format
-        const jsonResponse = JSON.stringify(persona, null, 2);
-        const parsed = JSON.parse(jsonResponse);
-
-        expect(parsed).toEqual(persona);
-        expect(parsed.id).toBe('architect');
-        expect(parsed.name).toBe('Software Architect');
-      }
-    });
+  it('should have executable shebang', async () => {
+    const indexPath = path.join(__dirname, '../src/index.ts');
+    const content = await fs.readFile(indexPath, 'utf-8');
+    
+    expect(content.startsWith('#!/usr/bin/env node')).toBe(true);
   });
 
-  describe('Error Handling', () => {
-    it('should handle malformed URIs gracefully', () => {
-      const malformedUris = [
-        '',
-        'persona',
-        'persona:',
-        'persona:///',
-        'persona://architect/extra',
-      ];
+  it('should import and execute CLI module', async () => {
+    // This test verifies that the index.ts file properly imports the CLI module
+    // The actual CLI functionality is tested separately in cli.test.ts
+    
+    // Import the index file to trigger the CLI import
+    await import('../src/index.js');
+    
+    // Since we mocked the CLI module, we just verify that the import happened
+    // without errors and the file executed
+    expect(true).toBe(true);
+  });
 
-      malformedUris.forEach(uri => {
-        const match = uri.match(/^persona:\/\/(.+)$/);
-        if (match && match[1]) {
-          // Only valid if there's actually a persona ID
-          expect(match[1].length).toBeGreaterThan(0);
-        } else {
-          // Should fail pattern matching for malformed URIs
-          expect(match).toBeFalsy();
-        }
-      });
-    });
+  it('should be executable as a Node.js script', async () => {
+    const indexPath = path.join(__dirname, '../src/index.ts');
+    const stats = await fs.stat(indexPath);
+    
+    // Check that the file exists and is readable
+    expect(stats.isFile()).toBe(true);
+    expect(stats.size).toBeGreaterThan(0);
+  });
 
-    it('should handle malformed prompt names gracefully', () => {
-      const malformedNames = [
-        '',
-        'adopt-persona',
-        'adopt-persona-',
-        'wrong-prefix-architect',
-        'adopt-persona-architect-extra',
-      ];
+  it('should have proper module structure', async () => {
+    const indexPath = path.join(__dirname, '../src/index.ts');
+    const content = await fs.readFile(indexPath, 'utf-8');
+    
+    // Verify the file structure
+    expect(content).toContain('#!/usr/bin/env node');
+    expect(content).toContain("import './cli.js'");
+    
+    // Verify it's a minimal entry point
+    const lines = content.split('\n').filter(line => line.trim() && !line.startsWith('//'));
+    expect(lines).toHaveLength(2); // Shebang + import
+  });
 
-      malformedNames.forEach(name => {
-        const match = name.match(/^adopt-persona-(.+)$/);
-        if (match && match[1]) {
-          // Only valid if there's actually a persona ID
-          expect(match[1].length).toBeGreaterThan(0);
-        } else {
-          // Should fail pattern matching for malformed names
-          expect(match).toBeFalsy();
-        }
-      });
-    });
+  it('should work as CLI entry point', async () => {
+    // Test that the built index.js file can be executed
+    // This is more of an integration test but important for CLI functionality
+    
+    const builtIndexPath = path.join(__dirname, '../dist/index.js');
+    
+    try {
+      // Check if the built file exists
+      await fs.access(builtIndexPath);
+      
+      // If it exists, it should be executable (we don't actually run it to avoid side effects)
+      const stats = await fs.stat(builtIndexPath);
+      expect(stats.isFile()).toBe(true);
+      expect(stats.size).toBeGreaterThan(0);
+    } catch (error) {
+      // If the built file doesn't exist, that's expected in test environment
+      // Just verify the source file is correct
+      const sourcePath = path.join(__dirname, '../src/index.ts');
+      const content = await fs.readFile(sourcePath, 'utf-8');
+      expect(content).toContain("import './cli.js'");
+    }
   });
 });

@@ -195,13 +195,18 @@ export class PersonaScorer {
     task: TaskDescription
   ): number {
     const taskText = `${task.title} ${task.description}`.toLowerCase();
-    const expertiseMatches = persona.expertise.filter(
+    const allExpertise = [...persona.expertise.domains, ...persona.expertise.skills];
+    const expertiseMatches = allExpertise.filter(
       exp =>
         taskText.includes(exp.toLowerCase()) ||
         this.hasSemanticOverlap(exp, taskText)
     );
 
-    return expertiseMatches.length / persona.expertise.length;
+    return expertiseMatches.length / allExpertise.length;
+  }
+
+  private getPersonaDescription(persona: Persona): string {
+    return `${persona.core.identity} ${persona.core.primaryObjective}`;
   }
 
   private calculateContextRelevance(
@@ -211,8 +216,7 @@ export class PersonaScorer {
     if (!task.context) return 0.5; // Neutral if no context
 
     const contextLower = task.context.toLowerCase();
-    const personaText =
-      `${persona.description} ${persona.approach}`.toLowerCase();
+    const personaText = this.getPersonaDescription(persona).toLowerCase();
 
     // Simple relevance based on shared concepts
     const contextWords = contextLower
@@ -268,9 +272,10 @@ export class PersonaScorer {
   }
 
   private extractPersonaKeywords(persona: Persona): string[] {
-    const fromExpertise = persona.expertise.map(e => e.toLowerCase());
+    const allExpertise = [...persona.expertise.domains, ...persona.expertise.skills];
+    const fromExpertise = allExpertise.map(e => e.toLowerCase());
     const fromTags = persona.tags?.map(t => t.toLowerCase()) || [];
-    const fromDescription = this.extractImplicitKeywords(persona.description);
+    const fromDescription = this.extractImplicitKeywords(this.getPersonaDescription(persona));
 
     return [...fromExpertise, ...fromTags, ...fromDescription];
   }
@@ -348,7 +353,8 @@ export class PersonaScorer {
     task: TaskDescription
   ): string[] {
     const taskText = `${task.title} ${task.description}`.toLowerCase();
-    return persona.expertise.filter(
+    const allExpertise = [...persona.expertise.domains, ...persona.expertise.skills];
+    return allExpertise.filter(
       exp =>
         taskText.includes(exp.toLowerCase()) ||
         this.hasSemanticOverlap(exp, taskText)
@@ -360,8 +366,9 @@ export class PersonaScorer {
     domain: string
   ): boolean {
     const domainLower = domain.toLowerCase();
+    const allExpertise = [...persona.expertise.domains, ...persona.expertise.skills];
     const personaText =
-      `${persona.description} ${persona.expertise.join(' ')}`.toLowerCase();
+      `${this.getPersonaDescription(persona)} ${allExpertise.join(' ')}`.toLowerCase();
     return personaText.includes(domainLower);
   }
 

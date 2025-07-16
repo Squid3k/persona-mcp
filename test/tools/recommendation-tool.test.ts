@@ -148,10 +148,24 @@ describe('RecommendationTool', () => {
         id: 'test',
         name: 'Test Persona',
         role: 'developer',
-        description: 'Test description',
-        expertise: ['testing'],
-        approach: 'Test approach',
-        promptTemplate: 'Test template',
+        core: {
+          identity: 'Test description',
+          primaryObjective: 'Test objectives',
+          constraints: ['Constraint 1', 'Constraint 2', 'Constraint 3']
+        },
+        behavior: {
+          mindset: ['Mindset 1', 'Mindset 2', 'Mindset 3'],
+          methodology: ['Method 1', 'Method 2', 'Method 3', 'Method 4'],
+          priorities: ['Priority 1', 'Priority 2', 'Priority 3'],
+          antiPatterns: ['Anti 1', 'Anti 2', 'Anti 3']
+        },
+        expertise: {
+          domains: ['testing', 'development', 'coding', 'programming'],
+          skills: ['test automation', 'debugging', 'refactoring', 'code review']
+        },
+        decisionCriteria: ['Criteria 1', 'Criteria 2', 'Criteria 3'],
+        examples: ['Example 1', 'Example 2'],
+        tags: ['test', 'dev']
       };
 
       mockRecommendationEngine.explainPersonaFit.mockResolvedValue({
@@ -360,7 +374,24 @@ describe('RecommendationTool', () => {
         name: 'Software Architect',
         role: 'architect',
         description: 'System design expert',
-        expertise: ['architecture'],
+        core: {
+          identity: 'Architecture expert',
+          primaryObjective: 'Design scalable systems',
+          constraints: ['Think big picture', 'Consider scalability', 'Ensure maintainability']
+        },
+        behavior: {
+          mindset: ['System thinking', 'Long-term view', 'Scalability focus'],
+          methodology: ['Analyze requirements', 'Design architecture', 'Document decisions', 'Review implementation'],
+          priorities: ['Scalability', 'Maintainability', 'Performance'],
+          antiPatterns: ['Over-engineering', 'Ignoring constraints', 'Short-term thinking']
+        },
+        expertise: {
+          domains: ['architecture', 'system design', 'scalability', 'patterns'],
+          skills: ['system design', 'architecture patterns', 'scalability analysis', 'technology selection']
+        },
+        decisionCriteria: ['Is it scalable?', 'Is it maintainable?', 'Does it meet requirements?'],
+        examples: ['Design microservices', 'Create system blueprints'],
+        tags: ['architecture', 'design', 'system'],
         approach: 'Design first',
         promptTemplate: 'You are an architect',
       };

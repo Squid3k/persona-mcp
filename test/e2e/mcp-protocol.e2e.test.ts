@@ -96,7 +96,24 @@ describe('MCP Protocol E2E Tests', () => {
         id: 'architect',
         name: 'Software Architect',
         role: expect.any(String),
-        description: expect.any(String),
+        core: {
+          identity: expect.any(String),
+          primaryObjective: expect.any(String),
+          constraints: expect.any(Array),
+        },
+        behavior: {
+          mindset: expect.any(Array),
+          methodology: expect.any(Array),
+          priorities: expect.any(Array),
+          antiPatterns: expect.any(Array),
+        },
+        expertise: {
+          domains: expect.any(Array),
+          skills: expect.any(Array),
+        },
+        decisionCriteria: expect.any(Array),
+        examples: expect.any(Array),
+        tags: expect.any(Array),
       });
     });
 
@@ -194,7 +211,7 @@ describe('MCP Protocol E2E Tests', () => {
               role: 'user',
               content: {
                 type: 'text',
-                text: expect.stringContaining('CLEAN CODE PRINCIPLES'),
+                text: expect.stringContaining('code craftsperson'),
               },
             },
           ],

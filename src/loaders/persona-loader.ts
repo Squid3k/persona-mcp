@@ -3,11 +3,7 @@ import path from 'path';
 import * as YAML from 'yaml';
 import glob from 'fast-glob';
 import { z } from 'zod';
-import {
-  YamlPersonaSchema,
-  LoadedPersona,
-  PersonaSource,
-} from '../types/yaml-persona.js';
+import { LoadedPersona, PersonaSource, YamlPersonaSchema } from '../types/yaml-persona.js';
 
 export class PersonaLoader {
   /**
@@ -16,13 +12,12 @@ export class PersonaLoader {
   async discoverPersonaFiles(directory: string): Promise<string[]> {
     try {
       await fs.access(directory);
-      const files = await glob(['**/*.yaml', '**/*.yml'], {
+      return await glob(['**/*.yaml', '**/*.yml'], {
         cwd: directory,
         absolute: true,
         onlyFiles: true,
         ignore: ['**/node_modules/**', '**/.git/**'],
       });
-      return files;
     } catch {
       // Directory doesn't exist or is not accessible
       return [];
@@ -128,10 +123,24 @@ export class PersonaLoader {
       id: personaId,
       name: `Invalid Persona (${personaId})`,
       role: 'invalid',
-      description: 'This persona failed validation and cannot be used.',
-      expertise: [],
-      approach: 'N/A - Invalid persona',
-      promptTemplate: 'This persona is invalid and cannot be used.',
+      core: {
+        identity: 'This persona failed validation and cannot be used.',
+        primaryObjective: 'N/A - Invalid persona',
+        constraints: ['Invalid persona - cannot be used'],
+      },
+      behavior: {
+        mindset: ['Invalid'],
+        methodology: ['Invalid'],
+        priorities: ['Invalid'],
+        antiPatterns: ['Invalid'],
+      },
+      expertise: {
+        domains: [],
+        skills: [],
+      },
+      decisionCriteria: ['Invalid'],
+      examples: [],
+      tags: [],
       version: '1.0',
 
       // Source information

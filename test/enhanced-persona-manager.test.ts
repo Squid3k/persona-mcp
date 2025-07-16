@@ -112,10 +112,22 @@ describe('EnhancedPersonaManager', () => {
     id: 'test-persona',
     name: 'Test Persona',
     role: 'tester',
-    description: 'A test persona',
-    expertise: ['testing'],
-    approach: 'Test-driven',
-    promptTemplate: 'You are a test persona.',
+    core: {
+      identity: 'You are a test persona.',
+      primaryObjective: 'Test-driven development',
+      constraints: ['Must test thoroughly', 'Follow best practices', 'Write clear tests']
+    },
+    behavior: {
+      mindset: ['Quality first', 'Test everything', 'Prevent bugs'],
+      methodology: ['Write test first', 'Run tests', 'Refactor', 'Repeat'],
+      priorities: ['Test coverage', 'Code quality', 'Performance'],
+      antiPatterns: ['Skip tests', 'Test later', 'Ignore failures']
+    },
+    expertise: {
+      domains: ['testing', 'quality assurance', 'TDD', 'BDD'],
+      skills: ['Unit testing', 'Integration testing', 'Mocking', 'Test automation']
+    },
+    decisionCriteria: ['Is it tested?', 'Does it work?', 'Is it maintainable?'],
     examples: ['Example 1', 'Example 2'],
     tags: ['testing']
   };
@@ -349,7 +361,11 @@ describe('EnhancedPersonaManager', () => {
       
       const prompt = manager.generatePrompt(persona);
       
-      expect(prompt).toBe('You are a test persona.');
+      expect(prompt).toContain('You are a test persona.');
+      expect(prompt).toContain('Primary Objective:');
+      expect(prompt).toContain('Key Constraints:');
+      expect(prompt).toContain('Mindset:');
+      expect(prompt).toContain('Methodology:');
     });
 
     it('should generate prompt with context', () => {
@@ -358,14 +374,15 @@ describe('EnhancedPersonaManager', () => {
       
       const prompt = manager.generatePrompt(persona, context);
       
-      expect(prompt).toBe('You are a test persona.\n\nContext: Build a REST API');
+      expect(prompt).toContain('You are a test persona.');
+      expect(prompt).toContain('Context: Build a REST API');
     });
 
     it('should generate prompt with examples', () => {
       const prompt = manager.generatePrompt(testBasicPersona);
       
       expect(prompt).toContain('You are a test persona.');
-      expect(prompt).toContain('Examples of this approach:');
+      expect(prompt).toContain('Examples:');
       expect(prompt).toContain('1. Example 1');
       expect(prompt).toContain('2. Example 2');
     });
@@ -377,7 +394,7 @@ describe('EnhancedPersonaManager', () => {
       
       expect(prompt).toContain('You are a test persona.');
       expect(prompt).toContain('Context: Build a REST API');
-      expect(prompt).toContain('Examples of this approach:');
+      expect(prompt).toContain('Examples:');
       expect(prompt).toContain('1. Example 1');
       expect(prompt).toContain('2. Example 2');
     });
@@ -387,8 +404,8 @@ describe('EnhancedPersonaManager', () => {
       
       const prompt = manager.generatePrompt(persona);
       
-      expect(prompt).toBe('You are a test persona.');
-      expect(prompt).not.toContain('Examples of this approach:');
+      expect(prompt).toContain('You are a test persona.');
+      expect(prompt).not.toContain('Examples:');
     });
   });
 

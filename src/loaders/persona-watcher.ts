@@ -47,12 +47,12 @@ export class PersonaWatcher {
     this.watchedDirectories = existingDirectories;
 
     // Log each directory being watched
-    for (const dir of existingDirectories) {
+    for (const dir of this.watchedDirectories) {
       console.error(`Watching directory ${dir} for persona changes`);
     }
 
     // Create watch patterns for YAML files
-    const patterns = existingDirectories.map(dir =>
+    const patterns = this.watchedDirectories.map(dir =>
       path.join(dir, '**/*.{yaml,yml}')
     );
 

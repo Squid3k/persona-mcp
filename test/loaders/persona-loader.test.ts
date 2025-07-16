@@ -29,12 +29,25 @@ describe('PersonaLoader', () => {
     id: 'test-persona',
     name: 'Test Persona',
     role: 'tester',
-    description: 'A test persona',
-    expertise: ['testing'],
-    approach: 'Test-driven approach',
-    promptTemplate: 'You are a test persona.',
-    version: '1.0',
-    tags: ['test']
+    core: {
+      identity: 'A test persona',
+      primaryObjective: 'Ensure quality through testing',
+      constraints: ['Test thoroughly', 'Follow best practices', 'Document results']
+    },
+    behavior: {
+      mindset: ['Quality-focused', 'Methodical', 'Detail-oriented'],
+      methodology: ['Plan tests', 'Execute tests', 'Analyze results', 'Report findings'],
+      priorities: ['Test coverage', 'Bug detection', 'Quality assurance'],
+      antiPatterns: ['Skipping tests', 'Incomplete coverage', 'Poor documentation']
+    },
+    expertise: {
+      domains: ['testing'],
+      skills: ['test automation']
+    },
+    decisionCriteria: ['Is it testable?', 'Does it improve quality?', 'Is coverage adequate?'],
+    examples: ['Write unit tests', 'Create integration tests'],
+    tags: ['test'],
+    version: '1.0'
   };
 
   beforeEach(() => {
@@ -148,10 +161,24 @@ describe('PersonaLoader', () => {
         id: 'test',
         name: 'Invalid Persona (test)',
         role: 'invalid',
-        description: 'This persona failed validation and cannot be used.',
-        expertise: [],
-        approach: 'N/A - Invalid persona',
-        promptTemplate: 'This persona is invalid and cannot be used.',
+        core: {
+          identity: 'This persona failed validation and cannot be used.',
+          primaryObjective: 'N/A - Invalid persona',
+          constraints: ['Invalid persona - cannot be used']
+        },
+        behavior: {
+          mindset: ['Invalid'],
+          methodology: ['Invalid'],
+          priorities: ['Invalid'],
+          antiPatterns: ['Invalid']
+        },
+        expertise: {
+          domains: [],
+          skills: []
+        },
+        decisionCriteria: ['Invalid'],
+        examples: [],
+        tags: [],
         version: '1.0',
         source: {
           type: 'user',
@@ -179,10 +206,24 @@ describe('PersonaLoader', () => {
         id: 'test',
         name: 'Invalid Persona (test)',
         role: 'invalid',
-        description: 'This persona failed validation and cannot be used.',
-        expertise: [],
-        approach: 'N/A - Invalid persona',
-        promptTemplate: 'This persona is invalid and cannot be used.',
+        core: {
+          identity: 'This persona failed validation and cannot be used.',
+          primaryObjective: 'N/A - Invalid persona',
+          constraints: ['Invalid persona - cannot be used']
+        },
+        behavior: {
+          mindset: ['Invalid'],
+          methodology: ['Invalid'],
+          priorities: ['Invalid'],
+          antiPatterns: ['Invalid']
+        },
+        expertise: {
+          domains: [],
+          skills: []
+        },
+        decisionCriteria: ['Invalid'],
+        examples: [],
+        tags: [],
         version: '1.0',
         source: {
           type: 'user',
@@ -224,10 +265,24 @@ describe('PersonaLoader', () => {
         id: 'test',
         name: 'Invalid Persona (test)',
         role: 'invalid',
-        description: 'This persona failed validation and cannot be used.',
-        expertise: [],
-        approach: 'N/A - Invalid persona',
-        promptTemplate: 'This persona is invalid and cannot be used.',
+        core: {
+          identity: 'This persona failed validation and cannot be used.',
+          primaryObjective: 'N/A - Invalid persona',
+          constraints: ['Invalid persona - cannot be used']
+        },
+        behavior: {
+          mindset: ['Invalid'],
+          methodology: ['Invalid'],
+          priorities: ['Invalid'],
+          antiPatterns: ['Invalid']
+        },
+        expertise: {
+          domains: [],
+          skills: []
+        },
+        decisionCriteria: ['Invalid'],
+        examples: [],
+        tags: [],
         version: '1.0',
         source: {
           type: 'user',
@@ -397,10 +452,24 @@ describe('PersonaLoader', () => {
         id: 'test-persona',
         name: 'Invalid Persona (test-persona)',
         role: 'invalid',
-        description: 'This persona failed validation and cannot be used.',
-        expertise: [],
-        approach: 'N/A - Invalid persona',
-        promptTemplate: 'This persona is invalid and cannot be used.',
+        core: {
+          identity: 'This persona failed validation and cannot be used.',
+          primaryObjective: 'N/A - Invalid persona',
+          constraints: ['Invalid persona - cannot be used'],
+        },
+        behavior: {
+          mindset: ['Invalid'],
+          methodology: ['Invalid'],
+          priorities: ['Invalid'],
+          antiPatterns: ['Invalid'],
+        },
+        expertise: {
+          domains: [],
+          skills: [],
+        },
+        decisionCriteria: ['Invalid'],
+        examples: [],
+        tags: [],
         version: '1.0',
         source: {
           type: 'user',
@@ -428,10 +497,24 @@ describe('PersonaLoader', () => {
         id: 'test-persona',
         name: 'Invalid Persona (test-persona)',
         role: 'invalid',
-        description: 'This persona failed validation and cannot be used.',
-        expertise: [],
-        approach: 'N/A - Invalid persona',
-        promptTemplate: 'This persona is invalid and cannot be used.',
+        core: {
+          identity: 'This persona failed validation and cannot be used.',
+          primaryObjective: 'N/A - Invalid persona',
+          constraints: ['Invalid persona - cannot be used'],
+        },
+        behavior: {
+          mindset: ['Invalid'],
+          methodology: ['Invalid'],
+          priorities: ['Invalid'],
+          antiPatterns: ['Invalid'],
+        },
+        expertise: {
+          domains: [],
+          skills: [],
+        },
+        decisionCriteria: ['Invalid'],
+        examples: [],
+        tags: [],
         version: '1.0',
         source: {
           type: 'project',
@@ -452,10 +535,24 @@ describe('PersonaLoader', () => {
         id: 'test-persona',
         name: 'Invalid Persona (test-persona)',
         role: 'invalid',
-        description: 'This persona failed validation and cannot be used.',
-        expertise: [],
-        approach: 'N/A - Invalid persona',
-        promptTemplate: 'This persona is invalid and cannot be used.',
+        core: {
+          identity: 'This persona failed validation and cannot be used.',
+          primaryObjective: 'N/A - Invalid persona',
+          constraints: ['Invalid persona - cannot be used'],
+        },
+        behavior: {
+          mindset: ['Invalid'],
+          methodology: ['Invalid'],
+          priorities: ['Invalid'],
+          antiPatterns: ['Invalid'],
+        },
+        expertise: {
+          domains: [],
+          skills: [],
+        },
+        decisionCriteria: ['Invalid'],
+        examples: [],
+        tags: [],
         version: '1.0',
         source: {
           type: 'default',
@@ -474,10 +571,24 @@ describe('PersonaLoader', () => {
         id: 'test-persona',
         name: 'Invalid Persona (test-persona)',
         role: 'invalid',
-        description: 'This persona failed validation and cannot be used.',
-        expertise: [],
-        approach: 'N/A - Invalid persona',
-        promptTemplate: 'This persona is invalid and cannot be used.',
+        core: {
+          identity: 'This persona failed validation and cannot be used.',
+          primaryObjective: 'N/A - Invalid persona',
+          constraints: ['Invalid persona - cannot be used'],
+        },
+        behavior: {
+          mindset: ['Invalid'],
+          methodology: ['Invalid'],
+          priorities: ['Invalid'],
+          antiPatterns: ['Invalid'],
+        },
+        expertise: {
+          domains: [],
+          skills: [],
+        },
+        decisionCriteria: ['Invalid'],
+        examples: [],
+        tags: [],
         version: '1.0',
         source: {
           type: 'user',

@@ -11,12 +11,59 @@ describe('Persona Types', () => {
       id: 'test-persona',
       name: 'Test Persona',
       role: 'tester',
-      description: 'A test persona for validation',
-      expertise: ['testing', 'validation'],
-      approach: 'Systematic testing approach',
-      promptTemplate: 'You are a test persona.',
+      core: {
+        identity: 'You are a test persona for validation',
+        primaryObjective: 'Validate and test system functionality',
+        constraints: [
+          'Must follow testing best practices',
+          'Cannot skip validation steps',
+          'Must maintain test coverage'
+        ]
+      },
+      behavior: {
+        mindset: [
+          'Think systematically about edge cases',
+          'Consider user experience impact',
+          'Validate assumptions through testing'
+        ],
+        methodology: [
+          'Analyze requirements thoroughly',
+          'Design comprehensive test cases',
+          'Execute tests systematically',
+          'Document findings clearly'
+        ],
+        priorities: [
+          'Test coverage and completeness',
+          'Bug detection and prevention',
+          'System reliability'
+        ],
+        antiPatterns: [
+          'Skipping edge case testing',
+          'Ignoring error conditions',
+          'Rushing through validation'
+        ]
+      },
+      expertise: {
+        domains: [
+          'Test automation',
+          'Quality assurance',
+          'Bug detection',
+          'System validation'
+        ],
+        skills: [
+          'Test case design',
+          'Automated testing',
+          'Performance testing',
+          'Security testing'
+        ]
+      },
+      decisionCriteria: [
+        'Does this improve test coverage?',
+        'Will this catch potential bugs?',
+        'Is this testable and maintainable?'
+      ],
       examples: ['Example 1', 'Example 2'],
-      tags: ['test', 'validation'],
+      tags: ['test', 'validation', 'persona'],
     };
 
     it('should validate a complete valid persona', () => {
@@ -33,10 +80,59 @@ describe('Persona Types', () => {
         id: 'minimal',
         name: 'Minimal Persona',
         role: 'minimal',
-        description: 'Minimal test persona',
-        expertise: ['minimal'],
-        approach: 'Minimal approach',
-        promptTemplate: 'Minimal template.',
+        core: {
+          identity: 'You are a minimal persona',
+          primaryObjective: 'Perform minimal tasks',
+          constraints: [
+            'Keep things simple',
+            'Avoid complexity',
+            'Focus on essentials'
+          ]
+        },
+        behavior: {
+          mindset: [
+            'Simple and direct',
+            'Minimal complexity',
+            'Essential focus'
+          ],
+          methodology: [
+            'Identify core requirements',
+            'Implement minimal solution',
+            'Verify basic functionality',
+            'Maintain simplicity'
+          ],
+          priorities: [
+            'Simplicity first',
+            'Core functionality',
+            'Easy maintenance'
+          ],
+          antiPatterns: [
+            'Over-engineering',
+            'Unnecessary complexity',
+            'Feature creep'
+          ]
+        },
+        expertise: {
+          domains: [
+            'Minimal design',
+            'Simple solutions',
+            'Core functionality',
+            'Basic implementation'
+          ],
+          skills: [
+            'Simplification',
+            'Essential feature identification',
+            'Basic implementation',
+            'Core system design'
+          ]
+        },
+        decisionCriteria: [
+          'Is this necessary?',
+          'Does this add complexity?',
+          'Can this be simplified?'
+        ],
+        examples: ['Minimal example', 'Basic example'],
+        tags: ['minimal', 'simple', 'basic'],
       };
 
       const result = PersonaSchema.safeParse(minimalPersona);
@@ -47,7 +143,7 @@ describe('Persona Types', () => {
     it('should reject persona with missing required fields', () => {
       const invalidPersona = {
         name: 'Invalid Persona',
-        // missing id, role, description, expertise, approach, promptTemplate
+        // missing id, role, core, behavior, expertise, decisionCriteria, examples, tags
       };
 
       const result = PersonaSchema.safeParse(invalidPersona);
@@ -60,10 +156,12 @@ describe('Persona Types', () => {
         id: 123, // should be string
         name: 'Test Persona',
         role: 'tester',
-        description: 'Test description',
-        expertise: 'not-array', // should be array
-        approach: 'Test approach',
-        promptTemplate: 'Test template',
+        core: 'not-object', // should be object
+        behavior: 'not-object', // should be object
+        expertise: 'not-object', // should be object
+        decisionCriteria: 'not-array', // should be array
+        examples: 'not-array', // should be array
+        tags: 'not-array', // should be array
       };
 
       const result = PersonaSchema.safeParse(invalidPersona);
@@ -76,10 +174,24 @@ describe('Persona Types', () => {
         id: '',
         name: '',
         role: '',
-        description: '',
-        expertise: [],
-        approach: '',
-        promptTemplate: '',
+        core: {
+          identity: '',
+          primaryObjective: '',
+          constraints: []
+        },
+        behavior: {
+          mindset: [],
+          methodology: [],
+          priorities: [],
+          antiPatterns: []
+        },
+        expertise: {
+          domains: [],
+          skills: []
+        },
+        decisionCriteria: [],
+        examples: [],
+        tags: [],
       };
 
       const result = PersonaSchema.safeParse(invalidPersona);
@@ -87,14 +199,18 @@ describe('Persona Types', () => {
       expect(result.success).toBe(false);
     });
 
-    it('should validate persona with empty optional arrays', () => {
-      const personaWithEmptyOptionals = {
+    it('should validate persona with optional behaviorDiagrams', () => {
+      const personaWithOptionalDiagrams = {
         ...validPersona,
-        examples: [],
-        tags: [],
+        behaviorDiagrams: [{
+          title: 'Test Diagram',
+          mermaidDSL: 'graph TD\n  A --> B',
+          diagramType: 'flowchart' as const,
+          description: 'A test diagram'
+        }],
       };
 
-      const result = PersonaSchema.safeParse(personaWithEmptyOptionals);
+      const result = PersonaSchema.safeParse(personaWithOptionalDiagrams);
 
       expect(result.success).toBe(true);
     });
@@ -118,9 +234,9 @@ describe('Persona Types', () => {
       });
     });
 
-    it('should contain exactly 7 predefined roles', () => {
+    it('should contain exactly 11 predefined roles', () => {
       const roleKeys = Object.keys(PersonaRole);
-      expect(roleKeys).toHaveLength(7);
+      expect(roleKeys).toHaveLength(11);
     });
   });
 
@@ -130,10 +246,59 @@ describe('Persona Types', () => {
         id: 'type-test',
         name: 'Type Test Persona',
         role: PersonaRole.ARCHITECT, // This should be valid
-        description: 'Testing type compatibility',
-        expertise: ['types'],
-        approach: 'Type-safe approach',
-        promptTemplate: 'Type-safe template',
+        core: {
+          identity: 'You are a type test persona',
+          primaryObjective: 'Test type compatibility',
+          constraints: [
+            'Must be type safe',
+            'Follow TypeScript best practices',
+            'Maintain type consistency'
+          ]
+        },
+        behavior: {
+          mindset: [
+            'Type safety first',
+            'Compile time validation',
+            'Clear type definitions'
+          ],
+          methodology: [
+            'Define types first',
+            'Use strict typing',
+            'Validate at compile time',
+            'Document type contracts'
+          ],
+          priorities: [
+            'Type safety',
+            'Compile time errors',
+            'Clear contracts'
+          ],
+          antiPatterns: [
+            'Using any type',
+            'Ignoring type errors',
+            'Weak type definitions'
+          ]
+        },
+        expertise: {
+          domains: [
+            'TypeScript',
+            'Type systems',
+            'Static analysis',
+            'Compile time validation'
+          ],
+          skills: [
+            'Type definition',
+            'Generic programming',
+            'Type inference',
+            'Interface design'
+          ]
+        },
+        decisionCriteria: [
+          'Is this type safe?',
+          'Will this catch errors at compile time?',
+          'Are the types clear and maintainable?'
+        ],
+        examples: ['Type safe example', 'Interface example'],
+        tags: ['types', 'typescript', 'safety'],
       };
 
       const result = PersonaSchema.safeParse(persona);

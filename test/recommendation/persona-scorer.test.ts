@@ -15,10 +15,23 @@ describe('PersonaScorer', () => {
       id: 'test-architect',
       name: 'Test Architect',
       role: 'architect',
-      description: 'Focuses on system design and architecture',
-      expertise: ['system design', 'architecture', 'scalability', 'patterns'],
-      approach: 'Think big picture first',
-      promptTemplate: 'You are an architect...',
+      core: {
+        identity: 'Test Architect focusing on system design and architecture',
+        primaryObjective: 'Design scalable and maintainable systems',
+        constraints: ['Think big picture first', 'Consider scalability', 'Ensure maintainability']
+      },
+      behavior: {
+        mindset: ['System thinking', 'Long-term view', 'Scalability focus'],
+        methodology: ['Analyze requirements', 'Design architecture', 'Document decisions', 'Review implementation'],
+        priorities: ['Scalability', 'Maintainability', 'Performance'],
+        antiPatterns: ['Over-engineering', 'Ignoring constraints', 'Short-term thinking']
+      },
+      expertise: {
+        domains: ['system design', 'architecture', 'scalability', 'patterns'],
+        skills: ['system design', 'architecture patterns', 'scalability analysis', 'technology selection']
+      },
+      decisionCriteria: ['Is it scalable?', 'Is it maintainable?', 'Does it meet requirements?'],
+      examples: ['Design microservices architecture', 'Create system blueprints'],
       tags: ['architecture', 'design', 'system'],
     };
 
@@ -186,10 +199,23 @@ describe('PersonaScorer', () => {
         id: 'test-debugger',
         name: 'Test Debugger',
         role: 'debugger',
-        description: 'Focuses on debugging and problem-solving',
-        expertise: ['debugging', 'troubleshooting'],
-        approach: 'Systematic analysis',
-        promptTemplate: 'You are a debugger...',
+        core: {
+          identity: 'Test Debugger focusing on debugging and problem-solving',
+          primaryObjective: 'Find and fix bugs systematically',
+          constraints: ['Systematic analysis', 'Evidence-based debugging', 'Reproduce issues']
+        },
+        behavior: {
+          mindset: ['Systematic approach', 'Evidence-based', 'Problem-solving'],
+          methodology: ['Reproduce issue', 'Analyze root cause', 'Fix systematically', 'Verify fix'],
+          priorities: ['Accuracy', 'Systematic approach', 'Root cause analysis'],
+          antiPatterns: ['Random fixes', 'Ignoring evidence', 'Surface-level fixes']
+        },
+        expertise: {
+          domains: ['debugging', 'troubleshooting', 'problem solving', 'analysis'],
+          skills: ['debugging tools', 'root cause analysis', 'systematic testing', 'problem isolation']
+        },
+        decisionCriteria: ['Can I reproduce this?', 'What does the evidence say?', 'Is this the root cause?'],
+        examples: ['Debug memory leak', 'Fix race condition'],
         tags: ['debugging', 'analysis'],
       };
 
@@ -240,10 +266,23 @@ describe('PersonaScorer', () => {
         id: 'test-developer',
         name: 'Test Developer',
         role: 'developer',
-        description: 'Focuses on implementation',
-        expertise: ['coding', 'implementation'],
-        approach: 'Code first',
-        promptTemplate: 'You are a developer...',
+        core: {
+          identity: 'Test Developer focusing on implementation',
+          primaryObjective: 'Build high-quality code',
+          constraints: ['Write clean code', 'Follow standards', 'Test thoroughly']
+        },
+        behavior: {
+          mindset: ['Implementation-focused', 'Quality-conscious', 'Pragmatic'],
+          methodology: ['Understand requirements', 'Plan implementation', 'Write code', 'Test thoroughly'],
+          priorities: ['Code quality', 'Functionality', 'Maintainability'],
+          antiPatterns: ['Rushed code', 'Skipping tests', 'Poor documentation']
+        },
+        expertise: {
+          domains: ['coding', 'implementation', 'software development', 'programming'],
+          skills: ['clean code', 'testing', 'refactoring', 'debugging']
+        },
+        decisionCriteria: ['Is it clean?', 'Is it tested?', 'Is it maintainable?'],
+        examples: ['Implement feature', 'Write unit tests'],
         tags: ['development', 'coding'],
       };
 
@@ -308,10 +347,24 @@ describe('PersonaScorer', () => {
         id: 'minimal',
         name: 'Minimal',
         role: 'developer',
-        description: 'Basic persona',
-        expertise: ['coding'],
-        approach: 'Code',
-        promptTemplate: 'Code',
+        core: {
+          identity: 'Basic persona',
+          primaryObjective: 'Code',
+          constraints: ['Simple', 'Basic', 'Minimal']
+        },
+        behavior: {
+          mindset: ['Simple', 'Direct', 'Basic'],
+          methodology: ['Code', 'Test', 'Deploy', 'Maintain'],
+          priorities: ['Simplicity', 'Functionality', 'Clarity'],
+          antiPatterns: ['Complexity', 'Over-engineering', 'Waste']
+        },
+        expertise: {
+          domains: ['coding', 'programming'],
+          skills: ['implementation', 'debugging']
+        },
+        decisionCriteria: ['Is it simple?', 'Does it work?', 'Is it clear?'],
+        examples: ['Write code', 'Debug issues'],
+        tags: ['minimal', 'basic']
       };
 
       const score = scorer.scorePersona(minimalPersona, testTask);
@@ -351,10 +404,24 @@ describe('PersonaScorer', () => {
         id: 'custom',
         name: 'Custom Role',
         role: 'specialist' as any, // Role not in the predefined list
-        description: 'Custom specialist',
-        expertise: ['custom'],
-        approach: 'Custom approach',
-        promptTemplate: 'Custom template',
+        core: {
+          identity: 'Custom specialist',
+          primaryObjective: 'Handle specialized tasks',
+          constraints: ['Domain focus', 'Specialized methods', 'Custom constraints']
+        },
+        behavior: {
+          mindset: ['Specialized thinking', 'Domain expertise', 'Focused'],
+          methodology: ['Analyze domain', 'Apply specialty', 'Validate results', 'Document'],
+          priorities: ['Domain accuracy', 'Specialization', 'Precision'],
+          antiPatterns: ['Generalization', 'Out-of-domain', 'Unfocused']
+        },
+        expertise: {
+          domains: ['custom', 'specialized'],
+          skills: ['domain-specific', 'tailored']
+        },
+        decisionCriteria: ['Is it in domain?', 'Does it leverage specialty?', 'Is it precise?'],
+        examples: ['Apply specialty', 'Domain analysis'],
+        tags: ['custom', 'specialist']
       };
 
       const task: TaskDescription = {

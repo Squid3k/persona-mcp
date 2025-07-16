@@ -79,7 +79,7 @@ export class PersonasMcpServer {
         resources: personas.map(persona => ({
           uri: `persona://${persona.id}`,
           name: persona.name,
-          description: persona.description,
+          description: persona.core.identity,
           mimeType: 'application/json',
         })),
       };

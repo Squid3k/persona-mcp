@@ -280,7 +280,7 @@ export class RecommendationTool {
             id: explanation.persona.id,
             name: explanation.persona.name,
             role: explanation.persona.role,
-            description: explanation.persona.description,
+            description: explanation.persona.core.identity,
           },
           score: Math.round(explanation.score * 100),
           reasoning: explanation.reasoning,

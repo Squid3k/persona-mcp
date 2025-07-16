@@ -24,30 +24,69 @@ describe('RecommendationEngine', () => {
         id: 'architect',
         name: 'Software Architect',
         role: 'architect',
-        description: 'Focuses on system design and architecture',
-        expertise: ['system design', 'architecture', 'scalability', 'patterns'],
-        approach: 'Think big picture first',
-        promptTemplate: 'You are an architect...',
+        core: {
+          identity: 'Software Architect focusing on system design and architecture',
+          primaryObjective: 'Design scalable and maintainable systems',
+          constraints: ['Think big picture first', 'Consider scalability', 'Ensure maintainability']
+        },
+        behavior: {
+          mindset: ['System thinking', 'Long-term view', 'Scalability focus'],
+          methodology: ['Analyze requirements', 'Design architecture', 'Document decisions', 'Review implementation'],
+          priorities: ['Scalability', 'Maintainability', 'Performance'],
+          antiPatterns: ['Over-engineering', 'Ignoring constraints', 'Short-term thinking']
+        },
+        expertise: {
+          domains: ['system design', 'architecture', 'scalability', 'patterns'],
+          skills: ['system design', 'architecture patterns', 'scalability analysis', 'technology selection']
+        },
+        decisionCriteria: ['Is it scalable?', 'Is it maintainable?', 'Does it meet requirements?'],
+        examples: ['Design microservices architecture', 'Create system blueprints'],
         tags: ['architecture', 'design', 'system'],
       },
       {
         id: 'developer',
         name: 'Developer',
         role: 'developer',
-        description: 'Focuses on code implementation',
-        expertise: ['coding', 'implementation', 'testing', 'debugging'],
-        approach: 'Write clean code',
-        promptTemplate: 'You are a developer...',
+        core: {
+          identity: 'Developer focusing on code implementation',
+          primaryObjective: 'Write clean, maintainable code',
+          constraints: ['Write clean code', 'Follow best practices', 'Ensure testability']
+        },
+        behavior: {
+          mindset: ['Code quality', 'Test-driven', 'Clean code'],
+          methodology: ['Write tests', 'Implement features', 'Refactor code', 'Code review'],
+          priorities: ['Code quality', 'Testing', 'Maintainability'],
+          antiPatterns: ['Spaghetti code', 'No tests', 'Poor naming']
+        },
+        expertise: {
+          domains: ['coding', 'implementation', 'testing', 'debugging'],
+          skills: ['programming', 'test writing', 'debugging', 'code review']
+        },
+        decisionCriteria: ['Is it testable?', 'Is it readable?', 'Is it maintainable?'],
+        examples: ['Implement feature with tests', 'Refactor legacy code'],
         tags: ['coding', 'implementation'],
       },
       {
         id: 'reviewer',
         name: 'Code Reviewer',
         role: 'reviewer',
-        description: 'Focuses on code quality and best practices',
-        expertise: ['code review', 'quality', 'best practices', 'security'],
-        approach: 'Ensure quality',
-        promptTemplate: 'You are a reviewer...',
+        core: {
+          identity: 'Code Reviewer focusing on quality and best practices',
+          primaryObjective: 'Ensure code quality and security',
+          constraints: ['Ensure quality', 'Check security', 'Verify best practices']
+        },
+        behavior: {
+          mindset: ['Quality focus', 'Security awareness', 'Best practices'],
+          methodology: ['Review code', 'Check security', 'Verify tests', 'Provide feedback'],
+          priorities: ['Security', 'Quality', 'Best practices'],
+          antiPatterns: ['Ignoring security', 'Poor code quality', 'No documentation']
+        },
+        expertise: {
+          domains: ['code review', 'quality', 'best practices', 'security'],
+          skills: ['code analysis', 'security review', 'quality assessment', 'feedback delivery']
+        },
+        decisionCriteria: ['Is it secure?', 'Is it quality code?', 'Does it follow best practices?'],
+        examples: ['Review pull request', 'Security code audit'],
         tags: ['review', 'quality'],
       },
     ];

@@ -94,9 +94,25 @@ describe('PersonasMcpServer', () => {
         {
           id: 'test-persona',
           name: 'Test Persona',
-          description: 'A test persona',
           role: 'tester',
-          prompt: 'Test prompt'
+          core: {
+            identity: 'A test persona for testing purposes',
+            primaryObjective: 'Test functionality',
+            constraints: ['Test constraints', 'Keep it simple', 'Follow test patterns']
+          },
+          behavior: {
+            mindset: ['Test-focused', 'Systematic', 'Thorough'],
+            methodology: ['Plan tests', 'Execute tests', 'Verify results', 'Document findings'],
+            priorities: ['Test coverage', 'Quality', 'Reliability'],
+            antiPatterns: ['Skipping tests', 'Incomplete coverage', 'Poor documentation']
+          },
+          expertise: {
+            domains: ['testing', 'quality assurance', 'test automation', 'verification'],
+            skills: ['test design', 'test execution', 'bug tracking', 'test documentation']
+          },
+          decisionCriteria: ['Is it testable?', 'Does it improve quality?', 'Is it verifiable?'],
+          examples: ['Write unit tests', 'Create test cases'],
+          tags: ['testing', 'quality', 'verification']
         }
       ]),
       getPersona: vi.fn((id) => {
@@ -104,9 +120,25 @@ describe('PersonasMcpServer', () => {
           return {
             id: 'test-persona',
             name: 'Test Persona',
-            description: 'A test persona',
             role: 'tester',
-            prompt: 'Test prompt'
+            core: {
+              identity: 'A test persona for testing purposes',
+              primaryObjective: 'Test functionality',
+              constraints: ['Test constraints', 'Keep it simple', 'Follow test patterns']
+            },
+            behavior: {
+              mindset: ['Test-focused', 'Systematic', 'Thorough'],
+              methodology: ['Plan tests', 'Execute tests', 'Verify results', 'Document findings'],
+              priorities: ['Test coverage', 'Quality', 'Reliability'],
+              antiPatterns: ['Skipping tests', 'Incomplete coverage', 'Poor documentation']
+            },
+            expertise: {
+              domains: ['testing', 'quality assurance', 'test automation', 'verification'],
+              skills: ['test design', 'test execution', 'bug tracking', 'test documentation']
+            },
+            decisionCriteria: ['Is it testable?', 'Does it improve quality?', 'Is it verifiable?'],
+            examples: ['Write unit tests', 'Create test cases'],
+            tags: ['testing', 'quality', 'verification']
           };
         }
         return null;
@@ -217,7 +249,7 @@ describe('PersonasMcpServer', () => {
           {
             uri: 'persona://test-persona',
             name: 'Test Persona',
-            description: 'A test persona',
+            description: 'A test persona for testing purposes',
             mimeType: 'application/json'
           }
         ]
@@ -244,9 +276,25 @@ describe('PersonasMcpServer', () => {
             text: JSON.stringify({
               id: 'test-persona',
               name: 'Test Persona',
-              description: 'A test persona',
               role: 'tester',
-              prompt: 'Test prompt'
+              core: {
+                identity: 'A test persona for testing purposes',
+                primaryObjective: 'Test functionality',
+                constraints: ['Test constraints', 'Keep it simple', 'Follow test patterns']
+              },
+              behavior: {
+                mindset: ['Test-focused', 'Systematic', 'Thorough'],
+                methodology: ['Plan tests', 'Execute tests', 'Verify results', 'Document findings'],
+                priorities: ['Test coverage', 'Quality', 'Reliability'],
+                antiPatterns: ['Skipping tests', 'Incomplete coverage', 'Poor documentation']
+              },
+              expertise: {
+                domains: ['testing', 'quality assurance', 'test automation', 'verification'],
+                skills: ['test design', 'test execution', 'bug tracking', 'test documentation']
+              },
+              decisionCriteria: ['Is it testable?', 'Does it improve quality?', 'Is it verifiable?'],
+              examples: ['Write unit tests', 'Create test cases'],
+              tags: ['testing', 'quality', 'verification']
             }, null, 2)
           }
         ]

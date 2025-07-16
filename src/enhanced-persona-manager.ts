@@ -109,14 +109,47 @@ export class EnhancedPersonaManager {
    * Generate prompt using persona template and context
    */
   generatePrompt(persona: Persona, context: string = ''): string {
-    let prompt = persona.promptTemplate;
+    // Build prompt from new structure
+    let prompt = `${persona.core.identity}\n\n`;
+    
+    prompt += `Primary Objective: ${persona.core.primaryObjective}\n\n`;
+    
+    prompt += `Key Constraints:\n`;
+    persona.core.constraints.forEach(constraint => {
+      prompt += `- ${constraint}\n`;
+    });
+    
+    prompt += `\nMindset:\n`;
+    persona.behavior.mindset.forEach(mindset => {
+      prompt += `- ${mindset}\n`;
+    });
+    
+    prompt += `\nMethodology:\n`;
+    persona.behavior.methodology.forEach((step, index) => {
+      prompt += `${index + 1}. ${step}\n`;
+    });
+    
+    prompt += `\nPriorities (in order):\n`;
+    persona.behavior.priorities.forEach((priority, index) => {
+      prompt += `${index + 1}. ${priority}\n`;
+    });
+    
+    prompt += `\nAvoid:\n`;
+    persona.behavior.antiPatterns.forEach(pattern => {
+      prompt += `- ${pattern}\n`;
+    });
+    
+    prompt += `\nDecision Criteria:\n`;
+    persona.decisionCriteria.forEach(criteria => {
+      prompt += `- ${criteria}\n`;
+    });
 
     if (context) {
       prompt += `\n\nContext: ${context}`;
     }
 
     if (persona.examples && persona.examples.length > 0) {
-      prompt += '\n\nExamples of this approach:\n';
+      prompt += '\n\nExamples:\n';
       persona.examples.forEach((example, index) => {
         prompt += `${index + 1}. ${example}\n`;
       });

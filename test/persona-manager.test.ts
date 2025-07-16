@@ -13,13 +13,21 @@ describe('PersonaManager', () => {
     it('should return all default personas', () => {
       const personas = personaManager.getAllPersonas();
 
-      expect(personas).toHaveLength(4);
+      expect(personas).toHaveLength(12);
       expect(personas.map(p => p.id)).toEqual(
         expect.arrayContaining([
           'architect',
           'developer',
           'reviewer',
           'debugger',
+          'product-manager',
+          'technical-writer',
+          'engineering-manager',
+          'optimizer',
+          'security-analyst',
+          'tester',
+          'ui-designer',
+          'performance-analyst',
         ])
       );
     });
@@ -32,10 +40,23 @@ describe('PersonaManager', () => {
           id: expect.any(String),
           name: expect.any(String),
           role: expect.any(String),
-          description: expect.any(String),
-          expertise: expect.any(Array),
-          approach: expect.any(String),
-          promptTemplate: expect.any(String),
+          core: {
+            identity: expect.any(String),
+            primaryObjective: expect.any(String),
+            constraints: expect.any(Array),
+          },
+          behavior: {
+            mindset: expect.any(Array),
+            methodology: expect.any(Array),
+            priorities: expect.any(Array),
+            antiPatterns: expect.any(Array),
+          },
+          expertise: {
+            domains: expect.any(Array),
+            skills: expect.any(Array),
+          },
+          decisionCriteria: expect.any(Array),
+          examples: expect.any(Array),
           tags: expect.any(Array),
         });
       });
@@ -74,10 +95,22 @@ describe('PersonaManager', () => {
         id: 'test',
         name: 'Test Persona',
         role: 'test',
-        description: 'Test description',
-        expertise: ['testing'],
-        approach: 'Test approach',
-        promptTemplate: 'You are a test persona.',
+        core: {
+          identity: 'You are a test persona.',
+          primaryObjective: 'Test approach',
+          constraints: ['Test constraint 1', 'Test constraint 2', 'Test constraint 3']
+        },
+        behavior: {
+          mindset: ['Test mindset 1', 'Test mindset 2', 'Test mindset 3'],
+          methodology: ['Test method 1', 'Test method 2', 'Test method 3', 'Test method 4'],
+          priorities: ['Test priority 1', 'Test priority 2', 'Test priority 3'],
+          antiPatterns: ['Test anti-pattern 1', 'Test anti-pattern 2', 'Test anti-pattern 3']
+        },
+        expertise: {
+          domains: ['testing', 'quality assurance'],
+          skills: ['unit testing', 'integration testing']
+        },
+        decisionCriteria: ['Test criteria 1', 'Test criteria 2', 'Test criteria 3'],
         examples: ['Example 1', 'Example 2'],
         tags: ['test'],
       };
@@ -85,7 +118,7 @@ describe('PersonaManager', () => {
       const prompt = personaManager.generatePrompt(testPersona);
 
       expect(prompt).toContain('You are a test persona.');
-      expect(prompt).toContain('Examples of this approach:');
+      expect(prompt).toContain('Examples:');
       expect(prompt).toContain('1. Example 1');
       expect(prompt).toContain('2. Example 2');
     });
@@ -95,10 +128,23 @@ describe('PersonaManager', () => {
         id: 'test',
         name: 'Test Persona',
         role: 'test',
-        description: 'Test description',
-        expertise: ['testing'],
-        approach: 'Test approach',
-        promptTemplate: 'You are a test persona.',
+        core: {
+          identity: 'You are a test persona.',
+          primaryObjective: 'Test approach',
+          constraints: ['Test constraint 1', 'Test constraint 2', 'Test constraint 3']
+        },
+        behavior: {
+          mindset: ['Test mindset 1', 'Test mindset 2', 'Test mindset 3'],
+          methodology: ['Test method 1', 'Test method 2', 'Test method 3', 'Test method 4'],
+          priorities: ['Test priority 1', 'Test priority 2', 'Test priority 3'],
+          antiPatterns: ['Test anti-pattern 1', 'Test anti-pattern 2', 'Test anti-pattern 3']
+        },
+        expertise: {
+          domains: ['testing', 'quality assurance'],
+          skills: ['unit testing', 'integration testing']
+        },
+        decisionCriteria: ['Test criteria 1', 'Test criteria 2', 'Test criteria 3'],
+        examples: [],
         tags: ['test'],
       };
 
@@ -114,40 +160,66 @@ describe('PersonaManager', () => {
         id: 'test',
         name: 'Test Persona',
         role: 'test',
-        description: 'Test description',
-        expertise: ['testing'],
-        approach: 'Test approach',
-        promptTemplate: 'You are a test persona.',
+        core: {
+          identity: 'You are a test persona.',
+          primaryObjective: 'Test approach',
+          constraints: ['Test constraint 1', 'Test constraint 2', 'Test constraint 3']
+        },
+        behavior: {
+          mindset: ['Test mindset 1', 'Test mindset 2', 'Test mindset 3'],
+          methodology: ['Test method 1', 'Test method 2', 'Test method 3', 'Test method 4'],
+          priorities: ['Test priority 1', 'Test priority 2', 'Test priority 3'],
+          antiPatterns: ['Test anti-pattern 1', 'Test anti-pattern 2', 'Test anti-pattern 3']
+        },
+        expertise: {
+          domains: ['testing', 'quality assurance'],
+          skills: ['unit testing', 'integration testing']
+        },
+        decisionCriteria: ['Test criteria 1', 'Test criteria 2', 'Test criteria 3'],
+        examples: [],
         tags: ['test'],
       };
 
       const prompt = personaManager.generatePrompt(testPersona);
 
       expect(prompt).toContain('You are a test persona.');
-      expect(prompt).not.toContain('Examples of this approach:');
+      expect(prompt).not.toContain('Examples:');
     });
   });
 
   describe('addPersona', () => {
     it('should add new persona successfully', () => {
       const newPersona: Persona = {
-        id: 'tester',
+        id: 'new-tester',
         name: 'Test Engineer',
         role: PersonaRole.TESTER,
-        description: 'Focuses on comprehensive testing',
-        expertise: ['unit testing', 'integration testing'],
-        approach: 'Test everything thoroughly',
-        promptTemplate: 'You are a testing expert.',
+        core: {
+          identity: 'You are a testing expert.',
+          primaryObjective: 'Test everything thoroughly',
+          constraints: ['Test constraint 1', 'Test constraint 2', 'Test constraint 3']
+        },
+        behavior: {
+          mindset: ['Test mindset 1', 'Test mindset 2', 'Test mindset 3'],
+          methodology: ['Test method 1', 'Test method 2', 'Test method 3', 'Test method 4'],
+          priorities: ['Test priority 1', 'Test priority 2', 'Test priority 3'],
+          antiPatterns: ['Test anti-pattern 1', 'Test anti-pattern 2', 'Test anti-pattern 3']
+        },
+        expertise: {
+          domains: ['unit testing', 'integration testing'],
+          skills: ['test automation', 'quality assurance']
+        },
+        decisionCriteria: ['Test criteria 1', 'Test criteria 2', 'Test criteria 3'],
+        examples: [],
         tags: ['testing', 'quality'],
       };
 
       personaManager.addPersona(newPersona);
 
-      const retrieved = personaManager.getPersona('tester');
+      const retrieved = personaManager.getPersona('new-tester');
       expect(retrieved).toEqual(newPersona);
 
       const allPersonas = personaManager.getAllPersonas();
-      expect(allPersonas).toHaveLength(5);
+      expect(allPersonas).toHaveLength(13);
     });
 
     it('should replace existing persona with same id', () => {
@@ -155,10 +227,23 @@ describe('PersonaManager', () => {
         id: 'architect',
         name: 'Updated Architect',
         role: PersonaRole.ARCHITECT,
-        description: 'Updated description',
-        expertise: ['updated expertise'],
-        approach: 'Updated approach',
-        promptTemplate: 'Updated template',
+        core: {
+          identity: 'Updated template',
+          primaryObjective: 'Updated approach',
+          constraints: ['Updated constraint 1', 'Updated constraint 2', 'Updated constraint 3']
+        },
+        behavior: {
+          mindset: ['Updated mindset 1', 'Updated mindset 2', 'Updated mindset 3'],
+          methodology: ['Updated method 1', 'Updated method 2', 'Updated method 3', 'Updated method 4'],
+          priorities: ['Updated priority 1', 'Updated priority 2', 'Updated priority 3'],
+          antiPatterns: ['Updated anti-pattern 1', 'Updated anti-pattern 2', 'Updated anti-pattern 3']
+        },
+        expertise: {
+          domains: ['updated expertise'],
+          skills: ['updated skill 1', 'updated skill 2']
+        },
+        decisionCriteria: ['Updated criteria 1', 'Updated criteria 2', 'Updated criteria 3'],
+        examples: [],
         tags: ['updated'],
       };
 
@@ -166,10 +251,10 @@ describe('PersonaManager', () => {
 
       const retrieved = personaManager.getPersona('architect');
       expect(retrieved?.name).toBe('Updated Architect');
-      expect(retrieved?.description).toBe('Updated description');
+      expect(retrieved?.core.identity).toBe('Updated template');
 
       const allPersonas = personaManager.getAllPersonas();
-      expect(allPersonas).toHaveLength(4); // Still 4 personas
+      expect(allPersonas).toHaveLength(12); // Still 12 personas
     });
   });
 
@@ -183,7 +268,7 @@ describe('PersonaManager', () => {
       expect(retrieved).toBeUndefined();
 
       const allPersonas = personaManager.getAllPersonas();
-      expect(allPersonas).toHaveLength(3);
+      expect(allPersonas).toHaveLength(11);
     });
 
     it('should return false when removing non-existent persona', () => {

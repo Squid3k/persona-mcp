@@ -62,26 +62,175 @@ npm start -- --help
 
 ## Using with AI Assistants
 
-### Claude Desktop Integration
+### Running the Personas MCP Server
 
-Add to your Claude Desktop configuration:
+The Personas MCP server can be run in two ways:
 
-```json
-{
-  "mcpServers": {
-    "personas": {
-      "command": "node",
-      "args": ["/absolute/path/to/persona-mcp/dist/index.js"]
-    }
-  }
-}
+#### Option 1: Local Command Execution (Recommended)
+This is the standard approach where Claude manages the server process directly:
+
+1. **Build the project** (if not already done):
+   ```bash
+   npm run build
+   ```
+
+2. **Add to Claude Desktop configuration** (`~/.claude/claude_desktop_config.json`):
+   ```json
+   {
+     "mcpServers": {
+       "personas": {
+         "command": "node",
+         "args": ["/absolute/path/to/persona-mcp/dist/index.js"]
+       }
+     }
+   }
+   ```
+
+3. **Restart Claude Desktop** to load the new configuration
+
+#### Option 2: HTTP Server with Project-Specific Configuration
+This approach runs the server independently and connects via HTTP:
+
+1. **Start the server**:
+   ```bash
+   npm start
+   # Server runs on http://localhost:3000 by default
+   ```
+
+2. **Create a project-specific `.mcp.json` file** in your project root:
+   ```json
+   {
+     "mcpServers": {
+       "personas": {
+         "command": "npx",
+         "args": ["@anthropic-ai/mcp-client", "http://localhost:3000/mcp"],
+         "transport": {
+           "type": "http",
+           "url": "http://localhost:3000/mcp"
+         }
+       }
+     }
+   }
+   ```
+
+3. **Alternative project-specific configuration** (if you have the MCP client installed):
+   ```json
+   {
+     "mcpServers": {
+       "personas": {
+         "command": "curl",
+         "args": ["-X", "POST", "http://localhost:3000/mcp", "-H", "Content-Type: application/json"],
+         "transport": {
+           "type": "http",
+           "url": "http://localhost:3000/mcp"
+         }
+       }
+     }
+   }
+   ```
+
+### Server Configuration Options
+
+You can customize the server behavior:
+
+```bash
+# Run on a custom port
+npm start -- --port 8080
+
+# Run on a specific host (for remote access)
+npm start -- --host 0.0.0.0
+
+# Disable CORS (for production environments)
+npm start -- --no-cors
+
+# Show all available options
+npm start -- --help
 ```
 
 ### API Endpoints
 
+When running as an HTTP server, the following endpoints are available:
+
 - **MCP Endpoint**: `http://localhost:3000/mcp` - Main MCP protocol endpoint
 - **Health Check**: `http://localhost:3000/health` - Server health status
 - **Info**: `http://localhost:3000/` - Server information and capabilities
+- **Ready Check**: `http://localhost:3000/ready` - Server readiness status
+
+### Testing the Connection
+
+You can verify the server is running correctly:
+
+```bash
+# Test server info
+curl http://localhost:3000/
+
+# Test health check
+curl http://localhost:3000/health
+
+# Test MCP endpoint (expects proper MCP protocol headers)
+curl -H "Accept: text/event-stream" http://localhost:3000/mcp
+```
+
+### Troubleshooting Connection Issues
+
+#### Common Error: "HTTP 404" or "Dynamic client registration failed"
+
+**Problem**: Claude is trying to connect to `http://localhost:3000` instead of `http://localhost:3000/mcp`.
+
+**Solution**:
+1. **For HTTP connections**: Ensure your configuration uses the full MCP endpoint URL:
+   ```json
+   {
+     "transport": {
+       "type": "http",
+       "url": "http://localhost:3000/mcp"
+     }
+   }
+   ```
+
+2. **For local command execution**: Use the recommended approach:
+   ```json
+   {
+     "mcpServers": {
+       "personas": {
+         "command": "node",
+         "args": ["/absolute/path/to/persona-mcp/dist/index.js"]
+       }
+     }
+   }
+   ```
+
+#### Common Error: "Connection refused" or "ECONNREFUSED"
+
+**Problem**: The server is not running or is running on a different port.
+
+**Solution**:
+1. Start the server: `npm start`
+2. Check if the server is running: `curl http://localhost:3000/health`
+3. If using a custom port, update your configuration accordingly
+
+#### Common Error: "Transport type not supported"
+
+**Problem**: Claude doesn't recognize the transport configuration.
+
+**Solution**: Use the local command execution method (Option 1) which is more reliable and widely supported.
+
+#### Verification Steps
+
+1. **Check server status**:
+   ```bash
+   curl http://localhost:3000/health
+   # Should return: {"status":"healthy","server":{"name":"personas-mcp",...}}
+   ```
+
+2. **Verify MCP endpoint**:
+   ```bash
+   curl -H "Accept: text/event-stream" http://localhost:3000/mcp
+   # Should return MCP protocol response (not 404)
+   ```
+
+3. **Check Claude Desktop logs** for specific error messages
+4. **Restart Claude Desktop** after configuration changes
 
 ## Custom Personas
 
@@ -110,6 +259,65 @@ description: Persona tailored to this project
 ```
 
 Project personas take precedence over user personas, which take precedence over built-in defaults.
+
+## Using Personas in Claude
+
+Once the Personas MCP server is connected, you can interact with personas in several ways:
+
+### 1. Adopting a Persona
+
+Use the adoption prompts to have Claude take on a specific persona:
+
+```
+Please adopt the architect persona for this conversation.
+```
+
+Claude will then respond with the persona's perspective and approach.
+
+### 2. Getting Persona Recommendations
+
+Use the recommendation tool to find the best persona for your task:
+
+```
+@recommend-persona "I need help debugging a memory leak in my Node.js application"
+```
+
+The system will analyze your request and suggest the most suitable persona(s).
+
+### 3. Comparing Personas
+
+Compare different personas to understand their strengths:
+
+```
+@compare-personas architect developer "for designing a new microservices architecture"
+```
+
+### 4. Available Personas
+
+The server includes these built-in personas:
+
+- **Architect**: System design, scalability, high-level architecture
+- **Developer**: Code implementation, best practices, clean code
+- **Reviewer**: Code quality, security analysis, performance optimization
+- **Debugger**: Systematic troubleshooting, root cause analysis
+- **Product Manager**: Requirements, user stories, feature prioritization
+- **Technical Writer**: Documentation, API docs, technical communication
+- **Engineering Manager**: Team leadership, project management, technical strategy
+- **Optimizer**: Performance tuning, resource optimization, efficiency
+- **Security Analyst**: Security assessment, threat modeling, vulnerability analysis
+- **Tester**: Test strategy, quality assurance, test automation
+- **UI Designer**: User interface design, user experience, accessibility
+- **Performance Analyst**: Performance monitoring, bottleneck identification, optimization
+
+### 5. Persona Resources
+
+Access persona definitions and details:
+
+```
+Please show me the available persona resources.
+```
+
+This will list all available personas with their IDs and descriptions.
 
 ## Development
 

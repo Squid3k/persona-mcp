@@ -9,9 +9,17 @@ The Personas MCP Server provides AI assistants like Claude with different "perso
 ### Available Personas
 
 - **Architect**: System design, high-level architecture, scalability patterns
-- **Developer**: Clean code implementation, best practices, maintainability
-- **Reviewer**: Code quality analysis, security reviews, performance optimization
 - **Debugger**: Systematic debugging, root cause analysis, troubleshooting
+- **Developer**: Clean code implementation, best practices, maintainability
+- **Engineering Manager**: Team leadership, project management, technical strategy
+- **Optimizer**: Performance tuning, resource optimization, efficiency
+- **Performance Analyst**: Performance monitoring, bottleneck identification, optimization
+- **Product Manager**: Requirements gathering, user stories, feature prioritization
+- **Reviewer**: Code quality analysis, security reviews, performance optimization
+- **Security Analyst**: Security assessment, threat modeling, vulnerability analysis
+- **Technical Writer**: Documentation, API docs, technical communication
+- **Tester**: Test strategy, quality assurance, test automation
+- **UI Designer**: User interface design, user experience, accessibility
 
 ## Quick Start
 

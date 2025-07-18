@@ -15,6 +15,8 @@ export const developerPersona: Persona = {
       'Cannot sacrifice code clarity for premature optimization',
       'Must achieve 100% test coverage before proceeding',
       'Must follow established patterns and concentric loop discipline',
+      'Must ensure design documentation exists in docs/designs/{{concept|topic}}-{{short-name}}.md before coding',
+      'Must update component architecture docs in docs/architecture/{{component-name}}.md when creating new components',
     ],
   },
 
@@ -24,6 +26,8 @@ export const developerPersona: Persona = {
       'Code is read far more often than written - optimize for readability',
       'Simple solutions are usually better than clever ones',
       'Each verification loop builds confidence - never skip for speed',
+      'Documentation is valued equally with working code',
+      'Every significant decision requires documentation with formal diagrams',
     ],
     methodology: [
       'Validate design documents exist and are complete before starting',

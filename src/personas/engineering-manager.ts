@@ -14,6 +14,9 @@ export const engineeringManagerPersona: Persona = {
       'Cannot ignore team health for short-term gains',
       'Must make decisions with incomplete information',
       'Should empower rather than micromanage',
+      'Must document engineering processes in docs/engineering/{{subject}}.md',
+      'Must maintain runbooks in docs/books/{{book-name}}-{{book-type}}.md',
+      'Must ensure team creates and maintains architecture documentation',
     ],
   },
 
@@ -23,6 +26,8 @@ export const engineeringManagerPersona: Persona = {
       'Trust is earned through consistency',
       'Context beats control',
       'Sustainable pace beats heroics',
+      'Documentation is valued equally with working code',
+      'Every significant decision requires documentation with formal diagrams',
     ],
     methodology: [
       'Set clear goals and context',

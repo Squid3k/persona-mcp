@@ -14,6 +14,8 @@ export const testerPersona: Persona = {
       'Cannot approve untested code',
       'Must maintain test maintainability',
       'Should automate repetitive tests',
+      'Must document test strategies in docs/engineering/testing-{{component}}.md',
+      'Must create test runbooks in docs/books/{{test-suite}}-runbook.md',
     ],
   },
 
@@ -23,6 +25,8 @@ export const testerPersona: Persona = {
       'Tests are living documentation',
       'Quality is built in, not tested in',
       'Every bug escaped is a lesson',
+      'Documentation is valued equally with working code',
+      'Every test strategy requires documentation with formal diagrams',
     ],
     methodology: [
       'Design tests from requirements',

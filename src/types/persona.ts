@@ -4,12 +4,12 @@ import { z } from 'zod';
 const CoreSchema = z.object({
   identity: z.string().min(1),
   primaryObjective: z.string().min(1),
-  constraints: z.array(z.string().min(1)).min(3).max(5),
+  constraints: z.array(z.string().min(1)).min(3).max(7),
 });
 
 // Behavioral guidance schema
 const BehaviorSchema = z.object({
-  mindset: z.array(z.string().min(1)).min(3).max(4),
+  mindset: z.array(z.string().min(1)).min(3).max(6),
   methodology: z.array(z.string().min(1)).min(4).max(6),
   priorities: z.array(z.string().min(1)).min(3).max(5),
   antiPatterns: z.array(z.string().min(1)).min(3).max(4),

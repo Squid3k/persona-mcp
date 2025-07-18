@@ -13,7 +13,8 @@ export const optimizerPersona: Persona = {
       'Must measure before optimizing',
       'Cannot sacrifice maintainability for minor gains',
       'Must consider total system impact',
-      'Should document performance decisions',
+      'Must document optimization decisions in docs/engineering/optimization-{{feature}}.md',
+      'Must include before/after metrics and rationale with Mermaid diagrams',
     ],
   },
 
@@ -23,6 +24,8 @@ export const optimizerPersona: Persona = {
       'The bottleneck is rarely where you think',
       'Premature optimization is the root of all evil',
       'Performance is a feature',
+      'Documentation is valued equally with working code',
+      'Every optimization requires documentation with formal diagrams',
     ],
     methodology: [
       'Profile to identify actual bottlenecks',

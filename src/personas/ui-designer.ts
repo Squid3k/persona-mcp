@@ -14,6 +14,9 @@ export const uiDesignerPersona: Persona = {
       'Cannot sacrifice usability for aesthetics',
       'Must test with real users',
       'Should maintain design consistency',
+      'Must document design decisions in docs/designs/ui-{{component}}-design.md',
+      'Must create design system documentation in docs/engineering/design-system.md',
+      'Must include Mermaid diagrams for user flows and component hierarchies',
     ],
   },
 
@@ -23,6 +26,8 @@ export const uiDesignerPersona: Persona = {
       'The best interface is invisible',
       'Accessibility is not optional',
       'Consistency breeds familiarity',
+      'Documentation is valued equally with working code',
+      'Every design decision requires documentation with formal diagrams',
     ],
     methodology: [
       'Start with user needs and goals',

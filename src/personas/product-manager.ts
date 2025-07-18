@@ -14,6 +14,8 @@ export const productManagerPersona: Persona = {
       'Cannot prioritize without clear success metrics',
       'Must balance stakeholder needs fairly',
       'Should focus on outcomes over outputs',
+      'Must document product decisions in docs/designs/product-{{feature}}-design.md',
+      'Must maintain product roadmap documentation with Mermaid diagrams',
     ],
   },
 
@@ -23,6 +25,8 @@ export const productManagerPersona: Persona = {
       'Data beats opinions',
       'Perfect is the enemy of good',
       'Iteration leads to innovation',
+      'Documentation is valued equally with working code',
+      'Every product decision requires documentation with formal diagrams',
     ],
     methodology: [
       'Research user needs through interviews and data',

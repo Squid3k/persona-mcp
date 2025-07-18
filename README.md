@@ -1,12 +1,41 @@
 # Personas MCP Server
 
+[![Version](https://img.shields.io/badge/version-0.2.0--alpha-blue)](https://github.com/pidster/persona-mcp/releases)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
+
 A Model Context Protocol (MCP) server that enhances AI assistants with specialized personas for improved problem-solving in software development tasks.
 
-## What is this?
+**[Quick Start Guide](./docs/quick-start.md)** | **[Documentation](./docs/)** | **[Create Custom Personas](./docs/guides/creating-personas.md)** | **[FAQ](./docs/FAQ.md)**
 
-The Personas MCP Server provides AI assistants like Claude with different "personas" - specialized perspectives and approaches for tackling various software engineering challenges. By adopting these personas, AI assistants can provide more focused, contextual, and effective solutions.
+## Table of Contents
 
-### Available Personas
+- [Why Use Personas?](#why-use-personas)
+- [Quick Start](#quick-start-) (5-minute setup)
+- [Available Personas](#available-personas)
+- [Installation](#installation--setup)
+- [Using with AI Assistants](#using-with-ai-assistants)
+- [Custom Personas](#custom-personas)
+- [Documentation](#documentation)
+- [Examples](#examples)
+- [Features](#features)
+- [Getting Help](#getting-help-1)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Why Use Personas?
+
+- **Focused Solutions**: Get targeted advice from the right perspective (architecture vs implementation vs debugging)
+- **Deep Expertise**: Each persona brings specialized knowledge and problem-solving approaches
+- **Consistent Approach**: Personas maintain consistent methodologies across conversations
+- **Faster Problem Solving**: Skip generic advice and get straight to expert-level guidance
+- **Team Alignment**: Use the same personas your team would consult in real life
+
+## Available Personas
+
+<details>
+<summary>Click to see all 12 available personas</summary>
 
 - **Architect**: System design, high-level architecture, scalability patterns
 - **Debugger**: Systematic debugging, root cause analysis, troubleshooting
@@ -21,14 +50,36 @@ The Personas MCP Server provides AI assistants like Claude with different "perso
 - **Tester**: Test strategy, quality assurance, test automation
 - **UI Designer**: User interface design, user experience, accessibility
 
+</details>
+
 ## Quick Start
 
-### Prerequisites
+**Get up and running in 5 minutes!** 
 
-- Node.js 18+ installed
-- npm or yarn package manager
+```bash
+# 1. Clone and build
+git clone https://github.com/pidster/persona-mcp.git
+cd persona-mcp
+npm install && npm run build
 
-### Installation & Setup
+# 2. Add to Claude Desktop config (~/.claude/claude_desktop_config.json)
+{
+  "mcpServers": {
+    "personas": {
+      "command": "node",
+      "args": ["/absolute/path/to/persona-mcp/dist/index.js"]
+    }
+  }
+}
+
+# 3. Restart Claude Desktop
+
+# 4. Test in Claude: "Please adopt the architect persona"
+```
+
+For detailed instructions, see our **[Quick Start Guide](./docs/quick-start.md)**.
+
+## Installation & Setup
 
 1. Clone this repository:
 ```bash
@@ -583,16 +634,74 @@ Each recommendation includes:
 
 ## Documentation
 
-For detailed documentation, see:
+### Essential Guides
 
-- [API Reference](./docs/engineering/api-reference.md) - Complete API documentation for all tools
-- [System Architecture](./docs/architecture/system-overview.md) - High-level architecture overview
-- [Recommendation System Design](./docs/designs/recommendation-system.md) - Detailed design documentation
+- **[Quick Start Guide](./docs/quick-start.md)** - Get running in 5 minutes
+- **[Creating Custom Personas](./docs/guides/creating-personas.md)** - Build your own specialized personas with YAML
+- **[API Client Integration](./docs/guides/api-clients.md)** - Integrate with JavaScript, Python, Go, Ruby
+- **[FAQ](./docs/FAQ.md)** - Frequently asked questions and troubleshooting
+
+### Technical Documentation
+
+- **[API Reference](./docs/engineering/api-reference.md)** - Complete API documentation
+- **[System Architecture](./docs/architecture/system-overview.md)** - Technical architecture overview
+- **[Integration Examples](./examples/)** - Client code in multiple languages
+
+### Community
+
+- **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
+- **[Changelog](./CHANGELOG.md)** - Version history and upgrade instructions
+- **[Roadmap](./plans/roadmap.md)** - Future plans and features
+
+## Examples
+
+Check out our [examples directory](./examples/) for working code:
+
+- **[JavaScript Client](./examples/javascript-client.js)** - Node.js integration example
+- **[Python Client](./examples/python-client.py)** - Python integration with requests
+- **[Curl Examples](./examples/curl-examples.sh)** - Quick testing with curl
+- **[TypeScript Example](./examples/recommendation-example.ts)** - Full recommendation system demo
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines and check the [roadmap](./plans/roadmap.md) for planned features.
+We welcome contributions! Please see our **[Contributing Guide](./CONTRIBUTING.md)** for details on:
+
+- Setting up your development environment
+- Adding new personas
+- Submitting pull requests
+- Code style guidelines
+- Testing requirements
+- Reporting issues
+
+Check the [roadmap](./plans/roadmap.md) for planned features and ideas for contributions.
+
+## Getting Help
+
+- Read the [FAQ](./docs/FAQ.md) for common questions
+- [Report issues](https://github.com/pidster/persona-mcp/issues) on GitHub
+- Join discussions in [GitHub Discussions](https://github.com/pidster/persona-mcp/discussions)
+- Contact the maintainer: [@pidster](https://github.com/pidster)
+
+---
+
+<div align="center">
+
+## Star Us on GitHub!
+
+If you find this project helpful, please consider giving it a star
+
+**[Report an Issue](https://github.com/pidster/persona-mcp/issues)** | **[Request a Feature](https://github.com/pidster/persona-mcp/issues/new)** | **[Join the Discussion](https://github.com/pidster/persona-mcp/discussions)**
+
+</div>
+
+---
+
+## Acknowledgments
+
+- Built with the [Model Context Protocol SDK](https://github.com/anthropics/model-context-protocol)
+- Inspired by the need for specialized AI assistance in software development
+- Thanks to all contributors and early adopters
 
 ## License
 
-MIT
+MIT - See [LICENSE](./LICENSE) file for details

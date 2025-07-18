@@ -137,7 +137,6 @@ We welcome contributions! Please see our **[Contributing Guide](./CONTRIBUTING.m
 ## Getting Help
 
 - **[Report Issues](https://github.com/pidster/persona-mcp/issues)** - Bug reports and feature requests
-- **[Discussions](https://github.com/pidster/persona-mcp/discussions)** - Questions and community support
 - **[FAQ](./docs/FAQ.md)** - Common questions answered
 - Contact: [@pidster](https://github.com/pidster)
 
@@ -149,7 +148,7 @@ MIT - See [LICENSE](./LICENSE) file for details
 
 <div align="center">
 
-**[Report an Issue](https://github.com/pidster/persona-mcp/issues)** | **[Request a Feature](https://github.com/pidster/persona-mcp/issues/new)** | **[Join the Discussion](https://github.com/pidster/persona-mcp/discussions)**
+**[Report an Issue](https://github.com/pidster/persona-mcp/issues)** | **[Request a Feature](https://github.com/pidster/persona-mcp/issues/new)**
 
 If you find this project helpful, please consider giving it a ⭐
 

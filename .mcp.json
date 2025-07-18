@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "personas": {
+      "type": "stdio",
+      "command": "/Users/pidster/src/github.com/pidster/persona-mcp/dist/index.js",
+      "args": [],
+      "env": {}
+    }
+  }
+}

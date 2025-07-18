@@ -38,7 +38,7 @@ npm install && npm run build
 # 4. Test in Claude: "Please adopt the architect persona"
 ```
 
-For detailed setup instructions, see the **[Installation Guide](./docs/guides/installation.md)**.
+For detailed setup instructions, see the **[Installation Guide](./docs/books/installation.md)**.
 
 ## Available Personas
 
@@ -63,14 +63,14 @@ For detailed setup instructions, see the **[Installation Guide](./docs/guides/in
 ## Documentation
 
 ### Getting Started
-- **[Installation Guide](./docs/guides/installation.md)** - Detailed installation and setup
+- **[Installation Guide](./docs/books/installation.md)** - Detailed installation and setup
 - **[Quick Start Guide](./docs/quick-start.md)** - Get running in 5 minutes
-- **[Claude Integration](./docs/guides/claude-integration.md)** - Connect with Claude Desktop
-- **[Using Personas](./docs/guides/using-personas.md)** - How to effectively use personas
+- **[Claude Integration](./docs/books/claude-integration.md)** - Connect with Claude Desktop
+- **[Using Personas](./docs/books/using-personas.md)** - How to effectively use personas
 
 ### Customization
-- **[Creating Custom Personas](./docs/guides/creating-personas.md)** - Build your own specialized personas
-- **[API Client Integration](./docs/guides/api-clients.md)** - Integrate with JavaScript, Python, Go, Ruby
+- **[Creating Custom Personas](./docs/books/creating-personas.md)** - Build your own specialized personas
+- **[API Client Integration](./docs/books/api-clients.md)** - Integrate with JavaScript, Python, Go, Ruby
 
 ### Technical Reference
 - **[API Reference](./docs/engineering/api-reference.md)** - Complete API documentation

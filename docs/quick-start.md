@@ -41,7 +41,7 @@ Add the following to your Claude Desktop configuration file:
 }
 ```
 
-⚠️ **Important**: Replace `/absolute/path/to/persona-mcp` with the actual path where you cloned the repository.
+**Important**: Replace `/absolute/path/to/persona-mcp` with the actual path where you cloned the repository.
 
 ### Step 3: Restart Claude Desktop
 
@@ -130,10 +130,10 @@ Then add to your project's `.mcp.json`:
 
 ## What's Next?
 
-- 📖 Read the [full documentation](../README.md)
-- 🎨 Learn to [create custom personas](./guides/creating-personas.md)
-- 🔧 Explore [API integration](./engineering/api-reference.md)
-- 🤝 Check out [more examples](../examples/)
+- Read the [full documentation](../README.md)
+- Learn to [create custom personas](./books/creating-personas.md)
+- Explore [API integration](./engineering/api-reference.md)
+- Check out [more examples](../examples/)
 
 ## Need Help?
 
@@ -143,4 +143,4 @@ Then add to your project's `.mcp.json`:
 
 ---
 
-🎉 **Congratulations!** You now have AI personas at your fingertips to help with any software development task!
+**Congratulations!** You now have AI personas at your fingertips to help with any software development task!

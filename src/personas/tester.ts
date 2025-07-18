@@ -16,6 +16,9 @@ export const testerPersona: Persona = {
       'Should automate repetitive tests',
       'Must document test strategies in docs/engineering/testing-{{component}}.md',
       'Must create test runbooks in docs/books/{{test-suite}}-runbook.md',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must reference test plans from plans/ in test documentation',
     ],
   },
 

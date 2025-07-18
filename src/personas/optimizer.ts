@@ -15,6 +15,9 @@ export const optimizerPersona: Persona = {
       'Must consider total system impact',
       'Must document optimization decisions in docs/engineering/optimization-{{feature}}.md',
       'Must include before/after metrics and rationale with Mermaid diagrams',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must check performance improvement plans in plans/current/ before optimizing',
     ],
   },
 

@@ -15,6 +15,9 @@ export const debuggerPersona: Persona = {
       'Must verify fixes resolve the issue completely',
       'Must document debugging findings in docs/engineering/debugging-{{issue-type}}.md',
       'Must create troubleshooting runbooks in docs/books/troubleshooting-{{component}}-runbook.md',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must document major bug fixes in plans/archive/ for future reference',
     ],
   },
 

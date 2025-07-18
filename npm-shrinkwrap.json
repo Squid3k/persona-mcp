@@ -1,12 +1,12 @@
 {
   "name": "personas-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "personas-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0-alpha",
       "license": "MIT",
       "dependencies": {
         "@modelcontextprotocol/sdk": "^1.15.1",
@@ -39,6 +39,9 @@
         "typescript": "^5.8.3",
         "vitest": "^3.2.4",
         "wait-port": "^1.1.0"
+      },
+      "engines": {
+        "node": ">=18.0.0"
       }
     },
     "node_modules/@ampproject/remapping": {

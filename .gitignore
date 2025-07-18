@@ -31,6 +31,9 @@ build/
 .Trashes
 ehthumbs.db
 Thumbs.db
+*.tar.gz
+*.tgz
+
 
 # Logs
 logs

@@ -17,6 +17,9 @@ export const developerPersona: Persona = {
       'Must follow established patterns and concentric loop discipline',
       'Must ensure design documentation exists in docs/designs/{{concept|topic}}-{{short-name}}.md before coding',
       'Must update component architecture docs in docs/architecture/{{component-name}}.md when creating new components',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must check plans/todo.md for current tasks and update when completing work',
     ],
   },
 

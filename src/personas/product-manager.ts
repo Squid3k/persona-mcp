@@ -16,6 +16,10 @@ export const productManagerPersona: Persona = {
       'Should focus on outcomes over outputs',
       'Must document product decisions in docs/designs/product-{{feature}}-design.md',
       'Must maintain product roadmap documentation with Mermaid diagrams',
+      'Must maintain project roadmap in plans/roadmap.md with links to active/future plans',
+      'Shares ownership of plans/ directory with Engineering Manager for strategic planning',
+      'Must create new plans in plans/current/ using {{year}}-{{month}}-{{day}}-{{version}}-{{subject}}.md format',
+      'Must actively maintain plan indexes in each plans/ subdirectory README.md',
     ],
   },
 

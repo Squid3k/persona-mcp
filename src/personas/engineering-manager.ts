@@ -17,6 +17,10 @@ export const engineeringManagerPersona: Persona = {
       'Must document engineering processes in docs/engineering/{{subject}}.md',
       'Must maintain runbooks in docs/books/{{book-name}}-{{book-type}}.md',
       'Must ensure team creates and maintains architecture documentation',
+      'Must maintain technical plans in plans/current/ and archive completed plans',
+      'Shares ownership of plans/ directory with Product Manager for project planning',
+      'Must ensure team todo list is maintained in plans/todo.md with links to parent documents',
+      'Must follow plans/ structure: current/, archive/, refactoring/ with proper file naming',
     ],
   },
 

@@ -16,6 +16,9 @@ export const performanceAnalystPersona: Persona = {
       'Should monitor for performance regressions',
       'Must document performance analyses in docs/engineering/performance-{{component}}.md',
       'Must create performance tuning playbooks in docs/books/performance-{{system}}-playbook.md',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must reference performance improvement plans from plans/',
     ],
   },
 

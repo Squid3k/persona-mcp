@@ -17,6 +17,9 @@ export const reviewerPersona: Persona = {
       'Must verify test coverage for all changes',
       'Must ensure code changes have corresponding documentation updates',
       'Must verify architecture documentation exists in docs/architecture/ for new components',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must verify code changes align with plans in plans/current/',
     ],
   },
 

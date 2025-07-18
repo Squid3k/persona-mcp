@@ -17,6 +17,9 @@ export const technicalWriterPersona: Persona = {
       'Must organize user documentation in docs/books/{{book-name}}-{{book-type}}.md (e.g., user-guide, api-reference)',
       'Must maintain engineering guidelines in docs/engineering/{{subject}}.md',
       'Must ensure all documentation includes appropriate Mermaid diagrams',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must ensure documentation aligns with plans specified in plans/roadmap.md',
     ],
   },
 

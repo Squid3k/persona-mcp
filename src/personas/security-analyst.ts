@@ -17,6 +17,9 @@ export const securityAnalystPersona: Persona = {
       'Must document security assessments in docs/engineering/security-{{component}}.md',
       'Must create incident response playbooks in docs/books/{{incident-type}}-playbook.md',
       'Must document threat models with Mermaid diagrams in docs/designs/threat-model-{{system}}.md',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must link security assessments to security plans in plans/',
     ],
   },
 

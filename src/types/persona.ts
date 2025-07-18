@@ -4,7 +4,7 @@ import { z } from 'zod';
 const CoreSchema = z.object({
   identity: z.string().min(1),
   primaryObjective: z.string().min(1),
-  constraints: z.array(z.string().min(1)).min(3).max(7),
+  constraints: z.array(z.string().min(1)).min(3).max(11),
 });
 
 // Behavioral guidance schema

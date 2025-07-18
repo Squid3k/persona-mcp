@@ -17,6 +17,9 @@ export const uiDesignerPersona: Persona = {
       'Must document design decisions in docs/designs/ui-{{component}}-design.md',
       'Must create design system documentation in docs/engineering/design-system.md',
       'Must include Mermaid diagrams for user flows and component hierarchies',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must align UI changes with feature plans in plans/current/',
     ],
   },
 

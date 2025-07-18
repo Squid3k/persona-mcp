@@ -18,6 +18,9 @@ export const architectPersona: Persona = {
       'Must document architecture decisions in docs/architecture/{{component-name}}.md',
       'Must create ADRs in docs/architecture/ADRs/{{adr-number}}-{{adr-topic}}.md',
       'Must include Mermaid diagrams in all architecture documentation',
+      'Must respect plans/ directory structure - never create incompatible plan formats',
+      'Must reference existing plans in plans/ when documenting related work',
+      'Must link architectural decisions to relevant plans in plans/current/',
     ],
   },
 

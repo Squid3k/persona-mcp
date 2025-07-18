@@ -6,6 +6,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   ListPromptsRequestSchema,
   ListResourcesRequestSchema,
+  ListResourceTemplatesRequestSchema,
   ReadResourceRequestSchema,
   GetPromptRequestSchema,
   ListToolsRequestSchema,
@@ -88,6 +89,18 @@ export class PersonasMcpServer {
         })),
       };
     });
+
+    // List resource templates - stub implementation that returns empty array
+    this.server.setRequestHandler(
+      ListResourceTemplatesRequestSchema,
+      async () => {
+        // Currently no resource templates are supported
+        // This stub prevents errors when clients query for templates
+        return {
+          resourceTemplates: [],
+        };
+      }
+    );
 
     // Read a specific persona resource
     this.server.setRequestHandler(ReadResourceRequestSchema, async request => {

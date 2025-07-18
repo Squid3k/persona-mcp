@@ -321,6 +321,17 @@ describe('PersonasMcpServer', () => {
       });
     });
 
+    it('should handle ListResourceTemplatesRequest', async () => {
+      // Find the handler by getting the second one registered
+      const handlersArray = Array.from(handlers.values());
+      const handler = handlersArray[1];
+      const result = await handler({ params: {} });
+
+      expect(result).toEqual({
+        resourceTemplates: [],
+      });
+    });
+
     it('should handle ReadResourceRequest with valid URI', async () => {
       const handlers: any[] = [];
       mockServer.setRequestHandler.mockImplementation(
@@ -331,8 +342,8 @@ describe('PersonasMcpServer', () => {
 
       server = new PersonasMcpServer();
 
-      // The second handler is ReadResourceRequest
-      const handler = handlers[1];
+      // The third handler is ReadResourceRequest (after ListResources and ListResourceTemplates)
+      const handler = handlers[2];
       const result = await handler({
         params: { uri: 'persona://test-persona' },
       });
@@ -410,7 +421,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[1];
+      const handler = handlers[2];
 
       await expect(
         handler({ params: { uri: 'invalid://uri' } })
@@ -426,7 +437,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[1];
+      const handler = handlers[2];
 
       await expect(
         handler({ params: { uri: 'persona://non-existent' } })
@@ -442,7 +453,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[2]; // Third handler is ListPromptsRequest
+      const handler = handlers[3]; // Fourth handler is ListPromptsRequest
       const result = await handler({ params: {} });
 
       expect(result).toEqual({
@@ -471,7 +482,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[3]; // Fourth handler is GetPromptRequest
+      const handler = handlers[4]; // Fifth handler is GetPromptRequest
       const result = await handler({
         params: {
           name: 'adopt-persona-test-persona',
@@ -502,7 +513,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[3];
+      const handler = handlers[4];
       const result = await handler({
         params: {
           name: 'adopt-persona-test-persona',
@@ -523,7 +534,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[3];
+      const handler = handlers[4];
 
       await expect(
         handler({ params: { name: 'invalid-prompt' } })
@@ -539,7 +550,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[3];
+      const handler = handlers[4];
 
       await expect(
         handler({ params: { name: 'adopt-persona-non-existent' } })
@@ -555,7 +566,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[4]; // Fifth handler is ListToolsRequest
+      const handler = handlers[5]; // Sixth handler is ListToolsRequest
       const result = await handler({ params: {} });
 
       expect(result).toEqual({
@@ -578,7 +589,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[5]; // Sixth handler is CallToolRequest
+      const handler = handlers[6]; // Seventh handler is CallToolRequest
       const result = await handler({
         params: {
           name: 'recommend-persona',
@@ -612,7 +623,7 @@ describe('PersonasMcpServer', () => {
       );
 
       server = new PersonasMcpServer();
-      const handler = handlers[5];
+      const handler = handlers[6];
       const result = await handler({
         params: {
           name: 'recommend-persona',
@@ -652,7 +663,7 @@ describe('PersonasMcpServer', () => {
         .fn()
         .mockRejectedValue(new Error('Tool error'));
 
-      const handler = handlers[5];
+      const handler = handlers[6];
       const result = await handler({
         params: {
           name: 'recommend-persona',
@@ -692,7 +703,7 @@ describe('PersonasMcpServer', () => {
       const mockTool = vi.mocked(server['recommendationTool']);
       mockTool.handleToolCall = vi.fn().mockRejectedValue('String error');
 
-      const handler = handlers[5];
+      const handler = handlers[6];
       const result = await handler({
         params: {
           name: 'recommend-persona',

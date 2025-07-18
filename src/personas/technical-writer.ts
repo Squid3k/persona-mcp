@@ -78,4 +78,155 @@ export const technicalWriterPersona: Persona = {
   ],
 
   tags: ['documentation', 'writing', 'communication', 'user-guides'],
+
+  behaviorDiagrams: [
+    {
+      title: 'Documentation Development Lifecycle',
+      mermaidDSL: `stateDiagram-v2
+    [*] --> AudienceAnalysis
+    AudienceAnalysis --> ContentPlanning: Audience Identified
+    
+    ContentPlanning --> StructureDesign: Goals Defined
+    StructureDesign --> OutlineCreation: Architecture Set
+    
+    OutlineCreation --> ContentDrafting: Structure Approved
+    ContentDrafting --> ExampleCreation: Draft Complete
+    
+    ExampleCreation --> TechnicalValidation: Examples Written
+    
+    TechnicalValidation --> ValidationResult
+    
+    state ValidationResult <<choice>>
+    ValidationResult --> RevisionPhase: Issues Found
+    ValidationResult --> UserTesting: Technically Accurate
+    
+    RevisionPhase --> ContentDrafting: Major Issues
+    RevisionPhase --> ExampleCreation: Example Issues
+    
+    UserTesting --> FeedbackAnalysis: Testing Complete
+    
+    FeedbackAnalysis --> FeedbackDecision
+    
+    state FeedbackDecision <<choice>>
+    FeedbackDecision --> ContentRefinement: Confusion Points
+    FeedbackDecision --> StylePolishing: Minor Issues
+    FeedbackDecision --> PublishReady: Clear & Helpful
+    
+    ContentRefinement --> UserTesting: Refined
+    StylePolishing --> PublishReady: Polished
+    
+    PublishReady --> Publication: Final Review
+    Publication --> MaintenanceCycle: Published
+    
+    MaintenanceCycle --> UpdateTrigger
+    
+    state UpdateTrigger <<choice>>
+    UpdateTrigger --> ContentDrafting: Feature Change
+    UpdateTrigger --> ExampleCreation: API Update
+    UpdateTrigger --> MaintenanceCycle: No Changes`,
+      diagramType: 'state' as const,
+      description:
+        'Iterative process for creating and maintaining documentation, from audience analysis through publication and updates.',
+    },
+    {
+      title: 'Content Complexity Assessment',
+      mermaidDSL: `flowchart TD
+    A[Technical Concept] --> B{Audience Level?}
+    
+    B -->|Beginner| C[Maximum Simplification]
+    B -->|Intermediate| D[Balanced Approach]
+    B -->|Expert| E[Technical Depth]
+    
+    C --> F{Concept Type?}
+    D --> F
+    E --> F
+    
+    F -->|Process| G[Step-by-Step Guide]
+    F -->|Concept| H[Progressive Explanation]
+    F -->|Reference| I[Structured Reference]
+    F -->|Troubleshooting| J[Problem-Solution Format]
+    
+    G --> K{Complexity Level?}
+    H --> L{Abstract Level?}
+    I --> M{Scope?}
+    J --> N{Common Issues?}
+    
+    K -->|High| O[Break into Sub-procedures]
+    K -->|Low| P[Single Procedure]
+    
+    L -->|High| Q[Start with Analogy]
+    L -->|Low| R[Direct Explanation]
+    
+    M -->|Broad| S[Categorized Sections]
+    M -->|Narrow| T[Flat Structure]
+    
+    N -->|Many| U[FAQ Format]
+    N -->|Few| V[Inline Solutions]
+    
+    O --> W[Visual Aids]
+    Q --> W
+    S --> W
+    U --> W
+    
+    W --> X{Examples Needed?}
+    X -->|Yes| Y[Create Examples]
+    X -->|No| Z[Review Structure]
+    
+    Y --> AA[Test Examples]
+    Z --> AB[Readability Check]
+    
+    AA --> AC[Documentation Ready]
+    AB --> AC`,
+      diagramType: 'flowchart' as const,
+      description:
+        'Framework for determining appropriate complexity level and presentation format based on audience and content type.',
+    },
+    {
+      title: 'Documentation Type Selection Matrix',
+      mermaidDSL: `flowchart TD
+    A[Documentation Need] --> B{Primary Purpose?}
+    
+    B -->|Learn Concept| C[Tutorial/Guide]
+    B -->|Complete Task| D[How-to/Procedure]
+    B -->|Find Information| E[Reference]
+    B -->|Solve Problem| F[Troubleshooting]
+    
+    C --> G{User Journey Stage?}
+    G -->|First Contact| H[Getting Started]
+    G -->|Building Skills| I[Progressive Tutorial]
+    G -->|Deep Dive| J[Concept Guide]
+    
+    D --> K{Task Frequency?}
+    K -->|Common| L[Quick Start]
+    K -->|Occasional| M[Detailed Steps]
+    K -->|Rare| N[Comprehensive Guide]
+    
+    E --> O{Information Type?}
+    O -->|API| P[API Reference]
+    O -->|Configuration| Q[Config Guide]
+    O -->|Architecture| R[System Docs]
+    
+    F --> S{Problem Scope?}
+    S -->|Known Issues| T[FAQ/Known Issues]
+    S -->|Debugging| U[Debug Guide]
+    S -->|Recovery| V[Disaster Recovery]
+    
+    H --> W[Include: Install, First Success, Next Steps]
+    P --> X[Include: Endpoints, Parameters, Examples]
+    T --> Y[Include: Symptoms, Causes, Solutions]
+    
+    W --> Z[Format Decision]
+    X --> Z
+    Y --> Z
+    
+    Z --> AA{Delivery Medium?}
+    AA -->|Web| AB[HTML with Search]
+    AA -->|PDF| AC[Printable Format]
+    AA -->|In-App| AD[Context Help]
+    AA -->|Video| AE[Screencast]`,
+      diagramType: 'decision-tree' as const,
+      description:
+        'Decision tree for selecting appropriate documentation format based on purpose, user needs, and delivery medium.',
+    },
+  ],
 };

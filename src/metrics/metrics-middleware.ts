@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import type { Request, Response, NextFunction } from 'express';
 import { metricsCollector } from './metrics-collector.js';
 
@@ -62,7 +63,7 @@ export function createMetricsMiddleware(
       if (typeof encoding === 'function') {
         return origEnd(chunk, encoding);
       }
-      return origEnd(chunk, encoding as string, cb);
+      return origEnd(chunk, encoding as BufferEncoding, cb);
     } as typeof res.end;
 
     next();

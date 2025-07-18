@@ -84,5 +84,32 @@ export function parseArgs(args: string[]): ServerConfig {
     }
   }
 
+  // Check for environment variables for backward compatibility
+  if (process.env.PORT) {
+    config.port = parseInt(process.env.PORT, 10);
+  }
+  if (process.env.HOST) {
+    config.host = process.env.HOST;
+  }
+
+  // Configure metrics from environment variables
+  if (
+    process.env.METRICS_ENABLED !== undefined ||
+    process.env.METRICS_ENDPOINT ||
+    process.env.METRICS_HEADERS ||
+    process.env.METRICS_INTERVAL
+  ) {
+    config.metrics = {
+      enabled: process.env.METRICS_ENABLED !== 'false',
+      endpoint: process.env.METRICS_ENDPOINT,
+      headers: process.env.METRICS_HEADERS
+        ? (JSON.parse(process.env.METRICS_HEADERS) as Record<string, string>)
+        : undefined,
+      interval: process.env.METRICS_INTERVAL
+        ? parseInt(process.env.METRICS_INTERVAL, 10)
+        : undefined,
+    };
+  }
+
   return config;
 }

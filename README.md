@@ -192,6 +192,85 @@ For direct HTTP access (non-MCP clients), the following REST endpoints are avail
     -d '{"persona1": "architect", "persona2": "developer", "context": "API design"}'
   ```
 
+### Metrics and Monitoring
+
+The server includes OpenTelemetry (OTLP) metrics support for monitoring performance and usage:
+
+#### Enabling Metrics
+
+Metrics are enabled by default and export to a local OTLP collector. Configure via environment variables:
+
+```bash
+# Disable metrics
+METRICS_ENABLED=false npm start
+
+# Custom OTLP endpoint (default: http://localhost:4318/v1/metrics)
+METRICS_ENDPOINT=http://otel-collector:4318/v1/metrics npm start
+
+# With authentication
+METRICS_ENDPOINT=https://otel.example.com/v1/metrics \
+METRICS_HEADERS='{"Authorization": "Bearer token"}' \
+npm start
+
+# Custom export interval in milliseconds (default: 60000)
+METRICS_INTERVAL=30000 npm start
+```
+
+#### Available Metrics
+
+The following metrics are collected:
+
+**HTTP Metrics:**
+- `http_requests_total` - Total HTTP requests (by method, endpoint, status)
+- `http_request_duration_seconds` - Request duration histogram
+- `http_active_connections` - Current active connections gauge
+
+**MCP Protocol Metrics:**
+- `mcp_requests_total` - Total MCP requests (by type, status)
+- `mcp_request_duration_seconds` - MCP request duration histogram
+- `mcp_errors_total` - Total MCP errors (by type)
+
+**Persona Metrics:**
+- `persona_requests_total` - Total requests per persona
+- `persona_prompt_generations_total` - Prompts generated per persona
+- `persona_load_duration_seconds` - Persona loading time
+
+**Tool Metrics:**
+- `tool_invocations_total` - Total tool invocations (by name)
+- `tool_execution_duration_seconds` - Tool execution duration
+- `tool_errors_total` - Tool execution errors
+
+#### Example Collector Configuration
+
+For local development with the OpenTelemetry Collector:
+
+```yaml
+# otel-collector-config.yaml
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+exporters:
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+  
+  # Optional: Export to other backends
+  jaeger:
+    endpoint: jaeger:14250
+  
+processors:
+  batch:
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]
+```
+
 ### Testing the Connection
 
 You can verify the server is running correctly:

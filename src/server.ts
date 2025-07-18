@@ -19,6 +19,14 @@ import { randomUUID } from 'crypto';
 import { EnhancedPersonaManager } from './enhanced-persona-manager.js';
 import { PersonaConfig } from './types/yaml-persona.js';
 import { RecommendationTool } from './tools/recommendation-tool.js';
+import {
+  initializeMetrics,
+  metricsCollector,
+} from './metrics/metrics-collector.js';
+import {
+  createMetricsMiddleware,
+  measureAsyncExecution,
+} from './metrics/metrics-middleware.js';
 
 export interface ServerConfig {
   name?: string;
@@ -31,6 +39,12 @@ export interface ServerConfig {
     enableCors?: boolean;
     allowedOrigins?: string[];
     endpoint?: string;
+  };
+  metrics?: {
+    enabled?: boolean;
+    endpoint?: string; // OTLP endpoint
+    headers?: Record<string, string>; // Authentication headers
+    interval?: number; // Export interval in ms
   };
 }
 
@@ -57,6 +71,18 @@ export class PersonasMcpServer {
       ...config,
     };
 
+    // Initialize metrics if enabled
+    if (this.config.metrics?.enabled !== false) {
+      initializeMetrics({
+        enabled: true,
+        endpoint: this.config.metrics?.endpoint,
+        headers: this.config.metrics?.headers,
+        interval: this.config.metrics?.interval,
+        serviceName: this.config.name,
+        serviceVersion: this.config.version,
+      });
+    }
+
     this.server = new Server(
       {
         name: this.config.name || 'personas-mcp',
@@ -79,15 +105,25 @@ export class PersonasMcpServer {
   private setupHandlers() {
     // List available resources (personas)
     this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
-      const personas = this.personaManager.getAllPersonas();
-      return {
-        resources: personas.map(persona => ({
-          uri: `persona://${persona.id}`,
-          name: persona.name,
-          description: persona.core.identity,
-          mimeType: 'application/json',
-        })),
-      };
+      return measureAsyncExecution(
+        async () => {
+          const personas = this.personaManager.getAllPersonas();
+          return {
+            resources: personas.map(persona => ({
+              uri: `persona://${persona.id}`,
+              name: persona.name,
+              description: persona.core.identity,
+              mimeType: 'application/json',
+            })),
+          };
+        },
+        duration =>
+          metricsCollector.recordMcpRequest(
+            'ListResources',
+            'success',
+            duration
+          )
+      );
     });
 
     // List resource templates - stub implementation that returns empty array
@@ -104,29 +140,43 @@ export class PersonasMcpServer {
 
     // Read a specific persona resource
     this.server.setRequestHandler(ReadResourceRequestSchema, async request => {
-      const uri = request.params.uri;
-      const match = uri.match(/^persona:\/\/(.+)$/);
+      const startTime = Date.now();
+      try {
+        const uri = request.params.uri;
+        const match = uri.match(/^persona:\/\/(.+)$/);
 
-      if (!match) {
-        throw new Error(`Invalid persona URI: ${uri}`);
+        if (!match) {
+          throw new Error(`Invalid persona URI: ${uri}`);
+        }
+
+        const personaId = match[1];
+        const persona = this.personaManager.getPersona(personaId);
+
+        if (!persona) {
+          throw new Error(`Persona not found: ${personaId}`);
+        }
+
+        // Record persona request metric
+        metricsCollector.recordPersonaRequest(personaId);
+
+        const result = {
+          contents: [
+            {
+              uri,
+              mimeType: 'application/json',
+              text: JSON.stringify(persona, null, 2),
+            },
+          ],
+        };
+
+        const duration = Date.now() - startTime;
+        metricsCollector.recordMcpRequest('ReadResource', 'success', duration);
+        return result;
+      } catch (error) {
+        const duration = Date.now() - startTime;
+        metricsCollector.recordMcpRequest('ReadResource', 'error', duration);
+        throw error;
       }
-
-      const personaId = match[1];
-      const persona = this.personaManager.getPersona(personaId);
-
-      if (!persona) {
-        throw new Error(`Persona not found: ${personaId}`);
-      }
-
-      return {
-        contents: [
-          {
-            uri,
-            mimeType: 'application/json',
-            text: JSON.stringify(persona, null, 2),
-          },
-        ],
-      };
     });
 
     // List available prompts
@@ -166,6 +216,11 @@ export class PersonasMcpServer {
       const context = request.params.arguments?.context || '';
       const prompt = this.personaManager.generatePrompt(persona, context);
 
+      // Record prompt generation metric
+      if (this.config.metrics?.enabled !== false) {
+        metricsCollector.recordPersonaPromptGeneration(personaId);
+      }
+
       return {
         description: `${persona.name} persona prompt`,
         messages: [
@@ -190,12 +245,25 @@ export class PersonasMcpServer {
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async request => {
       const { name, arguments: args } = request.params;
+      const startTime = Date.now();
+
+      // Record tool invocation
+      if (this.config.metrics?.enabled !== false) {
+        metricsCollector.recordToolInvocation(name);
+      }
 
       try {
         const result = await this.recommendationTool.handleToolCall(
           name,
           args ?? {}
         );
+
+        const duration = Date.now() - startTime;
+        if (this.config.metrics?.enabled !== false) {
+          metricsCollector.recordToolExecution(name, duration, true);
+          metricsCollector.recordMcpRequest('CallTool', 'success', duration);
+        }
+
         return {
           content: [
             {
@@ -205,6 +273,12 @@ export class PersonasMcpServer {
           ],
         };
       } catch (error) {
+        const duration = Date.now() - startTime;
+        if (this.config.metrics?.enabled !== false) {
+          metricsCollector.recordToolExecution(name, duration, false);
+          metricsCollector.recordMcpRequest('CallTool', 'error', duration);
+        }
+
         return {
           content: [
             {
@@ -230,7 +304,15 @@ export class PersonasMcpServer {
 
   async initialize(): Promise<void> {
     console.error('Initializing Personas MCP Server...');
+
+    const startTime = Date.now();
     await this.personaManager.initialize();
+    const duration = Date.now() - startTime;
+
+    // Record persona load duration if metrics are enabled
+    if (this.config.metrics?.enabled !== false) {
+      metricsCollector.recordPersonaLoadDuration(duration);
+    }
 
     // Log persona information
     const info = this.personaManager.getPersonaInfo();
@@ -289,6 +371,15 @@ export class PersonasMcpServer {
 
     // Create Express app
     const app = express();
+
+    // Add metrics middleware if metrics are enabled
+    if (this.config.metrics?.enabled !== false) {
+      app.use(
+        createMetricsMiddleware({
+          excludePaths: ['/health', '/ready', '/metrics'],
+        })
+      );
+    }
 
     // JSON parsing will be applied selectively to specific endpoints
 
@@ -630,6 +721,11 @@ export class PersonasMcpServer {
 
     // Shutdown persona manager (stops file watchers)
     await this.personaManager.shutdown();
+
+    // Shutdown metrics collector if enabled
+    if (this.config.metrics?.enabled !== false) {
+      await metricsCollector.shutdown();
+    }
 
     // Disconnect MCP server from transports
     if (this.httpTransport) {

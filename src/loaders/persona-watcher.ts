@@ -1,5 +1,14 @@
 import chokidar, { type FSWatcher } from 'chokidar';
 import path from 'path';
+/**
+ * Error thrown when watcher operations are performed without starting the watcher
+ */
+export class WatcherNotStartedError extends Error {
+  constructor() {
+    super('Watcher not started. Call startWatching() first.');
+    this.name = 'WatcherNotStartedError';
+  }
+}
 
 export interface WatchEvent {
   type: 'add' | 'change' | 'unlink';
@@ -179,7 +188,7 @@ export class PersonaWatcher {
    */
   async addDirectory(directory: string): Promise<void> {
     if (!this.watcher) {
-      throw new Error('Watcher not started. Call startWatching() first.');
+      throw new WatcherNotStartedError();
     }
 
     try {

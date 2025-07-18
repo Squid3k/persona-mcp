@@ -27,6 +27,25 @@ import {
   createMetricsMiddleware,
   measureAsyncExecution,
 } from './metrics/metrics-middleware.js';
+import {
+  PersonaNotFoundError,
+  InvalidPersonaURIError,
+  InvalidPromptNameError,
+  TransportNotInitializedError,
+  ServerShutdownError,
+  errorHandler,
+} from './errors/index.js';
+import {
+  validateRequest,
+  validateParams,
+  RecommendRequestSchema,
+  CompareRequestSchema,
+  PersonaIdParamSchema,
+} from './validation/index.js';
+import {
+  apiLimiter,
+  recommendLimiter,
+} from './middleware/rate-limit.js';
 
 export interface ServerConfig {
   name?: string;
@@ -146,14 +165,14 @@ export class PersonasMcpServer {
         const match = uri.match(/^persona:\/\/(.+)$/);
 
         if (!match) {
-          throw new Error(`Invalid persona URI: ${uri}`);
+          throw new InvalidPersonaURIError(uri);
         }
 
         const personaId = match[1];
         const persona = this.personaManager.getPersona(personaId);
 
         if (!persona) {
-          throw new Error(`Persona not found: ${personaId}`);
+          throw new PersonaNotFoundError(personaId);
         }
 
         // Record persona request metric
@@ -203,14 +222,14 @@ export class PersonasMcpServer {
       const match = promptName.match(/^adopt-persona-(.+)$/);
 
       if (!match) {
-        throw new Error(`Invalid prompt name: ${promptName}`);
+        throw new InvalidPromptNameError(promptName);
       }
 
       const personaId = match[1];
       const persona = this.personaManager.getPersona(personaId);
 
       if (!persona) {
-        throw new Error(`Persona not found: ${personaId}`);
+        throw new PersonaNotFoundError(personaId);
       }
 
       const context = request.params.arguments?.context || '';
@@ -427,7 +446,7 @@ export class PersonasMcpServer {
     app.post(endpoint, async (req, res) => {
       try {
         if (!this.httpTransport) {
-          throw new Error('HTTP transport not initialized');
+          throw new TransportNotInitializedError('HTTP');
         }
         await this.httpTransport.handleRequest(req, res);
       } catch (error) {
@@ -449,7 +468,7 @@ export class PersonasMcpServer {
     app.get(endpoint, async (req, res) => {
       try {
         if (!this.httpTransport) {
-          throw new Error('HTTP transport not initialized');
+          throw new TransportNotInitializedError('HTTP');
         }
         await this.httpTransport.handleRequest(req, res);
       } catch (error) {
@@ -534,6 +553,9 @@ export class PersonasMcpServer {
 
     // REST API endpoints for direct HTTP access (non-MCP)
     app.use('/api', express.json());
+    
+    // Apply rate limiting to all API routes
+    app.use('/api', apiLimiter);
 
     // Get all personas
     app.get('/api/personas', (req, res) => {
@@ -562,14 +584,11 @@ export class PersonasMcpServer {
     });
 
     // Get specific persona by ID
-    app.get('/api/personas/:id', (req, res) => {
+    app.get('/api/personas/:id', validateParams(PersonaIdParamSchema), (req, res, next) => {
       try {
         const persona = this.personaManager.getPersona(req.params.id);
         if (!persona) {
-          return res.status(404).json({
-            success: false,
-            error: `Persona with ID '${req.params.id}' not found`,
-          });
+          throw new PersonaNotFoundError(req.params.id);
         }
         res.json({
           success: true,
@@ -585,26 +604,14 @@ export class PersonasMcpServer {
           },
         });
       } catch (error) {
-        res.status(500).json({
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
+        next(error);
       }
     });
 
     // Get persona recommendations
-    app.post('/api/recommend', async (req, res) => {
+    app.post('/api/recommend', recommendLimiter, validateRequest(RecommendRequestSchema), async (req, res, next) => {
       try {
-        const body = req.body as { query?: unknown; limit?: unknown };
-        const query = body.query;
-        const limit = typeof body.limit === 'number' ? body.limit : 3;
-
-        if (!query || typeof query !== 'string') {
-          return res.status(400).json({
-            success: false,
-            error: 'Query string is required',
-          });
-        }
+        const { query, limit = 3 } = req.body as { query: string; limit?: number };
 
         const result = await this.recommendationTool.handleToolCall(
           'recommend-persona',
@@ -619,36 +626,14 @@ export class PersonasMcpServer {
           data: result,
         });
       } catch (error) {
-        res.status(500).json({
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
+        next(error);
       }
     });
 
     // Compare personas
-    app.post('/api/compare', async (req, res) => {
+    app.post('/api/compare', recommendLimiter, validateRequest(CompareRequestSchema), async (req, res, next) => {
       try {
-        const body = req.body as {
-          persona1?: unknown;
-          persona2?: unknown;
-          context?: unknown;
-        };
-        const persona1 = body.persona1;
-        const persona2 = body.persona2;
-        const context = typeof body.context === 'string' ? body.context : '';
-
-        if (
-          !persona1 ||
-          typeof persona1 !== 'string' ||
-          !persona2 ||
-          typeof persona2 !== 'string'
-        ) {
-          return res.status(400).json({
-            success: false,
-            error: 'Both persona1 and persona2 are required',
-          });
-        }
+        const { persona1, persona2, context = '' } = req.body as { persona1: string; persona2: string; context?: string };
 
         const result = await this.recommendationTool.handleToolCall(
           'compare-personas',
@@ -663,12 +648,12 @@ export class PersonasMcpServer {
           data: result,
         });
       } catch (error) {
-        res.status(500).json({
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
+        next(error);
       }
     });
+
+    // Add error handler middleware (must be last)
+    app.use(errorHandler);
 
     // MCP server already connected above
 
@@ -678,7 +663,7 @@ export class PersonasMcpServer {
 
     return new Promise<void>((resolve, reject) => {
       if (!this.httpServer) {
-        reject(new Error('HTTP server not initialized'));
+        reject(new ServerShutdownError('HTTP server', new Error('Not initialized')));
         return;
       }
 
@@ -690,7 +675,7 @@ export class PersonasMcpServer {
       });
 
       if (!this.httpServer) {
-        reject(new Error('HTTP server not initialized'));
+        reject(new ServerShutdownError('HTTP server', new Error('Not initialized')));
         return;
       }
 
@@ -767,7 +752,7 @@ export class PersonasMcpServer {
         // Set a timeout to prevent hanging
         const timeout = setTimeout(() => {
           console.error('HTTP server close timeout, forcing shutdown');
-          reject(new Error('HTTP server close timeout'));
+          reject(new ServerShutdownError('HTTP server', new Error('Close timeout')));
         }, 5000);
 
         this.httpServer.close(error => {

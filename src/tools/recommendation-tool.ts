@@ -5,6 +5,7 @@ import {
   TaskDescriptionSchema,
   RecommendationRequestSchema,
 } from '../types/recommendation.js';
+import { ToolNotFoundError } from '../errors/index.js';
 
 interface ToolArgs {
   [key: string]: unknown;
@@ -199,7 +200,7 @@ export class RecommendationTool {
       case 'get-recommendation-stats':
         return await this.handleGetStats(args);
       default:
-        throw new Error(`Unknown tool: ${name}`);
+        throw new ToolNotFoundError(name);
     }
   }
 

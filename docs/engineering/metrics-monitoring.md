@@ -41,27 +41,27 @@ services:
       - METRICS_ENABLED=true
       - METRICS_ENDPOINT=http://otel-collector:4318/v1/metrics
     ports:
-      - "3000:3000"
+      - '3000:3000'
 
   otel-collector:
     image: otel/opentelemetry-collector:latest
     volumes:
       - ./otel-collector-config.yaml:/etc/otelcol/config.yaml
     ports:
-      - "4318:4318"   # OTLP HTTP
-      - "8889:8889"   # Prometheus metrics
+      - '4318:4318' # OTLP HTTP
+      - '8889:8889' # Prometheus metrics
 ```
 
 ## Configuration
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `METRICS_ENABLED` | `true` | Enable/disable metrics collection |
-| `METRICS_ENDPOINT` | `http://localhost:4318/v1/metrics` | OTLP metrics endpoint |
-| `METRICS_INTERVAL` | `60000` | Export interval in milliseconds |
-| `METRICS_HEADERS` | `{}` | JSON string of headers for authentication |
+| Variable           | Default                            | Description                               |
+| ------------------ | ---------------------------------- | ----------------------------------------- |
+| `METRICS_ENABLED`  | `true`                             | Enable/disable metrics collection         |
+| `METRICS_ENDPOINT` | `http://localhost:4318/v1/metrics` | OTLP metrics endpoint                     |
+| `METRICS_INTERVAL` | `60000`                            | Export interval in milliseconds           |
+| `METRICS_HEADERS`  | `{}`                               | JSON string of headers for authentication |
 
 ### Authentication
 
@@ -89,14 +89,17 @@ npm start
 ### HTTP Metrics
 
 #### http_requests_total
+
 Total number of HTTP requests received.
 
 **Labels:**
+
 - `method`: HTTP method (GET, POST, etc.)
 - `endpoint`: Request endpoint path
 - `status`: HTTP status code
 
 **Example:**
+
 ```promql
 # Total requests by endpoint
 sum by (endpoint) (http_requests_total)
@@ -106,17 +109,20 @@ rate(http_requests_total{status=~"5.."}[5m])
 ```
 
 #### http_request_duration_seconds
+
 HTTP request duration in seconds (histogram).
 
 **Labels:**
+
 - `method`: HTTP method
 - `endpoint`: Request endpoint path
 - `status`: HTTP status code
 
 **Example:**
+
 ```promql
 # 95th percentile latency by endpoint
-histogram_quantile(0.95, 
+histogram_quantile(0.95,
   sum by (endpoint, le) (
     rate(http_request_duration_seconds_bucket[5m])
   )
@@ -124,9 +130,11 @@ histogram_quantile(0.95,
 ```
 
 #### http_active_connections
+
 Current number of active HTTP connections (gauge).
 
 **Example:**
+
 ```promql
 # Current active connections
 http_active_connections
@@ -135,13 +143,16 @@ http_active_connections
 ### MCP Protocol Metrics
 
 #### mcp_requests_total
+
 Total number of MCP protocol requests.
 
 **Labels:**
+
 - `type`: Request type (tools/call, resources/list, etc.)
 - `status`: Success or error
 
 **Example:**
+
 ```promql
 # MCP request rate
 rate(mcp_requests_total[5m])
@@ -151,71 +162,89 @@ rate(mcp_requests_total{status="error"}[5m])
 ```
 
 #### mcp_request_duration_seconds
+
 MCP request processing duration (histogram).
 
 **Labels:**
+
 - `type`: Request type
 - `status`: Success or error
 
 #### mcp_errors_total
+
 Total number of MCP protocol errors.
 
 **Labels:**
+
 - `type`: Error type (validation, processing, etc.)
 
 ### Persona Metrics
 
 #### persona_requests_total
+
 Total requests per persona.
 
 **Labels:**
+
 - `persona_id`: Persona identifier
 - `operation`: Operation type (adopt, recommend, etc.)
 
 **Example:**
+
 ```promql
 # Most used personas
 topk(5, sum by (persona_id) (persona_requests_total))
 ```
 
 #### persona_prompt_generations_total
+
 Number of prompts generated per persona.
 
 **Labels:**
+
 - `persona_id`: Persona identifier
 
 #### persona_load_duration_seconds
+
 Time taken to load personas (histogram).
 
 **Labels:**
+
 - `source`: Load source (built-in, user, project)
 
 ### Tool Metrics
 
 #### tool_invocations_total
+
 Total tool invocations.
 
 **Labels:**
+
 - `name`: Tool name
 - `status`: Success or error
 
 **Example:**
+
 ```promql
 # Tool usage distribution
 sum by (name) (tool_invocations_total)
 ```
 
 #### tool_execution_duration_seconds
+
 Tool execution duration (histogram).
 
 **Labels:**
+
 - `name`: Tool name
 - `status`: Success or error
 
 #### tool_errors_total
+
 Total tool execution errors.
 
 **Labels:**
+
 - `name`: Tool name
 - `error_type`: Type of error
 
@@ -236,16 +265,16 @@ receivers:
 exporters:
   # Prometheus exporter
   prometheus:
-    endpoint: "0.0.0.0:8889"
+    endpoint: '0.0.0.0:8889'
     const_labels:
-      service: "personas-mcp"
-  
+      service: 'personas-mcp'
+
   # Jaeger exporter (optional)
   jaeger:
     endpoint: jaeger:14250
     tls:
       insecure: true
-  
+
   # Datadog exporter (optional)
   datadog:
     api:
@@ -256,7 +285,7 @@ processors:
   batch:
     timeout: 10s
     send_batch_size: 1024
-  
+
   memory_limiter:
     limit_mib: 512
     spike_limit_mib: 128
@@ -298,27 +327,35 @@ Import this dashboard JSON for basic monitoring:
     "panels": [
       {
         "title": "Request Rate",
-        "targets": [{
-          "expr": "rate(http_requests_total[5m])"
-        }]
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])"
+          }
+        ]
       },
       {
         "title": "Response Time (p95)",
-        "targets": [{
-          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
-        }]
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
+          }
+        ]
       },
       {
         "title": "Persona Usage",
-        "targets": [{
-          "expr": "sum by (persona_id) (persona_requests_total)"
-        }]
+        "targets": [
+          {
+            "expr": "sum by (persona_id) (persona_requests_total)"
+          }
+        ]
       },
       {
         "title": "Error Rate",
-        "targets": [{
-          "expr": "rate(mcp_errors_total[5m])"
-        }]
+        "targets": [
+          {
+            "expr": "rate(mcp_errors_total[5m])"
+          }
+        ]
       }
     ]
   }
@@ -358,18 +395,18 @@ groups:
         expr: rate(mcp_errors_total[5m]) > 0.1
         for: 5m
         annotations:
-          summary: "High error rate detected"
-          
+          summary: 'High error rate detected'
+
       - alert: SlowResponseTime
         expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
         for: 10m
         annotations:
-          summary: "95th percentile response time > 1s"
-          
+          summary: '95th percentile response time > 1s'
+
       - alert: PersonaLoadFailure
         expr: increase(persona_load_duration_seconds_count{status="error"}[5m]) > 0
         annotations:
-          summary: "Persona loading failures detected"
+          summary: 'Persona loading failures detected'
 ```
 
 ## Best Practices
@@ -406,11 +443,13 @@ METRICS_SAMPLING_RATE=0.1 npm start
 ### Metrics Not Appearing
 
 1. Check if metrics are enabled:
+
    ```bash
    echo $METRICS_ENABLED
    ```
 
 2. Verify collector is running:
+
    ```bash
    curl http://localhost:4318/v1/metrics
    ```
@@ -423,6 +462,7 @@ METRICS_SAMPLING_RATE=0.1 npm start
 ### High Memory Usage
 
 1. Reduce export interval:
+
    ```bash
    METRICS_INTERVAL=30000 npm start
    ```
@@ -435,6 +475,7 @@ METRICS_SAMPLING_RATE=0.1 npm start
 ### Authentication Failures
 
 1. Verify headers format:
+
    ```bash
    echo $METRICS_HEADERS | jq .
    ```
@@ -488,6 +529,7 @@ Metrics collection has minimal performance impact:
 - Network bandwidth depends on export interval
 
 To minimize impact:
+
 - Increase export interval for low-priority metrics
 - Use sampling for high-frequency operations
 - Disable detailed histograms if not needed

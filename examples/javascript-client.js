@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * JavaScript Client Example for Personas MCP Server
- * 
+ *
  * This example demonstrates how to interact with the Personas MCP Server
  * using JavaScript and the fetch API.
  */
@@ -19,22 +19,22 @@ async function callMCPTool(toolName, args) {
     method: 'tools/call',
     params: {
       name: toolName,
-      arguments: args
+      arguments: args,
     },
-    id: Date.now()
+    id: Date.now(),
   };
 
   try {
     const response = await fetch(MCP_SERVER_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(request)
+      body: JSON.stringify(request),
     });
 
     const result = await response.json();
-    
+
     if (result.error) {
       throw new Error(result.error.message || 'Unknown error');
     }
@@ -54,19 +54,20 @@ async function getRecommendations() {
 
   const task = {
     title: 'Optimize database queries',
-    description: 'Our application is experiencing slow database queries in production. Need to analyze and optimize query performance.',
+    description:
+      'Our application is experiencing slow database queries in production. Need to analyze and optimize query performance.',
     keywords: ['database', 'performance', 'optimization', 'sql'],
     complexity: 'complex',
-    domain: 'backend'
+    domain: 'backend',
   };
 
   try {
     const result = await callMCPTool('recommend-persona', task);
-    
+
     console.log(`Task: ${task.title}`);
     console.log(`Description: ${task.description}`);
     console.log('\nRecommended Personas:');
-    
+
     result.data.recommendations.forEach((rec, index) => {
       console.log(`\n${index + 1}. ${rec.personaId} (Score: ${rec.score}%)`);
       console.log(`   Reasoning: ${rec.reasoning}`);
@@ -89,12 +90,12 @@ async function explainPersonaFit() {
     title: 'Memory leak investigation',
     description: 'Node.js application consuming increasing memory over time',
     keywords: ['memory', 'leak', 'node.js', 'debugging'],
-    complexity: 'complex'
+    complexity: 'complex',
   };
 
   try {
     const result = await callMCPTool('explain-persona-fit', request);
-    
+
     console.log(`Persona: ${result.data.persona.name}`);
     console.log(`Task: ${request.title}`);
     console.log(`\nAnalysis:`);
@@ -102,7 +103,7 @@ async function explainPersonaFit() {
     console.log(`Reasoning: ${result.data.reasoning}`);
     console.log(`\nStrengths for this task:`);
     result.data.strengths.forEach(s => console.log(`  - ${s}`));
-    
+
     if (result.data.limitations?.length > 0) {
       console.log(`\nLimitations:`);
       result.data.limitations.forEach(l => console.log(`  - ${l}`));
@@ -121,21 +122,24 @@ async function comparePersonas() {
   const comparison = {
     personaIds: ['architect', 'developer', 'reviewer'],
     title: 'Design and implement REST API',
-    description: 'Create a RESTful API with authentication, rate limiting, and documentation',
+    description:
+      'Create a RESTful API with authentication, rate limiting, and documentation',
     domain: 'backend',
-    complexity: 'moderate'
+    complexity: 'moderate',
   };
 
   try {
     const result = await callMCPTool('compare-personas', comparison);
-    
+
     console.log(`Task: ${comparison.title}`);
     console.log('\nPersona Comparison:');
-    
+
     result.data.comparisons
       .sort((a, b) => b.score - a.score)
       .forEach((comp, index) => {
-        console.log(`\n${index + 1}. ${comp.personaId} (Score: ${comp.score}%)`);
+        console.log(
+          `\n${index + 1}. ${comp.personaId} (Score: ${comp.score}%)`
+        );
         console.log(`   ${comp.reasoning}`);
         console.log(`   Best for: ${comp.strengths[0]}`);
       });
@@ -155,7 +159,7 @@ async function useRestAPI() {
     console.log('Fetching all personas...');
     const personasResponse = await fetch(`${API_BASE_URL}/personas`);
     const personas = await personasResponse.json();
-    
+
     console.log(`Found ${personas.length} personas:`);
     personas.forEach(p => {
       console.log(`  - ${p.id}: ${p.name} (${p.role})`);
@@ -165,7 +169,7 @@ async function useRestAPI() {
     console.log('\n\nFetching architect persona details...');
     const architectResponse = await fetch(`${API_BASE_URL}/personas/architect`);
     const architect = await architectResponse.json();
-    
+
     console.log(`\n${architect.name}:`);
     console.log(`Role: ${architect.role}`);
     console.log(`Description: ${architect.description}`);
@@ -178,16 +182,15 @@ async function useRestAPI() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         query: 'implement caching strategy',
-        limit: 2
-      })
+        limit: 2,
+      }),
     });
-    
+
     const recommendations = await recommendResponse.json();
     console.log('\nRecommendations for "implement caching strategy":');
     recommendations.forEach((rec, i) => {
       console.log(`  ${i + 1}. ${rec.persona.name} - ${rec.reason}`);
     });
-
   } catch (error) {
     console.error('REST API error:', error);
   }
@@ -202,7 +205,7 @@ async function getSystemStats() {
   try {
     const result = await callMCPTool('get-recommendation-stats', {});
     const stats = result.data;
-    
+
     console.log(`Total Personas: ${stats.totalPersonas}`);
     console.log(`Available Roles: ${stats.availableRoles.join(', ')}`);
     console.log('\nScoring Weights:');
@@ -222,7 +225,7 @@ async function getSystemStats() {
 async function main() {
   console.log('🚀 Personas MCP Server - JavaScript Client Examples\n');
   console.log('Make sure the server is running: npm start\n');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
 
   try {
     await getRecommendations();
@@ -230,16 +233,17 @@ async function main() {
     await comparePersonas();
     await useRestAPI();
     await getSystemStats();
-    
+
     console.log('\n\n✅ All examples completed successfully!');
     console.log('\nNext steps:');
     console.log('  - Try modifying the task descriptions');
     console.log('  - Create your own persona comparisons');
     console.log('  - Integrate into your applications');
-    
   } catch (error) {
     console.error('\n❌ Error running examples:', error.message);
-    console.error('Make sure the Personas MCP Server is running on http://localhost:3000');
+    console.error(
+      'Make sure the Personas MCP Server is running on http://localhost:3000'
+    );
   }
 }
 
@@ -252,5 +256,5 @@ if (require.main === module) {
 module.exports = {
   callMCPTool,
   MCP_SERVER_URL,
-  API_BASE_URL
+  API_BASE_URL,
 };

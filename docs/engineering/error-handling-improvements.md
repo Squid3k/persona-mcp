@@ -7,6 +7,7 @@ This document describes the comprehensive improvements made to error handling, r
 ## 1. Custom Error Types Implementation
 
 ### Error Module Structure
+
 ```
 src/errors/
 ├── base.ts           # BaseError class with common functionality
@@ -19,11 +20,13 @@ src/errors/
 ### Key Error Types
 
 #### Base Error Class
+
 - Provides consistent error structure with `code`, `statusCode`, and `isOperational` properties
 - Supports JSON serialization for API responses
 - Maintains proper stack traces
 
 #### Persona Errors
+
 - `PersonaNotFoundError` (404) - When a requested persona doesn't exist
 - `InvalidPersonaURIError` (400) - When persona URI format is invalid
 - `PersonaValidationError` (422) - When persona validation fails
@@ -31,6 +34,7 @@ src/errors/
 - `PersonaConflictError` (409) - When persona conflicts are detected
 
 #### MCP Protocol Errors
+
 - `TransportNotInitializedError` (503) - When transport isn't ready
 - `InvalidPromptNameError` (400) - When prompt name format is invalid
 - `ServerInitializationError` (500) - When server fails to start
@@ -38,6 +42,7 @@ src/errors/
 - `ToolNotFoundError` (404) - When requested tool doesn't exist
 
 #### API Errors
+
 - `ValidationError` (400) - Request validation failures with detailed field errors
 - `MissingParameterError` (400) - Required parameters missing
 - `RateLimitError` (429) - Rate limit exceeded with retry-after header
@@ -46,6 +51,7 @@ src/errors/
 ## 2. Request Validation Implementation
 
 ### Validation Schemas
+
 ```typescript
 // src/validation/api-schemas.ts
 export const RecommendRequestSchema = z.object({
@@ -60,17 +66,22 @@ export const CompareRequestSchema = z.object({
 });
 
 export const PersonaIdParamSchema = z.object({
-  id: z.string().min(1).regex(/^[a-zA-Z0-9-_]+$/),
+  id: z
+    .string()
+    .min(1)
+    .regex(/^[a-zA-Z0-9-_]+$/),
 });
 ```
 
 ### Validation Middleware
+
 - `validateRequest()` - Validates request body
 - `validateParams()` - Validates URL parameters
 - `validateQuery()` - Validates query parameters with type coercion
 - `validate()` - Combined validation for all request parts
 
 ### Applied Endpoints
+
 - `GET /api/personas/:id` - Validates persona ID parameter
 - `POST /api/recommend` - Validates query and limit
 - `POST /api/compare` - Validates persona IDs and context
@@ -78,6 +89,7 @@ export const PersonaIdParamSchema = z.object({
 ## 3. Rate Limiting Implementation
 
 ### Rate Limiter Types
+
 ```typescript
 // General API limiter - 100 requests per 15 minutes
 export const apiLimiter = rateLimit({
@@ -99,18 +111,21 @@ export const computeIntensiveLimiter = rateLimit({
 ```
 
 ### Features
+
 - Custom error handling with `RateLimitError`
-- Standard rate limit headers (RateLimit-*)
+- Standard rate limit headers (RateLimit-\*)
 - IP-based limiting with proxy support
 - Configurable limits per endpoint type
 
 ### Applied To
+
 - All `/api/*` routes get general rate limiting
 - `/api/recommend` and `/api/compare` get stricter limits
 
 ## 4. Enhanced CLI Testing
 
 ### New Test Files
+
 ```
 test/cli/
 ├── cli.test.ts          # Main CLI functionality tests
@@ -119,6 +134,7 @@ test/cli/
 ```
 
 ### Test Coverage Areas
+
 - Version and help flag handling
 - Configuration parsing and validation
 - Server lifecycle (start, shutdown, signals)
@@ -127,6 +143,7 @@ test/cli/
 - File system permission errors
 
 ### Key Test Scenarios
+
 1. **Signal Handling**: SIGINT and SIGTERM graceful shutdown
 2. **Port Conflicts**: Proper error when port is in use
 3. **Invalid Configuration**: Handling malformed config files
@@ -136,6 +153,7 @@ test/cli/
 ## 5. Error Type Testing
 
 ### Test Structure
+
 ```
 test/errors/
 ├── error-types.test.ts    # Unit tests for all error types
@@ -143,6 +161,7 @@ test/errors/
 ```
 
 ### Coverage Areas
+
 - All custom error types and their properties
 - Error serialization to JSON
 - Stack trace preservation
@@ -153,6 +172,7 @@ test/errors/
 ## 6. Migration Guide
 
 ### Before (Generic Errors)
+
 ```typescript
 if (!persona) {
   throw new Error(`Persona not found: ${personaId}`);
@@ -160,6 +180,7 @@ if (!persona) {
 ```
 
 ### After (Custom Errors)
+
 ```typescript
 if (!persona) {
   throw new PersonaNotFoundError(personaId);
@@ -167,6 +188,7 @@ if (!persona) {
 ```
 
 ### Express Route Updates
+
 ```typescript
 // Before
 app.post('/api/recommend', async (req, res) => {
@@ -182,9 +204,10 @@ app.post('/api/recommend', async (req, res) => {
 });
 
 // After
-app.post('/api/recommend', 
+app.post(
+  '/api/recommend',
   recommendLimiter,
-  validateRequest(RecommendRequestSchema), 
+  validateRequest(RecommendRequestSchema),
   async (req, res, next) => {
     try {
       const { query, limit } = req.body;
@@ -199,11 +222,13 @@ app.post('/api/recommend',
 ## 7. Installation Requirements
 
 ### New Dependencies
+
 ```bash
 npm install express-rate-limit
 ```
 
 ### Existing Dependencies Used
+
 - `zod` - For schema validation
 - `express` - For middleware support
 - `vitest` - For testing
@@ -211,12 +236,14 @@ npm install express-rate-limit
 ## 8. Benefits
 
 ### For Users
+
 - **Clear Error Messages**: Specific error codes and messages
 - **Validation Feedback**: Detailed field-level validation errors
 - **Rate Limit Protection**: Prevents API abuse
 - **Better Reliability**: Graceful error handling
 
 ### For Developers
+
 - **Type Safety**: TypeScript support for all errors
 - **Consistent Patterns**: Standardized error handling
 - **Easy Testing**: Specific error types to assert against
@@ -233,6 +260,7 @@ npm install express-rate-limit
 ## 10. Testing the Implementation
 
 ### Run Tests
+
 ```bash
 # Run all tests including new error and CLI tests
 npm test
@@ -246,6 +274,7 @@ npm test test/cli
 ```
 
 ### Manual Testing
+
 ```bash
 # Test rate limiting
 for i in {1..15}; do curl -X POST http://localhost:3000/api/recommend -H "Content-Type: application/json" -d '{"query":"test"}'; done

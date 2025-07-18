@@ -7,21 +7,25 @@ This document establishes API design principles and guidelines for the Personas 
 ## Core Principles
 
 ### 1. Consistency
+
 - Uniform naming conventions
 - Predictable behavior patterns
 - Standard response formats
 
 ### 2. Simplicity
+
 - Intuitive interfaces
 - Minimal required parameters
 - Clear documentation
 
 ### 3. Extensibility
+
 - Forward compatibility
 - Version management
 - Graceful deprecation
 
 ### 4. Error Handling
+
 - Informative error messages
 - Consistent error formats
 - Actionable feedback
@@ -32,14 +36,14 @@ This document establishes API design principles and guidelines for the Personas 
 
 ```typescript
 // Good: Verb-noun format, kebab-case
-"recommend-persona"
-"explain-persona-fit"
-"compare-personas"
+'recommend-persona';
+'explain-persona-fit';
+'compare-personas';
 
 // Bad: Inconsistent naming
-"getRecommendation"
-"persona_explain"
-"COMPARE"
+'getRecommendation';
+'persona_explain';
+'COMPARE';
 ```
 
 ### Parameter Design
@@ -47,13 +51,13 @@ This document establishes API design principles and guidelines for the Personas 
 ```typescript
 interface ToolParameters {
   // Required parameters first
-  title: string;          // Always required
-  description: string;    // Always required
-  
+  title: string; // Always required
+  description: string; // Always required
+
   // Optional parameters with defaults
-  keywords?: string[];    // Optional array
+  keywords?: string[]; // Optional array
   complexity?: Complexity; // Optional enum
-  maxResults?: number;    // Optional with default
+  maxResults?: number; // Optional with default
 }
 ```
 
@@ -98,7 +102,7 @@ export const TaskDescriptionSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().min(1).max(2000),
   keywords: z.array(z.string()).max(20).optional(),
-  complexity: z.enum(['simple', 'moderate', 'complex', 'expert']).optional()
+  complexity: z.enum(['simple', 'moderate', 'complex', 'expert']).optional(),
 });
 
 // Validate at entry point
@@ -129,14 +133,14 @@ enum ErrorCode {
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   INVALID_INPUT = 'INVALID_INPUT',
   MISSING_REQUIRED_FIELD = 'MISSING_REQUIRED_FIELD',
-  
+
   // Not found errors (404)
   PERSONA_NOT_FOUND = 'PERSONA_NOT_FOUND',
   RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
-  
+
   // Server errors (500)
   INTERNAL_ERROR = 'INTERNAL_ERROR',
-  PROCESSING_ERROR = 'PROCESSING_ERROR'
+  PROCESSING_ERROR = 'PROCESSING_ERROR',
 }
 ```
 
@@ -159,12 +163,12 @@ interface ErrorResponse {
 
 ```typescript
 // Good: Specific and actionable
-"Title must be between 1 and 200 characters"
-"Persona 'architect' not found. Available personas: developer, reviewer"
+'Title must be between 1 and 200 characters';
+"Persona 'architect' not found. Available personas: developer, reviewer";
 
 // Bad: Vague or technical
-"Invalid input"
-"Error: undefined is not a string"
+'Invalid input';
+'Error: undefined is not a string';
 ```
 
 ## Versioning
@@ -240,17 +244,17 @@ interface QueryOptions {
 
 ### Tool Documentation
 
-```typescript
+````typescript
 /**
  * Recommends the best personas for a given task
- * 
+ *
  * @param title - Brief task description (required)
  * @param description - Detailed task description (required)
  * @param keywords - Related keywords (optional)
  * @param complexity - Task complexity level (optional)
- * 
+ *
  * @returns PersonaRecommendations with scores and reasoning
- * 
+ *
  * @example
  * ```json
  * {
@@ -259,11 +263,12 @@ interface QueryOptions {
  * }
  * ```
  */
-```
+````
 
 ### API Examples
 
 Always provide:
+
 1. **Minimal example**: Required fields only
 2. **Full example**: All fields populated
 3. **Error example**: Common error case
@@ -337,7 +342,7 @@ describe('Tool Integration', () => {
       complexity: 'moderate',
       // ... all optional params
     };
-    
+
     const response = await callTool('recommend-persona', allParams);
     expect(response.success).toBe(true);
   });
@@ -347,37 +352,44 @@ describe('Tool Integration', () => {
 ## Best Practices
 
 ### 1. Idempotency
+
 - GET requests always idempotent
 - Tool calls with same input return same output
 
 ### 2. Null Handling
+
 ```typescript
 // Prefer empty arrays over null
-recommendations: [] // Not null
+recommendations: []; // Not null
 
 // Omit optional fields rather than null
-{ title: "Test" } // Not { title: "Test", keywords: null }
+{
+  title: 'Test';
+} // Not { title: "Test", keywords: null }
 ```
 
 ### 3. Enumeration Values
+
 ```typescript
 // Use lowercase with underscores
-complexity: "very_complex" // Not "VeryComplex" or "very-complex"
+complexity: 'very_complex'; // Not "VeryComplex" or "very-complex"
 
 // Provide all valid values in error
-"Invalid complexity. Must be one of: simple, moderate, complex, expert"
+('Invalid complexity. Must be one of: simple, moderate, complex, expert');
 ```
 
 ### 4. Timestamps
+
 ```typescript
 // Always use ISO 8601
-timestamp: "2025-07-15T10:30:00Z"
+timestamp: '2025-07-15T10:30:00Z';
 
 // Include timezone
-createdAt: "2025-07-15T10:30:00-07:00"
+createdAt: '2025-07-15T10:30:00-07:00';
 ```
 
 ### 5. Pagination
+
 ```typescript
 // Consistent pagination parameters
 {

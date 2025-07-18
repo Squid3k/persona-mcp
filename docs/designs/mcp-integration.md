@@ -13,37 +13,37 @@ graph TB
         API[API Clients]
         Custom[Custom MCP Clients]
     end
-    
+
     subgraph "Transport Layer"
         HTTP[HTTP Transport]
         Stream[Streaming Support]
         CORS[CORS Handler]
     end
-    
+
     subgraph "MCP Server Core"
         Server[MCP Server Instance]
         Handlers[Request Handlers]
         Capabilities[Server Capabilities]
     end
-    
+
     subgraph "Persona Services"
         Resources[Resource Handler]
         Prompts[Prompt Handler]
         Tools[Tool Handler]
     end
-    
+
     Claude --> HTTP
     API --> HTTP
     Custom --> HTTP
-    
+
     HTTP --> Server
     Stream --> Server
-    
+
     Server --> Handlers
     Handlers --> Resources
     Handlers --> Prompts
     Handlers --> Tools
-    
+
     Server --> Capabilities
 ```
 
@@ -57,7 +57,7 @@ sequenceDiagram
     participant Server as MCP Server
     participant PM as PersonaManager
     participant Transport as HTTP Transport
-    
+
     App->>Server: new Server(config)
     Server->>Server: Set capabilities
     App->>PM: new PersonaManager()
@@ -77,7 +77,7 @@ graph LR
         Prompts[prompts: {}]
         Tools[tools: {}]
     end
-    
+
     subgraph "Handler Registration"
         ListResources[ListResourcesRequest]
         ReadResource[ReadResourceRequest]
@@ -86,7 +86,7 @@ graph LR
         ListTools[ListToolsRequest]
         CallTool[CallToolRequest]
     end
-    
+
     Resources --> ListResources
     Resources --> ReadResource
     Prompts --> ListPrompts
@@ -105,7 +105,7 @@ sequenceDiagram
     participant Server
     participant Handler as Resource Handler
     participant PM as PersonaManager
-    
+
     Client->>Server: ListResourcesRequest
     Server->>Handler: Handle request
     Handler->>PM: getAllPersonas()
@@ -113,7 +113,7 @@ sequenceDiagram
     Handler->>Handler: Format as resources
     Handler-->>Server: Resource list
     Server-->>Client: ListResourcesResponse
-    
+
     Client->>Server: ReadResourceRequest(uri)
     Server->>Handler: Handle request
     Handler->>Handler: Parse URI
@@ -133,14 +133,14 @@ sequenceDiagram
     participant TH as Tool Handler
     participant RT as RecommendationTool
     participant RE as RecommendationEngine
-    
+
     Client->>Server: ListToolsRequest
     Server->>TH: Handle request
     TH->>RT: getToolDefinitions()
     RT-->>TH: Tool definitions
     TH-->>Server: Tool list
     Server-->>Client: ListToolsResponse
-    
+
     Client->>Server: CallToolRequest(name, args)
     Server->>TH: Handle request
     TH->>RT: handleToolCall(name, args)
@@ -164,27 +164,27 @@ graph TB
         CORS[CORS Middleware]
         Routes[Route Handlers]
     end
-    
+
     subgraph "MCP Endpoints"
         POST[POST /mcp]
         GET[GET /mcp]
         Health[GET /health]
         Ready[GET /ready]
     end
-    
+
     subgraph "Transport Handler"
         Stream[StreamableHTTPServerTransport]
         Session[Session Management]
         JSON[JSON Response Mode]
     end
-    
+
     App --> CORS
     CORS --> Routes
     Routes --> POST
     Routes --> GET
     Routes --> Health
     Routes --> Ready
-    
+
     POST --> Stream
     GET --> Stream
     Stream --> Session
@@ -201,13 +201,13 @@ flowchart LR
         Route[Route to Handler]
         Process[Process Request]
     end
-    
+
     subgraph "Response Generation"
         Format[Format Result]
         Wrap[JSON-RPC Wrapper]
         Send[Send Response]
     end
-    
+
     Receive --> Parse
     Parse --> Route
     Route --> Process
@@ -226,18 +226,18 @@ graph TB
         Internal[Internal Errors]
         Protocol[Protocol Errors]
     end
-    
+
     subgraph "Error Response"
         Code[Error Code]
         Message[Error Message]
         Data[Error Data]
     end
-    
+
     Validation --> Code
     NotFound --> Code
     Internal --> Code
     Protocol --> Code
-    
+
     Code --> Response[JSON-RPC Error]
     Message --> Response
     Data --> Response
@@ -252,25 +252,25 @@ classDiagram
         +setRequestHandler(schema, handler)
         +connect(transport)
     }
-    
+
     class RecommendationTool {
         -engine: RecommendationEngine
         +getToolDefinitions(): Tool[]
         +handleToolCall(name, args): Result
     }
-    
+
     class Tool {
         +name: string
         +description: string
         +inputSchema: object
     }
-    
+
     class ToolHandler {
         +handle(request): Response
         -validateInput(args): boolean
         -processRequest(args): Result
     }
-    
+
     MCPServer --> ToolHandler
     ToolHandler --> RecommendationTool
     RecommendationTool --> Tool
@@ -284,19 +284,19 @@ graph TB
         ClientRequest[Client Request]
         Validation[Schema Validation]
     end
-    
+
     subgraph "Processing Layer"
         Handler[Request Handler]
         Service[Service Layer]
         Data[Data Access]
     end
-    
+
     subgraph "Output Layer"
         Transform[Response Transform]
         Protocol[Protocol Wrapper]
         ClientResponse[Client Response]
     end
-    
+
     ClientRequest --> Validation
     Validation --> Handler
     Handler --> Service
@@ -326,16 +326,18 @@ stateDiagram-v2
 ## Security Considerations
 
 ### DNS Rebinding Protection
+
 ```mermaid
 graph LR
     Request[Incoming Request] --> Check{Host Allowed?}
     Check -->|Yes| Process[Process Request]
     Check -->|No| Reject[Reject 403]
-    
+
     AllowedHosts[Allowed Hosts List] --> Check
 ```
 
 ### CORS Configuration
+
 ```mermaid
 graph TB
     subgraph "CORS Settings"
@@ -344,12 +346,12 @@ graph TB
         Headers[Allowed Headers]
         Credentials[Credentials Support]
     end
-    
+
     Origins --> Policy[CORS Policy]
     Methods --> Policy
     Headers --> Policy
     Credentials --> Policy
-    
+
     Policy --> Middleware[Express CORS]
 ```
 

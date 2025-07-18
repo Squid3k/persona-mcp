@@ -42,10 +42,7 @@ import {
   CompareRequestSchema,
   PersonaIdParamSchema,
 } from './validation/index.js';
-import {
-  apiLimiter,
-  recommendLimiter,
-} from './middleware/rate-limit.js';
+import { apiLimiter, recommendLimiter } from './middleware/rate-limit.js';
 
 export interface ServerConfig {
   name?: string;
@@ -553,7 +550,7 @@ export class PersonasMcpServer {
 
     // REST API endpoints for direct HTTP access (non-MCP)
     app.use('/api', express.json());
-    
+
     // Apply rate limiting to all API routes
     app.use('/api', apiLimiter);
 
@@ -584,73 +581,98 @@ export class PersonasMcpServer {
     });
 
     // Get specific persona by ID
-    app.get('/api/personas/:id', validateParams(PersonaIdParamSchema), (req, res, next) => {
-      try {
-        const persona = this.personaManager.getPersona(req.params.id);
-        if (!persona) {
-          throw new PersonaNotFoundError(req.params.id);
+    app.get(
+      '/api/personas/:id',
+      validateParams(PersonaIdParamSchema),
+      (req, res, next) => {
+        try {
+          const persona = this.personaManager.getPersona(req.params.id);
+          if (!persona) {
+            throw new PersonaNotFoundError(req.params.id);
+          }
+          res.json({
+            success: true,
+            data: {
+              id: persona.id,
+              name: persona.name,
+              role: persona.role,
+              core: persona.core,
+              behavior: persona.behavior,
+              expertise: persona.expertise,
+              decisionCriteria: persona.decisionCriteria,
+              tags: persona.tags,
+            },
+          });
+        } catch (error) {
+          next(error);
         }
-        res.json({
-          success: true,
-          data: {
-            id: persona.id,
-            name: persona.name,
-            role: persona.role,
-            core: persona.core,
-            behavior: persona.behavior,
-            expertise: persona.expertise,
-            decisionCriteria: persona.decisionCriteria,
-            tags: persona.tags,
-          },
-        });
-      } catch (error) {
-        next(error);
       }
-    });
+    );
 
     // Get persona recommendations
-    app.post('/api/recommend', recommendLimiter, validateRequest(RecommendRequestSchema), async (req, res, next) => {
-      try {
-        const { query, limit = 3 } = req.body as { query: string; limit?: number };
+    app.post(
+      '/api/recommend',
+      recommendLimiter,
+      validateRequest(RecommendRequestSchema),
+      async (req, res, next) => {
+        try {
+          const { query, limit = 3 } = req.body as {
+            query: string;
+            limit?: number;
+          };
 
-        const result = await this.recommendationTool.handleToolCall(
-          'recommend-persona',
-          {
-            description: query,
-            title: query,
-            limit,
-          }
-        );
-        res.json({
-          success: true,
-          data: result,
-        });
-      } catch (error) {
-        next(error);
+          const result = await this.recommendationTool.handleToolCall(
+            'recommend-persona',
+            {
+              description: query,
+              title: query,
+              limit,
+            }
+          );
+          res.json({
+            success: true,
+            data: result,
+          });
+        } catch (error) {
+          next(error);
+        }
       }
-    });
+    );
 
     // Compare personas
-    app.post('/api/compare', recommendLimiter, validateRequest(CompareRequestSchema), async (req, res, next) => {
-      try {
-        const { persona1, persona2, context = '' } = req.body as { persona1: string; persona2: string; context?: string };
-
-        const result = await this.recommendationTool.handleToolCall(
-          'compare-personas',
-          {
+    app.post(
+      '/api/compare',
+      recommendLimiter,
+      validateRequest(CompareRequestSchema),
+      async (req, res, next) => {
+        try {
+          const {
             persona1,
             persona2,
-            context,
-          }
-        );
-        res.json({
-          success: true,
-          data: result,
-        });
-      } catch (error) {
-        next(error);
+            context = '',
+          } = req.body as {
+            persona1: string;
+            persona2: string;
+            context?: string;
+          };
+
+          const result = await this.recommendationTool.handleToolCall(
+            'compare-personas',
+            {
+              persona1,
+              persona2,
+              context,
+            }
+          );
+          res.json({
+            success: true,
+            data: result,
+          });
+        } catch (error) {
+          next(error);
+        }
       }
-    });
+    );
 
     // Add error handler middleware (must be last)
     app.use(errorHandler);
@@ -663,7 +685,9 @@ export class PersonasMcpServer {
 
     return new Promise<void>((resolve, reject) => {
       if (!this.httpServer) {
-        reject(new ServerShutdownError('HTTP server', new Error('Not initialized')));
+        reject(
+          new ServerShutdownError('HTTP server', new Error('Not initialized'))
+        );
         return;
       }
 
@@ -675,7 +699,9 @@ export class PersonasMcpServer {
       });
 
       if (!this.httpServer) {
-        reject(new ServerShutdownError('HTTP server', new Error('Not initialized')));
+        reject(
+          new ServerShutdownError('HTTP server', new Error('Not initialized'))
+        );
         return;
       }
 
@@ -752,7 +778,9 @@ export class PersonasMcpServer {
         // Set a timeout to prevent hanging
         const timeout = setTimeout(() => {
           console.error('HTTP server close timeout, forcing shutdown');
-          reject(new ServerShutdownError('HTTP server', new Error('Close timeout')));
+          reject(
+            new ServerShutdownError('HTTP server', new Error('Close timeout'))
+          );
         }, 5000);
 
         this.httpServer.close(error => {

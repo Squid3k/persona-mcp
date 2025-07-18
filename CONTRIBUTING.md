@@ -139,6 +139,7 @@ git commit -m "fix: correct scoring algorithm bug"
 ```
 
 Follow conventional commit format:
+
 - `feat:` for new features
 - `fix:` for bug fixes
 - `docs:` for documentation changes
@@ -162,24 +163,16 @@ export const yourPersona: Persona = {
   name: 'Your Persona Name',
   role: 'specialist', // or architect, developer, reviewer, etc.
   description: 'Brief description of what this persona does',
-  
+
   specialty: 'Primary area of expertise',
   approach: 'How this persona approaches problems',
-  
-  expertise: [
-    'skill-1',
-    'skill-2',
-    'technology-1',
-    'methodology-1'
-  ],
-  
+
+  expertise: ['skill-1', 'skill-2', 'technology-1', 'methodology-1'],
+
   tags: ['tag1', 'tag2', 'tag3'],
-  
-  examplePrompts: [
-    'How would you approach X?',
-    'Can you help with Y?'
-  ],
-  
+
+  examplePrompts: ['How would you approach X?', 'Can you help with Y?'],
+
   prompt: `You are a [Role] specializing in [Domain].
   
   Your approach:
@@ -194,7 +187,7 @@ export const yourPersona: Persona = {
   Communication style:
   - How you communicate
   - Level of detail
-  - Tone and approach`
+  - Tone and approach`,
 };
 ```
 
@@ -260,20 +253,21 @@ npm test your-persona.test.ts
 - Use descriptive test names
 
 Example test structure:
+
 ```typescript
 describe('FeatureName', () => {
   describe('functionName', () => {
     it('should do X when Y', () => {
       // Arrange
       const input = setupTestData();
-      
+
       // Act
       const result = functionUnderTest(input);
-      
+
       // Assert
       expect(result).toBe(expectedValue);
     });
-    
+
     it('should handle errors gracefully', () => {
       expect(() => functionUnderTest(invalidInput)).toThrow();
     });
@@ -323,6 +317,7 @@ npm run format:check
 ### 2. Submitting the PR
 
 1. Push your branch to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -344,6 +339,7 @@ npm run format:check
 ### PR Title Format
 
 Use conventional commit format for PR titles:
+
 - `feat: add persona recommendation caching`
 - `fix: resolve memory leak in file watcher`
 - `docs: update API reference with new endpoints`
@@ -377,6 +373,7 @@ For feature requests, describe:
 ### Hot Reloading
 
 Use development mode for automatic rebuilds:
+
 ```bash
 npm run dev
 ```
@@ -407,6 +404,7 @@ npm run dev
 ## Recognition
 
 Contributors will be:
+
 - Listed in the project README
 - Credited in release notes
 - Thanked in commit messages

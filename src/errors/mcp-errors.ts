@@ -66,11 +66,7 @@ export class ServerShutdownError extends BaseError {
  */
 export class ToolNotFoundError extends BaseError {
   constructor(toolName: string) {
-    super(
-      `Unknown tool: ${toolName}`,
-      'TOOL_NOT_FOUND',
-      404
-    );
+    super(`Unknown tool: ${toolName}`, 'TOOL_NOT_FOUND', 404);
     this.name = 'ToolNotFoundError';
   }
 }
@@ -80,11 +76,7 @@ export class ToolNotFoundError extends BaseError {
  */
 export class InvalidResourceRequestError extends BaseError {
   constructor(message: string) {
-    super(
-      message,
-      'INVALID_RESOURCE_REQUEST',
-      400
-    );
+    super(message, 'INVALID_RESOURCE_REQUEST', 400);
     this.name = 'InvalidResourceRequestError';
   }
 }

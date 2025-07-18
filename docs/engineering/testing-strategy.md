@@ -41,6 +41,7 @@ test/
 **Coverage Target**: 100% of business logic
 
 **Example**:
+
 ```typescript
 describe('PersonaScorer', () => {
   it('should score persona between 0 and 1', () => {
@@ -53,6 +54,7 @@ describe('PersonaScorer', () => {
 ```
 
 **What to Test**:
+
 - Pure functions
 - Class methods
 - Edge cases
@@ -66,6 +68,7 @@ describe('PersonaScorer', () => {
 **Coverage Target**: All integration points
 
 **Example**:
+
 ```typescript
 describe('RecommendationEngine Integration', () => {
   it('should integrate with PersonaManager', async () => {
@@ -78,6 +81,7 @@ describe('RecommendationEngine Integration', () => {
 ```
 
 **What to Test**:
+
 - Service interactions
 - Database operations
 - File system operations
@@ -90,21 +94,22 @@ describe('RecommendationEngine Integration', () => {
 **Coverage Target**: Critical user paths
 
 **Example**:
+
 ```typescript
 describe('Recommendation System E2E', () => {
   it('should recommend architect for system design', async () => {
     const server = new PersonasMcpServer();
     await server.initialize();
-    
+
     const result = await recommendationTool.handleToolCall(
       'recommend-persona',
       {
         title: 'Design microservices',
         description: 'Design scalable microservices',
-        complexity: 'complex'
+        complexity: 'complex',
       }
     );
-    
+
     expect(result.data.recommendations[0].personaId).toBe('architect');
   });
 });
@@ -120,10 +125,10 @@ it('should calculate correct score', () => {
   const scorer = new PersonaScorer();
   const persona = createTestPersona();
   const task = createTestTask();
-  
+
   // Act
   const score = scorer.scorePersona(persona, task);
-  
+
   // Assert
   expect(score).toBe(0.75);
 });
@@ -148,22 +153,22 @@ describe('PersonaRecommendation', () => {
 ```typescript
 class PersonaBuilder {
   private persona: Partial<Persona> = {};
-  
+
   withRole(role: string): this {
     this.persona.role = role;
     return this;
   }
-  
+
   withExpertise(expertise: string[]): this {
     this.persona.expertise = expertise;
     return this;
   }
-  
+
   build(): Persona {
     return {
       id: 'test',
       name: 'Test Persona',
-      ...this.persona
+      ...this.persona,
     } as Persona;
   }
 }
@@ -177,8 +182,8 @@ class PersonaBuilder {
 vi.mock('../persona-manager.js', () => ({
   PersonaManager: vi.fn().mockImplementation(() => ({
     getAllPersonas: vi.fn().mockReturnValue([]),
-    getPersona: vi.fn()
-  }))
+    getPersona: vi.fn(),
+  })),
 }));
 ```
 
@@ -196,10 +201,13 @@ it('should call scorer for each persona', () => {
 
 ```typescript
 beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-    ok: true,
-    json: () => Promise.resolve({ data: 'mocked' })
-  }));
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: 'mocked' }),
+    })
+  );
 });
 ```
 
@@ -232,6 +240,7 @@ open coverage/index.html
 ### Excluding from Coverage
 
 Only exclude if absolutely necessary:
+
 ```typescript
 /* istanbul ignore next -- defensive code */
 if (process.env.NODE_ENV === 'production') {
@@ -251,7 +260,7 @@ export const testPersonas: Persona[] = [
     name: 'Test Architect',
     role: 'architect',
     // ...
-  }
+  },
 ];
 ```
 
@@ -264,7 +273,7 @@ export function generateTask(overrides?: Partial<Task>): Task {
     title: faker.lorem.sentence(),
     description: faker.lorem.paragraph(),
     keywords: faker.lorem.words(3).split(' '),
-    ...overrides
+    ...overrides,
   };
 }
 ```
@@ -280,7 +289,7 @@ describe('Performance', () => {
   bench('scorePersona', () => {
     scorer.scorePersona(persona, task);
   });
-  
+
   bench('processRecommendation', async () => {
     await engine.processRecommendation(request);
   });
@@ -291,14 +300,14 @@ describe('Performance', () => {
 
 ```typescript
 it('should handle concurrent requests', async () => {
-  const requests = Array(100).fill(null).map(() => 
-    engine.processRecommendation(request)
-  );
-  
+  const requests = Array(100)
+    .fill(null)
+    .map(() => engine.processRecommendation(request));
+
   const start = Date.now();
   await Promise.all(requests);
   const duration = Date.now() - start;
-  
+
   expect(duration).toBeLessThan(1000); // Under 1 second
 });
 ```
@@ -309,9 +318,7 @@ it('should handle concurrent requests', async () => {
 
 ```typescript
 it('should throw ValidationError for invalid input', () => {
-  expect(() => 
-    scorer.scorePersona(null, task)
-  ).toThrow(ValidationError);
+  expect(() => scorer.scorePersona(null, task)).toThrow(ValidationError);
 });
 ```
 

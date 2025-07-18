@@ -29,6 +29,7 @@ netstat -tulpn | grep 3000
 ### 1. Server Won't Start
 
 #### Symptoms
+
 - Server fails to start
 - Process exits immediately
 - No response on configured port
@@ -55,6 +56,7 @@ npm run build
 #### Solutions
 
 **Port Already in Use**
+
 ```bash
 # Check what's using the port
 lsof -i :3000
@@ -69,6 +71,7 @@ PORT=3001 npm start
 ```
 
 **Missing Dependencies**
+
 ```bash
 # Clean install
 rm -rf node_modules package-lock.json
@@ -77,6 +80,7 @@ npm run build
 ```
 
 **Build Errors**
+
 ```bash
 # Check TypeScript errors
 npm run typecheck
@@ -89,6 +93,7 @@ npm run build
 ### 2. Personas Not Loading
 
 #### Symptoms
+
 - Empty persona list
 - Missing custom personas
 - File not found errors
@@ -116,6 +121,7 @@ npm run dev  # Run in development mode to see errors
 #### Solutions
 
 **Permission Issues**
+
 ```bash
 # Fix directory permissions
 chmod 755 ~/.ai/personas
@@ -123,23 +129,26 @@ chmod 644 ~/.ai/personas/*.yaml
 ```
 
 **Invalid YAML**
+
 ```yaml
 # Validate YAML structure
 # Required fields:
 id: my-persona
 name: My Persona
-version: "1.0"
+version: '1.0'
 role: specialist
 description: Description here
 ```
 
 **Common YAML Errors**
+
 - Ensure file extension is `.yaml` (not `.yml`)
 - Check for proper indentation (2 spaces)
 - Verify quotes around strings with special characters
 - Validate with online YAML validator
 
 **Path Issues**
+
 ```bash
 # Set explicit path
 export PERSONAS_PATH=/absolute/path/to/personas
@@ -149,6 +158,7 @@ npm start
 ### 3. High Memory Usage
 
 #### Symptoms
+
 - Server consuming excessive RAM
 - OOM (Out of Memory) errors
 - Slow response times
@@ -170,6 +180,7 @@ node --inspect dist/index.js
 #### Solutions
 
 **Increase Memory Limit**
+
 ```bash
 # PM2 configuration
 pm2 stop personas-mcp
@@ -180,6 +191,7 @@ NODE_OPTIONS="--max-old-space-size=4096" npm start
 ```
 
 **Fix Memory Leaks**
+
 ```javascript
 // Check for common leaks
 // 1. Event listeners not removed
@@ -190,6 +202,7 @@ NODE_OPTIONS="--max-old-space-size=4096" npm start
 ### 4. Slow Response Times
 
 #### Symptoms
+
 - API calls taking > 1 second
 - Timeouts on recommendations
 - Poor scoring performance
@@ -212,6 +225,7 @@ pm2 monit
 #### Solutions
 
 **Enable Caching**
+
 ```javascript
 // In-memory cache for personas
 const cache = new Map();
@@ -219,6 +233,7 @@ const CACHE_TTL = 3600000; // 1 hour
 ```
 
 **Optimize Scoring**
+
 ```javascript
 // Batch persona scoring
 const scores = await Promise.all(
@@ -229,6 +244,7 @@ const scores = await Promise.all(
 ### 5. Connection Issues
 
 #### Symptoms
+
 - Claude can't connect to server
 - "HTTP 404" errors
 - "Dynamic client registration failed"
@@ -253,8 +269,10 @@ curl -I http://localhost:3000/ -H "Origin: http://localhost"
 #### Solutions
 
 **Wrong Endpoint URL**
+
 - Ensure configuration uses `http://localhost:3000/mcp` (not just `http://localhost:3000`)
 - For HTTP transport:
+
 ```json
 {
   "transport": {
@@ -265,12 +283,15 @@ curl -I http://localhost:3000/ -H "Origin: http://localhost"
 ```
 
 **Connection Refused**
+
 - Start the server: `npm start`
 - Check server is on correct port: `npm start -- --port 3000`
 - Verify no firewall blocking
 
 **Transport Type Issues**
+
 - Use local command execution instead of HTTP:
+
 ```json
 {
   "mcpServers": {
@@ -285,6 +306,7 @@ curl -I http://localhost:3000/ -H "Origin: http://localhost"
 ### 6. MCP Protocol Errors
 
 #### Symptoms
+
 - Invalid JSON-RPC responses
 - Protocol version mismatches
 - Connection failures
@@ -307,6 +329,7 @@ cat request.json | jq .
 #### Solutions
 
 **Protocol Mismatch**
+
 ```javascript
 // Ensure correct protocol version
 {
@@ -318,6 +341,7 @@ cat request.json | jq .
 ```
 
 **CORS Issues**
+
 ```bash
 # Enable CORS for client
 npm start -- --cors
@@ -328,6 +352,7 @@ CORS_ORIGINS=https://app.example.com npm start
 ### 6. File Watcher Issues
 
 #### Symptoms
+
 - Changes not detected
 - Too many open files error
 - High CPU from watching
@@ -348,6 +373,7 @@ DEBUG=watcher:* npm start
 #### Solutions
 
 **Increase File Limits**
+
 ```bash
 # Temporary increase
 ulimit -n 4096
@@ -358,6 +384,7 @@ echo "* hard nofile 8192" >> /etc/security/limits.conf
 ```
 
 **Disable Watching**
+
 ```bash
 # Disable file watching
 PERSONAS_WATCH=false npm start
@@ -366,6 +393,7 @@ PERSONAS_WATCH=false npm start
 ### 7. Recommendation Accuracy Issues
 
 #### Symptoms
+
 - Poor persona matches
 - Unexpected recommendations
 - Low confidence scores
@@ -388,18 +416,20 @@ curl http://localhost:3000/mcp \
 #### Solutions
 
 **Adjust Scoring Weights**
+
 ```javascript
 // Customize weights for your use case
 const weights = {
-  keywordMatch: 0.4,    // Increase for keyword focus
-  roleAlignment: 0.3,   // Increase for role matching
-  expertiseMatch: 0.2,  // Expertise importance
+  keywordMatch: 0.4, // Increase for keyword focus
+  roleAlignment: 0.3, // Increase for role matching
+  expertiseMatch: 0.2, // Expertise importance
   contextRelevance: 0.05,
-  complexityFit: 0.05
+  complexityFit: 0.05,
 };
 ```
 
 **Improve Task Description**
+
 ```json
 {
   "title": "Specific, clear title",

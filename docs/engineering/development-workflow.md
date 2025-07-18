@@ -111,11 +111,13 @@ refactor(manager): simplify persona loading
 ### 5. Pre-commit Hooks
 
 Husky runs automatically before commits:
+
 - ESLint validation
 - TypeScript checking
 - Test execution
 
 If hooks fail:
+
 ```bash
 # Fix issues and try again
 npm run lint:fix
@@ -281,17 +283,21 @@ npm version major
 ### 2. Changelog Update
 
 Update `CHANGELOG.md`:
+
 ```markdown
 ## [1.2.0] - 2025-07-15
 
 ### Added
+
 - Persona recommendation system
 - Multi-factor scoring algorithm
 
 ### Fixed
+
 - Memory leak in file watcher
 
 ### Changed
+
 - Improved error handling
 ```
 
@@ -312,6 +318,7 @@ gh release create v1.2.0 \
 ### Common Issues
 
 1. **TypeScript errors after pulling**
+
    ```bash
    rm -rf node_modules dist
    npm install
@@ -319,6 +326,7 @@ gh release create v1.2.0 \
    ```
 
 2. **Tests failing locally but not in CI**
+
    ```bash
    # Clear test cache
    npm test -- --clearCache
@@ -335,6 +343,7 @@ gh release create v1.2.0 \
 ### Debug Logging
 
 Enable debug logs:
+
 ```bash
 # All logs
 export DEBUG=*

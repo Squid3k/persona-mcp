@@ -20,7 +20,7 @@ classDiagram
         -setupHandlers(): void
         -runHttp(): Promise<void>
     }
-    
+
     class Server {
         -name: string
         -version: string
@@ -28,7 +28,7 @@ classDiagram
         +setRequestHandler(schema, handler): void
         +connect(transport): Promise<void>
     }
-    
+
     class StreamableHTTPServerTransport {
         -sessionIdGenerator: Function
         -enableJsonResponse: boolean
@@ -36,14 +36,14 @@ classDiagram
         -allowedHosts: string[]
         +handleRequest(req, res): Promise<void>
     }
-    
+
     class ExpressApp {
         +use(middleware): void
         +post(path, handler): void
         +get(path, handler): void
         +listen(port, host, callback): void
     }
-    
+
     PersonasMcpServer --> Server
     PersonasMcpServer --> StreamableHTTPServerTransport
     PersonasMcpServer --> ExpressApp
@@ -60,7 +60,7 @@ sequenceDiagram
     participant MCPServer
     participant Handler
     participant Service
-    
+
     Client->>Express: HTTP Request
     Express->>Express: CORS Check
     Express->>Transport: handleRequest()
@@ -86,7 +86,7 @@ graph TB
         DNS[DNS Protection]
         Routes[Route Handlers]
     end
-    
+
     subgraph "Endpoints"
         MCPPost[POST /mcp]
         MCPGet[GET /mcp]
@@ -94,7 +94,7 @@ graph TB
         Ready[GET /ready]
         Info[GET /]
     end
-    
+
     CORS --> DNS
     DNS --> Routes
     Routes --> MCPPost
@@ -114,7 +114,7 @@ graph LR
         Headers[Headers: Content-Type, Authorization, etc]
         Credentials[Credentials: true]
     end
-    
+
     Origins --> Policy[CORS Policy]
     Methods --> Policy
     Headers --> Policy
@@ -131,30 +131,30 @@ graph TB
         ListResources[ListResourcesRequest]
         ReadResource[ReadResourceRequest]
     end
-    
+
     subgraph "Prompt Handlers"
         ListPrompts[ListPromptsRequest]
         GetPrompt[GetPromptRequest]
     end
-    
+
     subgraph "Tool Handlers"
         ListTools[ListToolsRequest]
         CallTool[CallToolRequest]
     end
-    
+
     subgraph "Processing"
         Validate[Validate Schema]
         Execute[Execute Handler]
         Format[Format Response]
     end
-    
+
     ListResources --> Validate
     ReadResource --> Validate
     ListPrompts --> Validate
     GetPrompt --> Validate
     ListTools --> Validate
     CallTool --> Validate
-    
+
     Validate --> Execute
     Execute --> Format
 ```
@@ -168,13 +168,13 @@ graph TB
         Prompts[prompts: {}]
         Tools[tools: {}]
     end
-    
+
     subgraph "Handler Registration"
         RH[Resource Handlers]
         PH[Prompt Handlers]
         TH[Tool Handlers]
     end
-    
+
     Resources --> RH
     Prompts --> PH
     Tools --> TH
@@ -192,20 +192,20 @@ flowchart TB
         DNS[DNS Protection]
         Hosts[Allowed Hosts]
     end
-    
+
     subgraph "Request Processing"
         Receive[Receive Request]
         Validate[Validate Host]
         Parse[Parse JSON-RPC]
         Route[Route to Handler]
     end
-    
+
     subgraph "Response Generation"
         Format[Format Response]
         Stream[Stream if Needed]
         Send[Send Response]
     end
-    
+
     Session --> Receive
     DNS --> Validate
     Hosts --> Validate
@@ -230,7 +230,7 @@ stateDiagram-v2
     Active --> Closed: Client Disconnect
     Expired --> [*]
     Closed --> [*]
-    
+
     note right of Active: Session ID tracked
     note right of Idle: Keep-alive period
     note right of Expired: Clean up resources
@@ -249,20 +249,20 @@ flowchart TB
         Params[Invalid Params -32602]
         Internal[Internal Error -32603]
     end
-    
+
     subgraph "Error Handling"
         Catch[Catch Error]
         Log[Log Error]
         Format[Format JSON-RPC Error]
         Send[Send Error Response]
     end
-    
+
     Parse --> Catch
     Invalid --> Catch
     Method --> Catch
     Params --> Catch
     Internal --> Catch
-    
+
     Catch --> Log
     Log --> Format
     Format --> Send
@@ -278,13 +278,13 @@ graph TB
         Data[Optional Data]
         ID[Request ID]
     end
-    
+
     subgraph "HTTP Response"
         Status[HTTP Status]
         Headers[Response Headers]
         Body[JSON Body]
     end
-    
+
     Code --> Body
     Message --> Body
     Data --> Body
@@ -303,26 +303,26 @@ graph TB
         Ready[/ready]
         Info[/]
     end
-    
+
     subgraph "Health Checks"
         Server[Server Status]
         Personas[Persona Status]
         Memory[Memory Usage]
         Uptime[Uptime]
     end
-    
+
     subgraph "Status Response"
         Status[Overall Status]
         Details[Component Details]
         Metrics[Metrics]
     end
-    
+
     Health --> Server
     Health --> Personas
     Ready --> Server
     Info --> Memory
     Info --> Uptime
-    
+
     Server --> Status
     Personas --> Details
     Memory --> Metrics
@@ -339,20 +339,20 @@ graph TB
         HTTPS[HTTPS/TLS]
         Firewall[Firewall Rules]
     end
-    
+
     subgraph "Application Security"
         CORS[CORS Protection]
         DNS[DNS Rebinding Protection]
         Input[Input Validation]
         Rate[Rate Limiting*]
     end
-    
+
     subgraph "Protocol Security"
         Schema[Schema Validation]
         Auth[Authentication*]
         Audit[Audit Logging]
     end
-    
+
     HTTPS --> CORS
     Firewall --> CORS
     CORS --> DNS
@@ -360,12 +360,12 @@ graph TB
     Input --> Schema
     Schema --> Auth
     Auth --> Audit
-    
+
     style Rate stroke-dasharray: 5 5
     style Auth stroke-dasharray: 5 5
 ```
 
-*Future enhancements
+\*Future enhancements
 
 ## Performance Optimization
 
@@ -379,17 +379,17 @@ graph LR
         Cache[Response Cache]
         Pool[Connection Pool]
     end
-    
+
     subgraph "Metrics"
         Latency[Request Latency]
         Throughput[Throughput]
         Errors[Error Rate]
     end
-    
+
     Parse --> Route
     Route --> Cache
     Cache --> Pool
-    
+
     Parse --> Latency
     Route --> Throughput
     Cache --> Errors
@@ -407,19 +407,19 @@ graph TB
         CLI[CLI Arguments]
         File[Config File*]
     end
-    
+
     subgraph "Config Options"
         Server[Server Settings]
         HTTP[HTTP Settings]
         Personas[Persona Settings]
         Logging[Logging Settings]
     end
-    
+
     Default --> Server
     Env --> HTTP
     CLI --> Personas
     File --> Logging
-    
+
     style File stroke-dasharray: 5 5
 ```
 
@@ -440,31 +440,31 @@ graph TB
     subgraph "Load Balancer"
         LB[Nginx/HAProxy]
     end
-    
+
     subgraph "Server Instances"
         S1[Server 1]
         S2[Server 2]
         S3[Server 3]
     end
-    
+
     subgraph "Monitoring"
         Health[Health Checks]
         Metrics[Metrics Collection]
         Logs[Log Aggregation]
     end
-    
+
     LB --> S1
     LB --> S2
     LB --> S3
-    
+
     S1 --> Health
     S2 --> Health
     S3 --> Health
-    
+
     S1 --> Metrics
     S2 --> Metrics
     S3 --> Metrics
-    
+
     S1 --> Logs
     S2 --> Logs
     S3 --> Logs

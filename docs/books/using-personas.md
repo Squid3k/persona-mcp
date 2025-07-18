@@ -53,6 +53,7 @@ Please adopt the debugger persona to help me troubleshoot a memory leak in my No
 ### Persona Response
 
 When Claude adopts a persona, it will:
+
 1. Confirm the persona adoption
 2. Briefly explain its approach and expertise
 3. Ask clarifying questions if needed
@@ -77,6 +78,7 @@ For more detailed analysis:
 ```
 
 The recommendation system will:
+
 - Analyze your request
 - Score each persona based on relevance
 - Return top matches with explanations
@@ -112,12 +114,14 @@ Compare personas for a specific task:
 ### Comparison Output
 
 The comparison will show:
+
 - Strengths of each persona for the task
 - Different approaches they would take
 - When to choose one over the other
 - Complementary aspects
 
 Example output:
+
 ```
 Comparing for "designing a new REST API":
 
@@ -213,11 +217,13 @@ Recommendation: Start with Architect for design, switch to Developer for impleme
 ### 2. Provide Context
 
 Good:
+
 ```
 Adopt the architect persona to help design a real-time chat system that needs to handle 10,000 concurrent users.
 ```
 
 Less effective:
+
 ```
 Adopt the architect persona.
 ```
@@ -238,6 +244,7 @@ Please adopt the reviewer persona to check this code for security issues.
 ### 4. Combine Personas
 
 Get multiple perspectives:
+
 ```
 Can you first analyze this as an architect, then provide the developer's perspective?
 ```

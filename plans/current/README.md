@@ -4,10 +4,10 @@ This directory contains active development plans currently being worked on.
 
 ## Active Plans
 
-| Date | Version | Subject | Status | Description |
-|------|---------|---------|--------|-------------|
-| 2025-07-15 | v1 | [Documentation Setup](./2025-07-15-v1-documentation-setup.md) | In Progress | Establishing docs/ and plans/ structure per engineering practices |
-| 2025-07-15 | v1 | [API Improvements](./2025-07-15-v1-api-improvements.md) | Planned | Future enhancements to the recommendation API |
+| Date       | Version | Subject                                                       | Status      | Description                                                       |
+| ---------- | ------- | ------------------------------------------------------------- | ----------- | ----------------------------------------------------------------- |
+| 2025-07-15 | v1      | [Documentation Setup](./2025-07-15-v1-documentation-setup.md) | In Progress | Establishing docs/ and plans/ structure per engineering practices |
+| 2025-07-15 | v1      | [API Improvements](./2025-07-15-v1-api-improvements.md)       | Planned     | Future enhancements to the recommendation API                     |
 
 ## Plan Status Legend
 

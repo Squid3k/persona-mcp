@@ -62,21 +62,21 @@ Claude should respond with the architect persona's perspective, indicating the s
 ### Example 1: Getting Help with System Design
 
 ```
-@architect I need to design a scalable API for a social media platform. 
+@architect I need to design a scalable API for a social media platform.
 What architecture patterns should I consider?
 ```
 
 ### Example 2: Debugging a Problem
 
 ```
-@debugger My Node.js app has a memory leak in production. 
+@debugger My Node.js app has a memory leak in production.
 How should I approach finding and fixing it?
 ```
 
 ### Example 3: Code Review
 
 ```
-@reviewer Can you review this authentication implementation and 
+@reviewer Can you review this authentication implementation and
 point out security concerns?
 
 [paste your code]
@@ -118,7 +118,13 @@ Then add to your project's `.mcp.json`:
   "mcpServers": {
     "personas": {
       "command": "curl",
-      "args": ["-X", "POST", "http://localhost:3000/mcp", "-H", "Content-Type: application/json"],
+      "args": [
+        "-X",
+        "POST",
+        "http://localhost:3000/mcp",
+        "-H",
+        "Content-Type: application/json"
+      ],
       "transport": {
         "type": "http",
         "url": "http://localhost:3000/mcp"

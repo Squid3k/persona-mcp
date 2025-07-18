@@ -5,11 +5,7 @@ import { BaseError } from './base.js';
  */
 export class PersonaNotFoundError extends BaseError {
   constructor(personaId: string) {
-    super(
-      `Persona not found: ${personaId}`,
-      'PERSONA_NOT_FOUND',
-      404
-    );
+    super(`Persona not found: ${personaId}`, 'PERSONA_NOT_FOUND', 404);
     this.name = 'PersonaNotFoundError';
   }
 }

@@ -11,24 +11,24 @@ graph TB
     subgraph "MCP Client"
         Client[Client Application]
     end
-    
+
     subgraph "MCP Server"
         Server[HTTP Server]
         Transport[MCP Transport]
         Tools[Tool Handlers]
     end
-    
+
     subgraph "Recommendation System"
         RT[RecommendationTool]
         RE[RecommendationEngine]
         PS[PersonaScorer]
     end
-    
+
     subgraph "Data Layer"
         PM[PersonaManager]
         Personas[(Personas)]
     end
-    
+
     Client -->|MCP Protocol| Server
     Server --> Transport
     Transport --> Tools
@@ -56,7 +56,7 @@ sequenceDiagram
     T->>E: processRecommendation(request)
     E->>M: getAllPersonas()
     M-->>E: Persona[]
-    
+
     loop For each persona
         E->>P: scorePersona(persona, task)
         P->>P: Calculate 5 factors
@@ -66,7 +66,7 @@ sequenceDiagram
         E->>P: identifyStrengths(persona, task)
         P-->>E: strengths[]
     end
-    
+
     E->>E: Sort by score
     E->>E: Take top N
     E-->>T: RecommendationResponse
@@ -83,7 +83,7 @@ graph LR
         Task[Task Description]
         Persona[Persona]
     end
-    
+
     subgraph "Factor Calculation"
         KM[Keyword Match<br/>Weight: 0.3]
         RA[Role Alignment<br/>Weight: 0.25]
@@ -91,12 +91,12 @@ graph LR
         CR[Context Relevance<br/>Weight: 0.15]
         CF[Complexity Fit<br/>Weight: 0.1]
     end
-    
+
     subgraph "Scoring"
         WS[Weighted Sum]
         Norm[Normalize 0-1]
     end
-    
+
     Task --> KM
     Task --> RA
     Task --> EM
@@ -107,13 +107,13 @@ graph LR
     Persona --> EM
     Persona --> CR
     Persona --> CF
-    
+
     KM --> WS
     RA --> WS
     EM --> WS
     CR --> WS
     CF --> WS
-    
+
     WS --> Norm
     Norm --> Score[Final Score]
 ```
@@ -131,7 +131,7 @@ classDiagram
         +complexity?: Complexity
         +urgency?: Urgency
     }
-    
+
     class PersonaRecommendation {
         +personaId: string
         +score: number
@@ -140,19 +140,19 @@ classDiagram
         +limitations?: string[]
         +confidence: number
     }
-    
+
     class RecommendationRequest {
         +task: TaskDescription
         +maxRecommendations?: number
         +includeReasoning?: boolean
     }
-    
+
     class RecommendationResponse {
         +recommendations: PersonaRecommendation[]
         +totalPersonasEvaluated: number
         +processingTimeMs: number
     }
-    
+
     class ScoringWeights {
         +keywordMatch: number
         +roleAlignment: number
@@ -160,7 +160,7 @@ classDiagram
         +contextRelevance: number
         +complexityFit: number
     }
-    
+
     RecommendationRequest --> TaskDescription
     RecommendationResponse --> PersonaRecommendation
 ```
@@ -168,23 +168,28 @@ classDiagram
 ## Scoring Factors Detail
 
 ### 1. Keyword Match (30%)
+
 - Semantic matching between task keywords and persona expertise/tags
 - Case-insensitive comparison
 - Partial matches considered
 
 ### 2. Role Alignment (25%)
+
 - How well the persona's role matches the task type
 - Mapping of keywords to roles (e.g., "design" → architect)
 
 ### 3. Expertise Match (20%)
+
 - Direct matching of task requirements to persona expertise
 - Considers both explicit expertise and implicit from description
 
 ### 4. Context Relevance (15%)
+
 - Domain matching (backend, frontend, etc.)
 - Environmental context consideration
 
 ### 5. Complexity Fit (10%)
+
 - Matches task complexity to persona capability
 - Architects for complex/expert tasks
 - Developers for simple/moderate tasks
@@ -192,9 +197,11 @@ classDiagram
 ## MCP Tools
 
 ### 1. recommend-persona
+
 Find the best personas for your task based on description, keywords, and complexity.
 
 **Input Schema**:
+
 ```json
 {
   "name": "recommend-persona",
@@ -208,6 +215,7 @@ Find the best personas for your task based on description, keywords, and complex
 ```
 
 **Parameters**:
+
 - `title` (required): Brief task title
 - `description` (optional): Detailed task description
 - `keywords` (optional): Array of relevant keywords
@@ -216,6 +224,7 @@ Find the best personas for your task based on description, keywords, and complex
 - `domain` (optional): Technical domain (backend, frontend, etc.)
 
 **Output Example**:
+
 ```json
 {
   "recommendations": [
@@ -223,7 +232,11 @@ Find the best personas for your task based on description, keywords, and complex
       "personaId": "architect",
       "score": 95,
       "reasoning": "Strong match for API design with focus on architecture",
-      "strengths": ["API design patterns", "Authentication architecture", "Scalability"],
+      "strengths": [
+        "API design patterns",
+        "Authentication architecture",
+        "Scalability"
+      ],
       "confidence": 0.95
     },
     {
@@ -238,9 +251,11 @@ Find the best personas for your task based on description, keywords, and complex
 ```
 
 ### 2. explain-persona-fit
+
 Get a detailed explanation of why a specific persona fits (or doesn't fit) your task.
 
 **Input Schema**:
+
 ```json
 {
   "name": "explain-persona-fit",
@@ -253,12 +268,14 @@ Get a detailed explanation of why a specific persona fits (or doesn't fit) your 
 ```
 
 **Parameters**:
+
 - `personaId` (required): The persona ID to analyze
 - `title` (required): Task title
 - `description` (optional): Task details
 - `keywords` (optional): Relevant keywords
 
 **Output Example**:
+
 ```json
 {
   "personaId": "architect",
@@ -286,9 +303,11 @@ Get a detailed explanation of why a specific persona fits (or doesn't fit) your 
 ```
 
 ### 3. compare-personas
+
 Compare multiple personas side-by-side for the same task.
 
 **Input Schema**:
+
 ```json
 {
   "name": "compare-personas",
@@ -301,12 +320,14 @@ Compare multiple personas side-by-side for the same task.
 ```
 
 **Parameters**:
+
 - `personaIds` (required): Array of persona IDs to compare (2-4 recommended)
 - `title` (required): Task title
 - `description` (optional): Task details
 - `keywords` (optional): Relevant keywords
 
 **Output Example**:
+
 ```json
 {
   "comparison": {
@@ -329,9 +350,11 @@ Compare multiple personas side-by-side for the same task.
 ```
 
 ### 4. get-recommendation-stats
+
 Get system statistics and scoring configuration.
 
 **Input Schema**:
+
 ```json
 {
   "name": "get-recommendation-stats",
@@ -340,6 +363,7 @@ Get system statistics and scoring configuration.
 ```
 
 **Output Example**:
+
 ```json
 {
   "systemStats": {
@@ -356,9 +380,9 @@ Get system statistics and scoring configuration.
     "complexityFit": 0.1
   },
   "popularPersonas": [
-    {"id": "developer", "usageCount": 45},
-    {"id": "architect", "usageCount": 38},
-    {"id": "debugger", "usageCount": 32}
+    { "id": "developer", "usageCount": 45 },
+    { "id": "architect", "usageCount": 38 },
+    { "id": "debugger", "usageCount": 32 }
   ]
 }
 ```
@@ -366,12 +390,15 @@ Get system statistics and scoring configuration.
 ## Design Decisions
 
 ### Why Multi-Factor Scoring?
+
 Single-factor matching (e.g., just keywords) misses nuanced requirements. Multi-factor scoring provides more accurate recommendations by considering different aspects of the task-persona fit.
 
 ### Why Weighted Scoring?
+
 Different factors have different importance. Keywords and role alignment are generally more important than complexity matching, hence higher weights.
 
 ### Why 0-1 Normalization?
+
 Provides consistent score interpretation across all factors and makes percentage conversion straightforward for user presentation.
 
 ## Future Enhancements

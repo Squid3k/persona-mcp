@@ -1,6 +1,6 @@
 /**
  * Rate limiting middleware for Express
- * 
+ *
  * NOTE: This requires installing express-rate-limit:
  * npm install express-rate-limit
  */
@@ -11,7 +11,12 @@ import { RateLimitError } from '../errors/index.js';
  * Create a custom rate limit handler that uses our error system
  */
 function createRateLimitHandler(windowMs: number) {
-  return (_req: unknown, _res: unknown, _next: unknown, _options: { windowMs: number }) => {
+  return (
+    _req: unknown,
+    _res: unknown,
+    _next: unknown,
+    _options: { windowMs: number }
+  ) => {
     const retryAfter = Math.ceil(windowMs / 1000);
     throw new RateLimitError(
       `Too many requests from this IP, please try again after ${retryAfter} seconds`,
@@ -32,7 +37,7 @@ export const apiLimiter: RateLimitRequestHandler = rateLimit({
   handler: createRateLimitHandler(15 * 60 * 1000),
   skipSuccessfulRequests: false,
   skipFailedRequests: false,
-  keyGenerator: (req) => {
+  keyGenerator: req => {
     // Use X-Forwarded-For if behind a proxy, otherwise use IP
     return req.ip || req.headers['x-forwarded-for']?.toString() || 'unknown';
   },
@@ -105,8 +110,13 @@ export function createRateLimiters(config: RateLimitConfig) {
     // Return no-op middleware if rate limiting is disabled
     return {
       apiLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
-      recommendLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
-      computeIntensiveLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
+      recommendLimiter: (_req: unknown, _res: unknown, next: () => void) =>
+        next(),
+      computeIntensiveLimiter: (
+        _req: unknown,
+        _res: unknown,
+        next: () => void
+      ) => next(),
       authLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
     };
   }

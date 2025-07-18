@@ -10,12 +10,14 @@
 ## Code Changes Applied
 
 ### 1. Error Handling ✅
+
 - [x] Created `src/errors/` module with custom error types
 - [x] Replaced all generic `throw new Error()` statements with specific error types
 - [x] Added error handler middleware to Express app
 - [x] Updated error responses to use consistent JSON format
 
 ### 2. Request Validation ✅
+
 - [x] Created `src/validation/` module with Zod schemas
 - [x] Added validation middleware for request body, params, and query
 - [x] Applied validation to all REST API endpoints:
@@ -24,12 +26,14 @@
   - [x] `POST /api/compare` - CompareRequestSchema
 
 ### 3. Rate Limiting ✅
+
 - [x] Created `src/middleware/rate-limit.ts` with rate limiters
 - [x] Applied general rate limiting to all `/api/*` routes
 - [x] Applied stricter rate limiting to recommendation endpoints
 - [x] Integrated custom RateLimitError with error handler
 
 ### 4. Testing ✅
+
 - [x] Added comprehensive CLI tests in `test/cli/`
 - [x] Added error type unit tests in `test/errors/`
 - [x] Updated existing tests to expect new error types
@@ -38,7 +42,9 @@
 ## Breaking Changes
 
 ### API Response Format
+
 Previous error responses:
+
 ```json
 {
   "success": false,
@@ -47,6 +53,7 @@ Previous error responses:
 ```
 
 New error responses:
+
 ```json
 {
   "success": false,
@@ -58,6 +65,7 @@ New error responses:
 ```
 
 ### Error Types
+
 - Custom errors now thrown instead of generic `Error`
 - Error handler middleware required for proper error responses
 - All route handlers must use `next(error)` instead of sending error responses directly
@@ -65,16 +73,18 @@ New error responses:
 ## Verification Steps
 
 1. **Run Tests**
+
    ```bash
    npm test
    npm run test:coverage
    ```
 
 2. **Test Error Responses**
+
    ```bash
    # Should return 404 with PersonaNotFoundError
    curl http://localhost:3000/api/personas/non-existent
-   
+
    # Should return 400 with ValidationError
    curl -X POST http://localhost:3000/api/recommend \
      -H "Content-Type: application/json" \
@@ -82,9 +92,10 @@ New error responses:
    ```
 
 3. **Test Rate Limiting**
+
    ```bash
    # Should eventually return 429 RateLimitError
-   for i in {1..15}; do 
+   for i in {1..15}; do
      curl -X POST http://localhost:3000/api/recommend \
        -H "Content-Type: application/json" \
        -d '{"query": "test"}'

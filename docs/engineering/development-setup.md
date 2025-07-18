@@ -12,12 +12,14 @@ This guide covers setting up a development environment for contributing to the P
 ## Initial Setup
 
 1. **Fork and clone the repository**:
+
    ```bash
    git clone https://github.com/YOUR-USERNAME/persona-mcp.git
    cd persona-mcp
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    ```
@@ -150,11 +152,13 @@ persona-mcp/
 ### 1. Making Changes
 
 1. Create a feature branch:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
 2. Start development mode:
+
    ```bash
    npm run dev
    ```
@@ -166,11 +170,13 @@ persona-mcp/
 ### 2. Testing Your Changes
 
 1. **Manual testing** with the MCP Inspector:
+
    ```bash
    npx @modelcontextprotocol/inspector npm start
    ```
 
 2. **Unit tests**:
+
    ```bash
    npm test
    ```
@@ -207,11 +213,13 @@ npm run check-all
 ### 4. Committing Changes
 
 1. Stage your changes:
+
    ```bash
    git add .
    ```
 
 2. Commit with a descriptive message:
+
    ```bash
    git commit -m "feat: add new persona for data science"
    ```
@@ -296,6 +304,7 @@ log('Debug message with %o', someObject);
 ### Adding a New Persona
 
 1. Create a new file in `src/personas/`:
+
    ```typescript
    // src/personas/my-persona.ts
    import { Persona } from '../types/persona.js';
@@ -314,12 +323,17 @@ log('Debug message with %o', someObject);
 ### Adding New Tools
 
 1. Define the tool in `src/tools/`:
+
    ```typescript
    export const myTool = {
      name: 'my-tool',
      description: 'Tool description',
-     inputSchema: { /* zod schema */ },
-     handler: async (input) => { /* implementation */ }
+     inputSchema: {
+       /* zod schema */
+     },
+     handler: async input => {
+       /* implementation */
+     },
    };
    ```
 
@@ -360,6 +374,7 @@ log('Debug message with %o', someObject);
 ## Contributing Guidelines
 
 See [CONTRIBUTING.md](../../CONTRIBUTING.md) for:
+
 - Code style guide
 - Pull request process
 - Testing requirements

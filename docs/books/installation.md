@@ -24,6 +24,7 @@ npm install
 ```
 
 This will install all required dependencies including:
+
 - `@modelcontextprotocol/sdk` - MCP protocol implementation
 - `zod` - Schema validation
 - `tsup` - Build tooling
@@ -54,6 +55,7 @@ curl http://localhost:3000/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "healthy",
@@ -153,17 +155,20 @@ persona-mcp/
 If you encounter issues during installation:
 
 1. **Node.js version**: Ensure you have Node.js 18+ installed:
+
    ```bash
    node --version
    ```
 
 2. **Clear npm cache**: If dependency installation fails:
+
    ```bash
    npm cache clean --force
    npm install
    ```
 
 3. **Build errors**: If the build fails, check TypeScript errors:
+
    ```bash
    npm run typecheck
    ```

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Comprehensive documentation suite including:
   - Quick Start Guide for 5-minute setup
   - Persona Creation Guide with complete YAML schema
@@ -18,15 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project-level persona support (`./.ai/personas/*.yaml`)
 
 ### Changed
+
 - Enhanced README with better structure and navigation
 - Improved documentation organization in `docs/` directory
 
 ### Fixed
+
 - Documentation gaps and missing setup instructions
 
 ## [0.2.0-alpha] - 2024-01-18
 
 ### Added
+
 - OpenTelemetry (OTLP) metrics support for monitoring
 - Metrics endpoints for tracking:
   - HTTP request metrics (count, duration, active connections)
@@ -47,12 +51,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Health check endpoints (`/health`, `/ready`)
 
 ### Changed
+
 - Migrated from stdio to HTTP transport for better flexibility
 - Enhanced recommendation engine with multi-factor scoring
 - Improved error handling and validation
 - Updated to ES modules throughout the project
 
 ### Security
+
 - Added DNS rebinding protection
 - Implemented proper CORS handling
 - Input validation using Zod schemas
@@ -60,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0-alpha] - 2024-01-10
 
 ### Added
+
 - Initial release with 12 built-in personas:
   - Architect - System design and architecture
   - Developer - Code implementation
@@ -85,6 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic test suite with Vitest
 
 ### Known Issues
+
 - File watching may not detect all changes immediately
 - Limited to local deployment only
 - No authentication mechanism
@@ -92,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.1] - 2024-01-05
 
 ### Added
+
 - Initial project setup
 - Basic MCP protocol implementation
 - Proof of concept with 4 personas

@@ -7,11 +7,13 @@ The Personas MCP Server provides four tools for persona recommendations through 
 ## Base URLs
 
 ### MCP Protocol Endpoint
+
 ```
 http://localhost:3000/mcp
 ```
 
 ### REST API Endpoints
+
 ```
 http://localhost:3000/api/*
 ```
@@ -29,11 +31,13 @@ For direct HTTP access without MCP protocol, the following REST endpoints are av
 Get all available personas.
 
 #### Request
+
 ```bash
 curl http://localhost:3000/api/personas
 ```
 
 #### Response
+
 ```json
 {
   "personas": [
@@ -44,7 +48,7 @@ curl http://localhost:3000/api/personas
       "description": "Focuses on high-level system design...",
       "specialty": "System Architecture",
       "tags": ["architecture", "design", "scalability"]
-    },
+    }
     // ... more personas
   ],
   "total": 12
@@ -56,11 +60,13 @@ curl http://localhost:3000/api/personas
 Get a specific persona by ID.
 
 #### Request
+
 ```bash
 curl http://localhost:3000/api/personas/architect
 ```
 
 #### Response
+
 ```json
 {
   "id": "architect",
@@ -80,6 +86,7 @@ curl http://localhost:3000/api/personas/architect
 Get persona recommendations for a task.
 
 #### Request
+
 ```bash
 curl -X POST http://localhost:3000/api/recommend \
   -H "Content-Type: application/json" \
@@ -90,12 +97,14 @@ curl -X POST http://localhost:3000/api/recommend \
 ```
 
 #### Parameters
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| query | string | Yes | Task description or keywords |
-| limit | number | No | Max recommendations (default: 3) |
+
+| Parameter | Type   | Required | Description                      |
+| --------- | ------ | -------- | -------------------------------- |
+| query     | string | Yes      | Task description or keywords     |
+| limit     | number | No       | Max recommendations (default: 3) |
 
 #### Response
+
 ```json
 {
   "recommendations": [
@@ -120,6 +129,7 @@ curl -X POST http://localhost:3000/api/recommend \
 Compare multiple personas for a task.
 
 #### Request
+
 ```bash
 curl -X POST http://localhost:3000/api/compare \
   -H "Content-Type: application/json" \
@@ -131,13 +141,15 @@ curl -X POST http://localhost:3000/api/compare \
 ```
 
 #### Parameters
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| persona1 | string | Yes | First persona ID |
-| persona2 | string | Yes | Second persona ID |
-| context | string | Yes | Task context for comparison |
+
+| Parameter | Type   | Required | Description                 |
+| --------- | ------ | -------- | --------------------------- |
+| persona1  | string | Yes      | First persona ID            |
+| persona2  | string | Yes      | Second persona ID           |
+| context   | string | Yes      | Task context for comparison |
 
 #### Response
+
 ```json
 {
   "comparison": {
@@ -191,17 +203,17 @@ Recommends the best personas for a given task description.
 
 #### Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| title | string | Yes | Brief title or summary of the task |
-| description | string | Yes | Detailed description of what needs to be accomplished |
-| keywords | string[] | No | Keywords related to the task |
-| context | string | No | Additional context about the environment or constraints |
-| domain | string | No | Domain area (e.g., "backend", "frontend", "data science") |
-| complexity | enum | No | Task complexity level |
-| urgency | enum | No | Task urgency level |
-| maxRecommendations | number | No | Maximum personas to return (1-10, default: 3) |
-| includeReasoning | boolean | No | Include detailed reasoning (default: true) |
+| Parameter          | Type     | Required | Description                                               |
+| ------------------ | -------- | -------- | --------------------------------------------------------- |
+| title              | string   | Yes      | Brief title or summary of the task                        |
+| description        | string   | Yes      | Detailed description of what needs to be accomplished     |
+| keywords           | string[] | No       | Keywords related to the task                              |
+| context            | string   | No       | Additional context about the environment or constraints   |
+| domain             | string   | No       | Domain area (e.g., "backend", "frontend", "data science") |
+| complexity         | enum     | No       | Task complexity level                                     |
+| urgency            | enum     | No       | Task urgency level                                        |
+| maxRecommendations | number   | No       | Maximum personas to return (1-10, default: 3)             |
+| includeReasoning   | boolean  | No       | Include detailed reasoning (default: true)                |
 
 #### Response
 
@@ -279,15 +291,15 @@ Explains why a specific persona is suitable (or not) for a given task.
 
 #### Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| personaId | string | Yes | ID of the persona to analyze |
-| title | string | Yes | Task title |
-| description | string | Yes | Task description |
-| keywords | string[] | No | Task keywords |
-| context | string | No | Additional context |
-| domain | string | No | Task domain |
-| complexity | enum | No | Task complexity |
+| Parameter   | Type     | Required | Description                  |
+| ----------- | -------- | -------- | ---------------------------- |
+| personaId   | string   | Yes      | ID of the persona to analyze |
+| title       | string   | Yes      | Task title                   |
+| description | string   | Yes      | Task description             |
+| keywords    | string[] | No       | Task keywords                |
+| context     | string   | No       | Additional context           |
+| domain      | string   | No       | Task domain                  |
+| complexity  | enum     | No       | Task complexity              |
 
 #### Response
 
@@ -307,9 +319,7 @@ Explains why a specific persona is suitable (or not) for a given task.
       "System-level thinking and design patterns",
       "Specialized in architecture, design, system"
     ],
-    "limitations": [
-      "May overcomplicate simple tasks"
-    ],
+    "limitations": ["May overcomplicate simple tasks"],
     "confidence": 90
   }
 }
@@ -343,15 +353,15 @@ Compares multiple personas for the same task.
 
 #### Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| personaIds | string[] | Yes | List of persona IDs to compare |
-| title | string | Yes | Task title |
-| description | string | Yes | Task description |
-| keywords | string[] | No | Task keywords |
-| context | string | No | Additional context |
-| domain | string | No | Task domain |
-| complexity | enum | No | Task complexity |
+| Parameter   | Type     | Required | Description                    |
+| ----------- | -------- | -------- | ------------------------------ |
+| personaIds  | string[] | Yes      | List of persona IDs to compare |
+| title       | string   | Yes      | Task title                     |
+| description | string   | Yes      | Task description               |
+| keywords    | string[] | No       | Task keywords                  |
+| context     | string   | No       | Additional context             |
+| domain      | string   | No       | Task domain                    |
+| complexity  | enum     | No       | Task complexity                |
 
 #### Response
 
@@ -446,11 +456,11 @@ All tools return errors in a consistent format:
 
 ### Common Error Codes
 
-| Error | Description |
-|-------|-------------|
-| Validation Error | Input parameters failed validation |
-| Persona Not Found | Specified persona ID doesn't exist |
-| Processing Error | Internal error during recommendation processing |
+| Error             | Description                                     |
+| ----------------- | ----------------------------------------------- |
+| Validation Error  | Input parameters failed validation              |
+| Persona Not Found | Specified persona ID doesn't exist              |
+| Processing Error  | Internal error during recommendation processing |
 
 ## Data Types
 
@@ -470,25 +480,26 @@ All tools return errors in a consistent format:
 
 ### Score Interpretation
 
-| Score Range | Interpretation |
-|-------------|----------------|
-| 80-100 | Excellent match |
-| 60-79 | Good match |
-| 40-59 | Moderate match |
-| 0-39 | Limited match |
+| Score Range | Interpretation  |
+| ----------- | --------------- |
+| 80-100      | Excellent match |
+| 60-79       | Good match      |
+| 40-59       | Moderate match  |
+| 0-39        | Limited match   |
 
 ### Confidence Levels
 
-| Confidence | Meaning |
-|------------|---------|
-| 90-100% | Very high confidence in the recommendation |
-| 70-89% | High confidence |
-| 50-69% | Moderate confidence |
-| 0-49% | Low confidence (limited data) |
+| Confidence | Meaning                                    |
+| ---------- | ------------------------------------------ |
+| 90-100%    | Very high confidence in the recommendation |
+| 70-89%     | High confidence                            |
+| 50-69%     | Moderate confidence                        |
+| 0-49%      | Low confidence (limited data)              |
 
 ## Rate Limiting
 
 Currently no rate limiting is implemented. Future versions may include:
+
 - 100 requests per minute per IP
 - 1000 requests per hour per IP
 
@@ -505,21 +516,18 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 
 const client = new Client({
   name: 'my-app',
-  version: '1.0.0'
+  version: '1.0.0',
 });
 
 // Connect to server
 await client.connect(transport);
 
 // Call recommendation tool
-const result = await client.callTool(
-  'recommend-persona',
-  {
-    title: 'Build a REST API',
-    description: 'Create a RESTful API with authentication',
-    complexity: 'moderate'
-  }
-);
+const result = await client.callTool('recommend-persona', {
+  title: 'Build a REST API',
+  description: 'Create a RESTful API with authentication',
+  complexity: 'moderate',
+});
 ```
 
 ### Python

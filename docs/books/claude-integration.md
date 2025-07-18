@@ -22,11 +22,13 @@ The Personas MCP server can be run in two ways:
 This is the standard approach where Claude manages the server process directly:
 
 1. **Build the project** (if not already done):
+
    ```bash
    npm run build
    ```
 
 2. **Add to Claude Desktop configuration** (`~/.claude/claude_desktop_config.json`):
+
    ```json
    {
      "mcpServers": {
@@ -52,12 +54,14 @@ This is the standard approach where Claude manages the server process directly:
 This approach runs the server independently and connects via HTTP:
 
 1. **Start the server**:
+
    ```bash
    npm start
    # Server runs on http://localhost:3000 by default
    ```
 
 2. **Create a project-specific `.mcp.json` file** in your project root:
+
    ```json
    {
      "mcpServers": {
@@ -79,7 +83,13 @@ This approach runs the server independently and connects via HTTP:
      "mcpServers": {
        "personas": {
          "command": "curl",
-         "args": ["-X", "POST", "http://localhost:3000/mcp", "-H", "Content-Type: application/json"],
+         "args": [
+           "-X",
+           "POST",
+           "http://localhost:3000/mcp",
+           "-H",
+           "Content-Type: application/json"
+         ],
          "transport": {
            "type": "http",
            "url": "http://localhost:3000/mcp"
@@ -126,16 +136,19 @@ When running as an HTTP server, the following endpoints are available:
 For direct HTTP access (non-MCP clients):
 
 #### Get All Personas
+
 ```bash
 curl http://localhost:3000/api/personas
 ```
 
 #### Get Specific Persona
+
 ```bash
 curl http://localhost:3000/api/personas/architect
 ```
 
 #### Get Persona Recommendations
+
 ```bash
 curl -X POST http://localhost:3000/api/recommend \
   -H "Content-Type: application/json" \
@@ -143,6 +156,7 @@ curl -X POST http://localhost:3000/api/recommend \
 ```
 
 #### Compare Personas
+
 ```bash
 curl -X POST http://localhost:3000/api/compare \
   -H "Content-Type: application/json" \
@@ -174,7 +188,9 @@ curl http://localhost:3000/api/personas
 **Problem**: Claude is trying to connect to `http://localhost:3000` instead of `http://localhost:3000/mcp`.
 
 **Solution**:
+
 1. For HTTP connections, ensure your configuration uses the full MCP endpoint URL:
+
    ```json
    {
      "transport": {
@@ -191,6 +207,7 @@ curl http://localhost:3000/api/personas
 **Problem**: The server is not running or is running on a different port.
 
 **Solution**:
+
 1. Start the server: `npm start`
 2. Check if the server is running: `curl http://localhost:3000/health`
 3. If using a custom port, update your configuration accordingly
@@ -204,12 +221,14 @@ curl http://localhost:3000/api/personas
 ### Verification Steps
 
 1. **Check server status**:
+
    ```bash
    curl http://localhost:3000/health
    # Should return: {"status":"healthy","server":{"name":"personas-mcp",...}}
    ```
 
 2. **Verify MCP endpoint**:
+
    ```bash
    curl -H "Accept: text/event-stream" http://localhost:3000/mcp
    # Should return MCP protocol response (not 404)

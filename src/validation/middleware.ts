@@ -57,7 +57,7 @@ export function validateQuery<T extends ZodSchema>(schema: T) {
           parsedQuery[key] = value;
         }
       }
-      
+
       // Validate query params
       req.query = schema.parse(parsedQuery) as typeof req.query;
       next();
@@ -81,16 +81,22 @@ export interface ValidationSchemas {
 }
 
 export function validate(schemas: ValidationSchemas) {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       // Validate body if schema provided
       if (schemas.body) {
-        req.body = await schemas.body.parseAsync(req.body) as unknown;
+        req.body = (await schemas.body.parseAsync(req.body)) as unknown;
       }
 
       // Validate params if schema provided
       if (schemas.params) {
-        req.params = await schemas.params.parseAsync(req.params) as typeof req.params;
+        req.params = (await schemas.params.parseAsync(
+          req.params
+        )) as typeof req.params;
       }
 
       // Validate query if schema provided
@@ -106,8 +112,10 @@ export function validate(schemas: ValidationSchemas) {
             parsedQuery[key] = value;
           }
         }
-        
-        req.query = await schemas.query.parseAsync(parsedQuery) as typeof req.query;
+
+        req.query = (await schemas.query.parseAsync(
+          parsedQuery
+        )) as typeof req.query;
       }
 
       next();

@@ -21,7 +21,7 @@ describe('CLI Error Path Tests', () => {
   describe('Server Initialization Failures', () => {
     it('should handle persona manager initialization failure', async () => {
       const server = new PersonasMcpServer({ port: 0 });
-      
+
       // Mock the persona manager to throw an error
       vi.spyOn(server['personaManager'], 'initialize').mockRejectedValue(
         new Error('Failed to load personas')
@@ -36,7 +36,7 @@ describe('CLI Error Path Tests', () => {
         metrics: {
           enabled: true,
           endpoint: 'invalid-url',
-        }
+        },
       });
 
       // The server should still start even if metrics fail
@@ -53,7 +53,7 @@ describe('CLI Error Path Tests', () => {
   describe('Shutdown Error Handling', () => {
     it('should handle errors during shutdown', async () => {
       const server = new PersonasMcpServer({ port: 0 });
-      
+
       // Start the server
       await server.run();
 
@@ -64,7 +64,7 @@ describe('CLI Error Path Tests', () => {
 
       // Shutdown should complete even with errors
       await expect(server.shutdown()).resolves.not.toThrow();
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith(
         expect.stringContaining('Error'),
         expect.any(Error)
@@ -73,7 +73,7 @@ describe('CLI Error Path Tests', () => {
 
     it('should handle HTTP server close timeout', async () => {
       const server = new PersonasMcpServer({ port: 0 });
-      
+
       await server.run();
 
       // Mock the HTTP server close to never complete
@@ -89,7 +89,7 @@ describe('CLI Error Path Tests', () => {
 
     it('should handle transport disconnection errors', async () => {
       const server = new PersonasMcpServer({ port: 0 });
-      
+
       await server.run();
 
       // Mock transport close to throw
@@ -101,7 +101,7 @@ describe('CLI Error Path Tests', () => {
 
       // Should log error but complete shutdown
       await server.shutdown();
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith(
         expect.stringContaining('Error disconnecting'),
         expect.any(Error)
@@ -112,11 +112,11 @@ describe('CLI Error Path Tests', () => {
   describe('Signal Handling Errors', () => {
     it('should exit with code 1 on shutdown error', async () => {
       const { shutdown } = await import('../../src/cli.js').then(m => ({
-        shutdown: (m as any).shutdown
+        shutdown: (m as any).shutdown,
       }));
 
       const mockServer = {
-        shutdown: vi.fn().mockRejectedValue(new Error('Shutdown failed'))
+        shutdown: vi.fn().mockRejectedValue(new Error('Shutdown failed')),
       };
 
       try {
@@ -139,9 +139,9 @@ describe('CLI Error Path Tests', () => {
 
       const module = await import('../../src/cli-functions.js');
       const { parseArgs } = module;
-      
+
       expect(() => parseArgs([])).toThrow();
-      
+
       delete process.env.PERSONAS_CONFIG;
     });
 
@@ -160,18 +160,16 @@ describe('CLI Error Path Tests', () => {
     it('should handle persona directory creation failure', async () => {
       const fs = await import('fs/promises');
       const originalMkdir = fs.mkdir;
-      
-      vi.spyOn(fs, 'mkdir').mockRejectedValue(
-        new Error('Permission denied')
-      );
+
+      vi.spyOn(fs, 'mkdir').mockRejectedValue(new Error('Permission denied'));
 
       const server = new PersonasMcpServer({ port: 0 });
-      
+
       // Should log error but continue
       await server.initialize();
-      
+
       expect(mockConsoleError).toHaveBeenCalled();
-      
+
       fs.mkdir = originalMkdir;
     });
   });
@@ -180,7 +178,7 @@ describe('CLI Error Path Tests', () => {
     it('should handle network interface binding errors', async () => {
       const server = new PersonasMcpServer({
         port: 12345,
-        host: '999.999.999.999' // Invalid IP
+        host: '999.999.999.999', // Invalid IP
       });
 
       await expect(server.run()).rejects.toThrow();
@@ -189,7 +187,7 @@ describe('CLI Error Path Tests', () => {
     it('should handle DNS resolution errors', async () => {
       const server = new PersonasMcpServer({
         port: 0,
-        host: 'invalid.host.that.does.not.exist.com'
+        host: 'invalid.host.that.does.not.exist.com',
       });
 
       await expect(server.run()).rejects.toThrow();

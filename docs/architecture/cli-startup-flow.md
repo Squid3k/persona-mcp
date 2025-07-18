@@ -16,10 +16,10 @@ sequenceDiagram
     participant Server as PersonasMcpServer
     participant PM as PersonaManager
     participant Transport as HTTP Transport
-    
+
     User->>Index: personas-mcp [args]
     Index->>CLI: import './cli.js'
-    
+
     alt --version or -v flag
         CLI->>CLI: printVersion()
         CLI->>User: Display version (0.1.0)
@@ -32,30 +32,30 @@ sequenceDiagram
         CLI->>CLI: main()
         CLI->>CLI: parseArgs()
         Note over CLI: Parse --port, --host, --no-cors
-        
+
         alt Invalid arguments
             CLI->>User: Error message
             CLI->>CLI: process.exit(1)
         end
-        
+
         CLI->>Server: new PersonasMcpServer(config)
         Server->>PM: Initialize PersonaManager
         PM->>PM: Load default personas
         PM->>PM: Load user personas (~/.ai/personas)
         PM->>PM: Load project personas (./.ai/personas)
         PM->>PM: Set up file watchers
-        
+
         Server->>Transport: Create HTTP server
         Server->>Server: Setup MCP handlers
         Server->>Server: Setup middleware
-        
+
         CLI->>CLI: Setup signal handlers
         Note over CLI: SIGINT, SIGTERM → shutdown()
-        
+
         CLI->>Server: server.run()
         Server->>Transport: Start listening
         Server->>User: Server running on port
-        
+
         Note over Server: Server is now running
     end
 ```
@@ -65,38 +65,38 @@ sequenceDiagram
 ```mermaid
 flowchart TD
     Start([personas-mcp command]) --> Import[Import cli.js]
-    
+
     Import --> CheckVersion{--version or -v?}
     CheckVersion -->|Yes| ShowVersion[Display version]
     ShowVersion --> Exit1([Exit 0])
-    
+
     CheckVersion -->|No| CheckHelp{--help?}
     CheckHelp -->|Yes| ShowHelp[Display help]
     ShowHelp --> Exit2([Exit 0])
-    
+
     CheckHelp -->|No| Main[Call main()]
     Main --> ParseArgs[Parse arguments]
-    
+
     ParseArgs --> ValidatePort{Valid port?}
     ValidatePort -->|No| ErrorPort[Error: Invalid port]
     ErrorPort --> Exit3([Exit 1])
-    
+
     ValidatePort -->|Yes| ValidateHost{Valid host?}
     ValidateHost -->|No| ErrorHost[Error: Host required]
     ErrorHost --> Exit4([Exit 1])
-    
+
     ValidateHost -->|Yes| CreateServer[Create PersonasMcpServer]
     CreateServer --> InitPM[Initialize PersonaManager]
     InitPM --> LoadPersonas[Load personas]
     LoadPersonas --> SetupHandlers[Setup signal handlers]
     SetupHandlers --> RunServer[Run server]
-    
+
     RunServer --> ServerError{Server error?}
     ServerError -->|Yes| LogError[Log error]
     LogError --> Exit5([Exit 1])
-    
+
     ServerError -->|No| Running[Server running]
-    
+
     Running --> Signal{Receive signal?}
     Signal -->|SIGINT/SIGTERM| Shutdown[Graceful shutdown]
     Shutdown --> Exit6([Exit 0])
@@ -113,25 +113,25 @@ graph TB
         Help[Help Display]
         Version[Version Display]
     end
-    
+
     subgraph "Server Layer"
         Server[PersonasMcpServer]
         Config[ServerConfig]
         Shutdown[Shutdown Handler]
     end
-    
+
     subgraph "Service Layer"
         PM[PersonaManager]
         RE[RecommendationEngine]
         PS[PersonaScorer]
     end
-    
+
     subgraph "Transport Layer"
         HTTP[HTTP Server]
         MCP[MCP Transport]
         Handlers[Request Handlers]
     end
-    
+
     CLI --> Args
     Args --> Config
     Config --> Server
@@ -142,7 +142,7 @@ graph TB
     HTTP --> MCP
     MCP --> Handlers
     Handlers --> PM
-    
+
     CLI --> Help
     CLI --> Version
     CLI --> Shutdown

@@ -19,7 +19,7 @@ classDiagram
         +updateScoringWeights(weights): void
         +getSystemStats(): SystemStats
     }
-    
+
     class PersonaScorer {
         -weights: ScoringWeights
         +scorePersona(persona, task): number
@@ -32,14 +32,14 @@ classDiagram
         -calculateContextRelevance(persona, task): number
         -calculateComplexityFit(persona, task): number
     }
-    
+
     class TaskAnalyzer {
         +extractKeywords(task): string[]
         +inferRole(task): string
         +determineComplexity(task): Complexity
         +extractDomain(task): string
     }
-    
+
     RecommendationEngine --> PersonaScorer
     RecommendationEngine --> TaskAnalyzer
     PersonaScorer --> TaskAnalyzer
@@ -54,18 +54,18 @@ sequenceDiagram
     participant Scorer as PersonaScorer
     participant Manager as PersonaManager
     participant Analyzer as TaskAnalyzer
-    
+
     Client->>Engine: processRecommendation(request)
     Engine->>Analyzer: extractKeywords(task)
     Analyzer-->>Engine: keywords[]
     Engine->>Manager: getAllPersonas()
     Manager-->>Engine: personas[]
-    
+
     loop For each persona
         Engine->>Scorer: scorePersona(persona, task)
         Scorer->>Scorer: Calculate 5 factors
         Scorer-->>Engine: score (0-1)
-        
+
         alt includeReasoning
             Engine->>Scorer: generateReasoning()
             Scorer-->>Engine: reasoning
@@ -73,7 +73,7 @@ sequenceDiagram
             Scorer-->>Engine: strengths[]
         end
     end
-    
+
     Engine->>Engine: Sort by score
     Engine->>Engine: Take top N
     Engine-->>Client: RecommendationResponse
@@ -92,7 +92,7 @@ graph TB
         Analyzer --> Domain[Domain]
         Analyzer --> Complexity[Complexity]
     end
-    
+
     subgraph "Scoring Factors"
         Keywords --> KM[Keyword Match<br/>30%]
         Role --> RA[Role Alignment<br/>25%]
@@ -100,7 +100,7 @@ graph TB
         Task --> CR[Context Relevance<br/>15%]
         Complexity --> CF[Complexity Fit<br/>10%]
     end
-    
+
     subgraph "Score Calculation"
         KM --> WS[Weighted Sum]
         RA --> WS
@@ -120,25 +120,25 @@ flowchart LR
         ParseTask[Parse Task]
         ExtractFeatures[Extract Features]
     end
-    
+
     subgraph "Stage 2: Matching"
         MatchKeywords[Match Keywords]
         MatchRole[Match Role]
         MatchExpertise[Match Expertise]
     end
-    
+
     subgraph "Stage 3: Scoring"
         CalcScores[Calculate Scores]
         ApplyWeights[Apply Weights]
         Aggregate[Aggregate Score]
     end
-    
+
     subgraph "Stage 4: Enhancement"
         GenReasoning[Generate Reasoning]
         FindStrengths[Find Strengths]
         FindLimits[Find Limitations]
     end
-    
+
     ParseTask --> ExtractFeatures
     ExtractFeatures --> MatchKeywords
     ExtractFeatures --> MatchRole
@@ -164,7 +164,7 @@ graph TB
         Desc[Task Description] --> Clean2[Clean & Split]
         Keywords[Explicit Keywords] --> Clean3[Normalize]
     end
-    
+
     subgraph "Semantic Matching"
         Clean1 --> Combine[Combine Keywords]
         Clean2 --> Combine
@@ -173,7 +173,7 @@ graph TB
         Semantic --> Synonyms[Include Synonyms]
         Synonyms --> Related[Include Related Terms]
     end
-    
+
     subgraph "Scoring"
         Related --> Match[Match Against Persona]
         Match --> Count[Count Matches]
@@ -190,13 +190,13 @@ graph LR
         Keywords --> RoleMap[Role Mapping]
         RoleMap --> DetectedRole[Detected Role]
     end
-    
+
     subgraph "Alignment Scoring"
         DetectedRole --> Matrix[Alignment Matrix]
         PersonaRole[Persona Role] --> Matrix
         Matrix --> AlignScore[Alignment Score]
     end
-    
+
     subgraph "Role Keywords"
         Architect[design, architecture, system]
         Developer[implement, build, code]
@@ -215,13 +215,13 @@ flowchart TB
         Parse --> Time[Time Constraint]
         Parse --> Priority[Priority Level]
     end
-    
+
     subgraph "Adjustment Rules"
         Team --> Rules[Context Rules]
         Time --> Rules
         Priority --> Rules
     end
-    
+
     subgraph "Score Modification"
         BaseScore[Base Score] --> Adjust[Apply Adjustments]
         Rules --> Adjust
@@ -238,7 +238,7 @@ graph TB
         L2[Persona Score Cache<br/>TTL: 15min]
         L3[Keyword Cache<br/>TTL: 30min]
     end
-    
+
     Request[Incoming Request] --> Hash[Generate Hash]
     Hash --> Check1{L1 Hit?}
     Check1 -->|Yes| Return1[Return Cached]
@@ -247,7 +247,7 @@ graph TB
     Check2 -->|No| Check3{L3 Hit?}
     Check3 -->|Yes| Compute2[Compute More]
     Check3 -->|No| Full[Full Computation]
-    
+
     Full --> Store3[Store L3]
     Compute2 --> Store2[Store L2]
     Compute1 --> Store1[Store L1]
@@ -264,11 +264,11 @@ graph TB
         Split --> B1[Batch 1]
         Split --> B2[Batch 2]
         Split --> B3[Batch 3]
-        
+
         B1 --> W1[Worker 1]
         B2 --> W2[Worker 2]
         B3 --> W3[Worker 3]
-        
+
         W1 --> Merge[Merge Results]
         W2 --> Merge
         W3 --> Merge
@@ -295,10 +295,10 @@ stateDiagram-v2
     Processing --> Validation: Validate Input
     Validation --> Scoring: Valid
     Validation --> Error: Invalid
-    
+
     Scoring --> Success: All Scored
     Scoring --> PartialError: Some Failed
-    
+
     Success --> [*]
     PartialError --> Recovery: Use Available
     Recovery --> [*]
@@ -317,14 +317,14 @@ graph TB
         Accuracy[Accuracy Score]
         Usage[Persona Usage]
     end
-    
+
     subgraph "Analytics"
         Latency --> Dashboard[Analytics Dashboard]
         Throughput --> Dashboard
         Accuracy --> Dashboard
         Usage --> Dashboard
     end
-    
+
     subgraph "Insights"
         Dashboard --> Popular[Popular Personas]
         Dashboard --> Performance[Performance Trends]

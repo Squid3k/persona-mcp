@@ -5,6 +5,7 @@ This directory contains all project documentation organized by category.
 ## Directory Structure
 
 ### architecture/
+
 Software architecture documentation for system components and design decisions.
 
 - [System Overview](./architecture/system-overview.md)
@@ -14,6 +15,7 @@ Software architecture documentation for system components and design decisions.
 - [CLI Startup Flow](./architecture/cli-startup-flow.md)
 
 ### books/
+
 Playbooks, runbooks, and guides for operations and usage.
 
 - [API Clients Integration](./books/api-clients.md)
@@ -25,6 +27,7 @@ Playbooks, runbooks, and guides for operations and usage.
 - [Using Personas](./books/using-personas.md)
 
 ### designs/
+
 Design documents with Mermaid diagrams for system components.
 
 - [MCP Integration Design](./designs/mcp-integration.md)
@@ -32,6 +35,7 @@ Design documents with Mermaid diagrams for system components.
 - [Recommendation System](./designs/recommendation-system.md)
 
 ### engineering/
+
 Engineering guidelines, processes, and technical references.
 
 - [Development Setup](./engineering/development-setup.md)

@@ -63,27 +63,32 @@ For detailed setup instructions, see the **[Installation Guide](./docs/books/ins
 ## Documentation
 
 ### Getting Started
+
 - **[Installation Guide](./docs/books/installation.md)** - Detailed installation and setup
 - **[Quick Start Guide](./docs/quick-start.md)** - Get running in 5 minutes
 - **[Claude Integration](./docs/books/claude-integration.md)** - Connect with Claude Desktop
 - **[Using Personas](./docs/books/using-personas.md)** - How to effectively use personas
 
 ### Customization
+
 - **[Creating Custom Personas](./docs/books/creating-personas.md)** - Build your own specialized personas
 - **[API Client Integration](./docs/books/api-clients.md)** - Integrate with JavaScript, Python, Go, Ruby
 
 ### Technical Reference
+
 - **[API Reference](./docs/engineering/api-reference.md)** - Complete API documentation
 - **[System Architecture](./docs/architecture/system-overview.md)** - Technical architecture overview
 - **[Recommendation System](./docs/designs/recommendation-system.md)** - How persona matching works
 - **[Metrics & Monitoring](./docs/engineering/metrics-monitoring.md)** - OpenTelemetry metrics guide
 
 ### Development
+
 - **[Development Setup](./docs/engineering/development-setup.md)** - Set up your dev environment
 - **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
 - **[Examples](./examples/)** - Code examples in multiple languages
 
 ### Support
+
 - **[FAQ](./docs/FAQ.md)** - Frequently asked questions
 - **[Troubleshooting Guide](./docs/books/troubleshooting-runbook.md)** - Common issues and solutions
 - **[Roadmap](./plans/roadmap.md)** - Future plans and features
@@ -129,6 +134,7 @@ See more [examples](./examples/) for different programming languages.
 ## Contributing
 
 We welcome contributions! Please see our **[Contributing Guide](./CONTRIBUTING.md)** for details on:
+
 - Setting up your development environment
 - Adding new personas
 - Submitting pull requests

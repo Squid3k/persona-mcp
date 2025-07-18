@@ -34,12 +34,14 @@ npm run typecheck  # TypeScript type checking
 ### MCP Capabilities
 
 The server exposes:
+
 - **Resources**: Persona definitions accessible via `persona://{id}` URIs
 - **Prompts**: Persona adoption prompts via `adopt-persona-{id}` commands
 
 ### Persona System
 
 Each persona includes:
+
 - Unique ID and role classification
 - Specialized expertise areas
 - Problem-solving approach

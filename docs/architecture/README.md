@@ -5,14 +5,17 @@ This directory contains detailed architectural documentation for the Personas MC
 ## Documents
 
 ### System Level
+
 - [System Overview](./system-overview.md) - High-level system architecture, deployment models, and security architecture
 
 ### Core Components
+
 - [MCP Server](./mcp-server.md) - MCP protocol server implementation and request handling
 - [Persona Manager](./persona-manager.md) - Persona loading, validation, and lifecycle management
 - [Recommendation Engine](./recommendation-engine.md) - Intelligent persona recommendation system
 
 ### Implementation Details
+
 - [CLI Startup Flow](./cli-startup-flow.md) - Command-line interface and startup sequence diagrams
 
 ## Architecture Principles
@@ -26,6 +29,7 @@ This directory contains detailed architectural documentation for the Personas MC
 ## Diagram Types
 
 Each document contains various UML and Mermaid diagrams:
+
 - **Sequence Diagrams**: Show interaction flows between components
 - **Class Diagrams**: Illustrate object structures and relationships
 - **State Diagrams**: Define component lifecycle and state transitions
@@ -35,6 +39,7 @@ Each document contains various UML and Mermaid diagrams:
 ## Reading Order
 
 For new contributors, we recommend reading in this order:
+
 1. System Overview - Understand the big picture
 2. MCP Server - Learn about the protocol implementation
 3. Persona Manager - Understand persona handling

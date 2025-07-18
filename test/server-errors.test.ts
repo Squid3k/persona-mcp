@@ -60,9 +60,7 @@ describe('Server Error Handling', () => {
     });
 
     it('should handle InvalidPersonaURIError', async () => {
-      const response = await request(app)
-        .get('/test/invalid-uri')
-        .expect(400);
+      const response = await request(app).get('/test/invalid-uri').expect(400);
 
       expect(response.body).toEqual({
         success: false,

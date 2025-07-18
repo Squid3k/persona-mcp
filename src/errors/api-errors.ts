@@ -12,7 +12,7 @@ export class ValidationError extends BaseError {
 
   constructor(errors: ZodError | Array<{ field: string; message: string }>) {
     let validationErrors: Array<{ field: string; message: string }>;
-    
+
     if (errors instanceof ZodError) {
       validationErrors = errors.errors.map(err => ({
         field: err.path.join('.'),
@@ -78,7 +78,10 @@ export class RateLimitError extends BaseError {
  * Error thrown for internal server errors
  */
 export class InternalServerError extends BaseError {
-  constructor(message = 'An internal server error occurred', originalError?: Error) {
+  constructor(
+    message = 'An internal server error occurred',
+    originalError?: Error
+  ) {
     super(
       message,
       'INTERNAL_SERVER_ERROR',

@@ -11,6 +11,7 @@ This directory contains all planning documents for the Personas MCP Server proje
 ## File Naming Convention
 
 All plan files follow this naming scheme:
+
 ```
 {year-month-day}-{version}-{subject-of-plan}.md
 ```

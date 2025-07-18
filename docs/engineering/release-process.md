@@ -33,6 +33,7 @@ We follow [Semantic Versioning](https://semver.org/):
 ### Method 1: Automated via GitHub Release (Recommended)
 
 1. Update the version in package.json:
+
    ```bash
    npm version patch  # or minor/major
    ```
@@ -43,6 +44,7 @@ We follow [Semantic Versioning](https://semver.org/):
    - Commit these changes
 
 3. Push changes and tags:
+
    ```bash
    git push origin main
    git push origin --tags
@@ -65,12 +67,14 @@ We follow [Semantic Versioning](https://semver.org/):
 If automated release fails:
 
 1. Ensure you're on the main branch with latest changes:
+
    ```bash
    git checkout main
    git pull origin main
    ```
 
 2. Run pre-release verification:
+
    ```bash
    npm run test:all
    npm run typecheck
@@ -78,21 +82,25 @@ If automated release fails:
    ```
 
 3. Check what will be published:
+
    ```bash
    npm pack --dry-run
    ```
 
 4. Login to npm (if needed):
+
    ```bash
    npm login
    ```
 
 5. Publish the package:
+
    ```bash
    npm publish --access public
    ```
 
 6. Create and push the git tag:
+
    ```bash
    git tag v$(node -p "require('./package.json').version")
    git push origin --tags
@@ -105,11 +113,13 @@ If automated release fails:
 After releasing:
 
 1. Verify the package on npmjs.com:
+
    ```bash
    npm view personas-mcp@latest
    ```
 
 2. Test installation globally:
+
    ```bash
    npm install -g personas-mcp
    personas-mcp --version
@@ -122,16 +132,19 @@ After releasing:
 ## Troubleshooting
 
 ### Publishing fails with 403 error
+
 - Verify your npm token is valid
 - Check if the package name is available
 - Ensure you have publishing permissions
 
 ### GitHub Actions workflow fails
+
 - Check the workflow logs for specific errors
 - Verify the NPM_TOKEN secret is set correctly
 - Ensure all tests pass locally first
 
 ### Package is too large
+
 - Review the .npmignore file
 - Check if unnecessary files are being included
 - Run `npm pack` locally to inspect contents

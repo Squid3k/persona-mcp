@@ -74,22 +74,24 @@ Create `ecosystem.config.js`:
 
 ```javascript
 module.exports = {
-  apps: [{
-    name: 'personas-mcp',
-    script: './dist/index.js',
-    instances: 'max',
-    exec_mode: 'cluster',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3000
+  apps: [
+    {
+      name: 'personas-mcp',
+      script: './dist/index.js',
+      instances: 'max',
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3000,
+      },
+      error_file: './logs/error.log',
+      out_file: './logs/out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      max_memory_restart: '1G',
+      autorestart: true,
+      watch: false,
     },
-    error_file: './logs/error.log',
-    out_file: './logs/out.log',
-    log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-    max_memory_restart: '1G',
-    autorestart: true,
-    watch: false
-  }]
+  ],
 };
 ```
 
@@ -155,7 +157,7 @@ services:
   personas-mcp:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -165,7 +167,7 @@ services:
       - ./logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -212,34 +214,34 @@ spec:
         app: personas-mcp
     spec:
       containers:
-      - name: personas-mcp
-        image: personas-mcp:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: PORT
-          value: "3000"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: personas-mcp
+          image: personas-mcp:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: PORT
+              value: '3000'
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
 ```
 
 #### service.yaml
@@ -291,10 +293,10 @@ server {
 
     ssl_certificate /etc/letsencrypt/live/personas.example.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/personas.example.com/privkey.pem;
-    
+
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
-    
+
     location / {
         proxy_pass http://localhost:3000;
         # ... same proxy settings as above
@@ -346,7 +348,7 @@ for i in $(seq 1 $MAX_RETRIES); do
         echo "Health check passed"
         exit 0
     fi
-    
+
     if [ $i -lt $MAX_RETRIES ]; then
         echo "Health check failed, retrying in $RETRY_DELAY seconds..."
         sleep $RETRY_DELAY
@@ -478,6 +480,7 @@ Not applicable - this service doesn't use a database.
 ### Common Issues
 
 1. **Port Already in Use**
+
    ```bash
    # Find process
    sudo lsof -i :3000
@@ -486,12 +489,14 @@ Not applicable - this service doesn't use a database.
    ```
 
 2. **Permission Denied**
+
    ```bash
    # Fix permissions
    sudo chown -R personas:personas /app
    ```
 
 3. **Out of Memory**
+
    ```bash
    # Increase memory limit
    pm2 stop personas-mcp

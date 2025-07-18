@@ -84,19 +84,8 @@ export const ApiResponseSchema = z.object({
  * Schema for pagination parameters
  */
 export const PaginationSchema = z.object({
-  page: z
-    .number()
-    .int()
-    .positive()
-    .default(1)
-    .optional(),
-  limit: z
-    .number()
-    .int()
-    .positive()
-    .max(100)
-    .default(20)
-    .optional(),
+  page: z.number().int().positive().default(1).optional(),
+  limit: z.number().int().positive().max(100).default(20).optional(),
 });
 
 export type PaginationParams = z.infer<typeof PaginationSchema>;

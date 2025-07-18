@@ -192,28 +192,176 @@ classDiagram
 ## MCP Tools
 
 ### 1. recommend-persona
-Finds the best personas for a given task.
+Find the best personas for your task based on description, keywords, and complexity.
 
-**Input**: TaskDescription + options  
-**Output**: Ranked recommendations with reasoning
+**Input Schema**:
+```json
+{
+  "name": "recommend-persona",
+  "arguments": {
+    "title": "Design a REST API",
+    "description": "Create a RESTful API with authentication and rate limiting",
+    "keywords": ["api", "rest", "authentication"],
+    "complexity": "moderate"
+  }
+}
+```
+
+**Parameters**:
+- `title` (required): Brief task title
+- `description` (optional): Detailed task description
+- `keywords` (optional): Array of relevant keywords
+- `complexity` (optional): "simple" | "moderate" | "complex" | "expert"
+- `context` (optional): Additional context or constraints
+- `domain` (optional): Technical domain (backend, frontend, etc.)
+
+**Output Example**:
+```json
+{
+  "recommendations": [
+    {
+      "personaId": "architect",
+      "score": 95,
+      "reasoning": "Strong match for API design with focus on architecture",
+      "strengths": ["API design patterns", "Authentication architecture", "Scalability"],
+      "confidence": 0.95
+    },
+    {
+      "personaId": "developer",
+      "score": 78,
+      "reasoning": "Good for implementation details",
+      "strengths": ["Code implementation", "REST best practices"],
+      "confidence": 0.78
+    }
+  ]
+}
+```
 
 ### 2. explain-persona-fit
-Explains why a specific persona fits a task.
+Get a detailed explanation of why a specific persona fits (or doesn't fit) your task.
 
-**Input**: personaId + TaskDescription  
-**Output**: Detailed analysis with score breakdown
+**Input Schema**:
+```json
+{
+  "name": "explain-persona-fit",
+  "arguments": {
+    "personaId": "architect",
+    "title": "System design",
+    "description": "Design a distributed system"
+  }
+}
+```
+
+**Parameters**:
+- `personaId` (required): The persona ID to analyze
+- `title` (required): Task title
+- `description` (optional): Task details
+- `keywords` (optional): Relevant keywords
+
+**Output Example**:
+```json
+{
+  "personaId": "architect",
+  "overallScore": 92,
+  "scoreBreakdown": {
+    "keywordMatch": 0.9,
+    "roleAlignment": 0.95,
+    "expertiseMatch": 0.88,
+    "contextRelevance": 0.92,
+    "complexityFit": 0.95
+  },
+  "analysis": {
+    "strengths": [
+      "Perfect role alignment for system design",
+      "Deep expertise in distributed systems",
+      "Handles complex architectural decisions"
+    ],
+    "limitations": [
+      "Less focused on implementation details",
+      "May over-engineer for simple tasks"
+    ],
+    "recommendation": "Highly recommended for this task"
+  }
+}
+```
 
 ### 3. compare-personas
-Compares multiple personas for the same task.
+Compare multiple personas side-by-side for the same task.
 
-**Input**: personaIds[] + TaskDescription  
-**Output**: Side-by-side comparison
+**Input Schema**:
+```json
+{
+  "name": "compare-personas",
+  "arguments": {
+    "personaIds": ["architect", "developer"],
+    "title": "API design",
+    "description": "Design and implement a new API"
+  }
+}
+```
+
+**Parameters**:
+- `personaIds` (required): Array of persona IDs to compare (2-4 recommended)
+- `title` (required): Task title
+- `description` (optional): Task details
+- `keywords` (optional): Relevant keywords
+
+**Output Example**:
+```json
+{
+  "comparison": {
+    "architect": {
+      "score": 88,
+      "strengths": ["High-level design", "Scalability", "Standards"],
+      "weaknesses": ["Implementation details"],
+      "bestFor": "Initial design and architecture decisions"
+    },
+    "developer": {
+      "score": 82,
+      "strengths": ["Implementation", "Code quality", "Practical solutions"],
+      "weaknesses": ["May miss architectural concerns"],
+      "bestFor": "Writing the actual code"
+    }
+  },
+  "recommendation": "Start with architect for design, then switch to developer for implementation",
+  "synergyScore": 0.94
+}
+```
 
 ### 4. get-recommendation-stats
-Provides system statistics and configuration.
+Get system statistics and scoring configuration.
 
-**Input**: None  
-**Output**: System stats and scoring weights
+**Input Schema**:
+```json
+{
+  "name": "get-recommendation-stats",
+  "arguments": {}
+}
+```
+
+**Output Example**:
+```json
+{
+  "systemStats": {
+    "totalPersonas": 12,
+    "customPersonas": 3,
+    "totalRecommendations": 156,
+    "averageScore": 78.5
+  },
+  "scoringWeights": {
+    "keywordMatch": 0.3,
+    "roleAlignment": 0.25,
+    "expertiseMatch": 0.2,
+    "contextRelevance": 0.15,
+    "complexityFit": 0.1
+  },
+  "popularPersonas": [
+    {"id": "developer", "usageCount": 45},
+    {"id": "architect", "usageCount": 38},
+    {"id": "debugger", "usageCount": 32}
+  ]
+}
+```
 
 ## Design Decisions
 

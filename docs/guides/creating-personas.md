@@ -11,8 +11,20 @@ Custom personas allow you to tailor AI assistance to your specific needs, team r
 Personas are loaded from three sources, with this precedence order:
 
 1. **Project personas** (highest priority): `./.ai/personas/*.yaml`
+   - Place project-specific personas in this directory within your project
+   - These take precedence over all other personas
+   - Ideal for team-specific or domain-specific personas
+
 2. **User personas**: `~/.ai/personas/*.yaml`
+   - Place personal personas in this directory in your home folder
+   - These override built-in personas but not project personas
+   - Great for personas you want to use across multiple projects
+
 3. **Built-in personas** (lowest priority): TypeScript definitions in the source
+   - Default personas that come with the server
+   - Always available as a fallback
+
+Project personas take precedence over user personas, which take precedence over built-in defaults.
 
 ## YAML Schema
 

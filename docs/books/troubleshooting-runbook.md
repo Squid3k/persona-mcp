@@ -56,10 +56,15 @@ npm run build
 
 **Port Already in Use**
 ```bash
+# Check what's using the port
+lsof -i :3000
+
 # Option 1: Kill existing process
 kill -9 $(lsof -t -i:3000)
 
 # Option 2: Use different port
+npm start -- --port 8080
+# or
 PORT=3001 npm start
 ```
 
@@ -103,6 +108,9 @@ npm run validate-personas
 
 # Check logs for load errors
 grep -i "persona" logs/error.log
+
+# Check server logs for validation errors
+npm run dev  # Run in development mode to see errors
 ```
 
 #### Solutions
@@ -124,6 +132,12 @@ version: "1.0"
 role: specialist
 description: Description here
 ```
+
+**Common YAML Errors**
+- Ensure file extension is `.yaml` (not `.yml`)
+- Check for proper indentation (2 spaces)
+- Verify quotes around strings with special characters
+- Validate with online YAML validator
 
 **Path Issues**
 ```bash
@@ -212,7 +226,63 @@ const scores = await Promise.all(
 );
 ```
 
-### 5. MCP Protocol Errors
+### 5. Connection Issues
+
+#### Symptoms
+- Claude can't connect to server
+- "HTTP 404" errors
+- "Dynamic client registration failed"
+- ECONNREFUSED errors
+
+#### Diagnosis Steps
+
+```bash
+# Ensure server is running
+curl http://localhost:3000/health
+
+# Check if correct endpoint is used
+curl -H "Accept: text/event-stream" http://localhost:3000/mcp
+
+# Check firewall settings
+sudo iptables -L -n | grep 3000
+
+# Verify CORS settings
+curl -I http://localhost:3000/ -H "Origin: http://localhost"
+```
+
+#### Solutions
+
+**Wrong Endpoint URL**
+- Ensure configuration uses `http://localhost:3000/mcp` (not just `http://localhost:3000`)
+- For HTTP transport:
+```json
+{
+  "transport": {
+    "type": "http",
+    "url": "http://localhost:3000/mcp"
+  }
+}
+```
+
+**Connection Refused**
+- Start the server: `npm start`
+- Check server is on correct port: `npm start -- --port 3000`
+- Verify no firewall blocking
+
+**Transport Type Issues**
+- Use local command execution instead of HTTP:
+```json
+{
+  "mcpServers": {
+    "personas": {
+      "command": "node",
+      "args": ["/absolute/path/to/persona-mcp/dist/index.js"]
+    }
+  }
+}
+```
+
+### 6. MCP Protocol Errors
 
 #### Symptoms
 - Invalid JSON-RPC responses

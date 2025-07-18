@@ -4,17 +4,162 @@
 
 The Personas MCP Server provides four tools for persona recommendations through the Model Context Protocol. All tools are accessible via the MCP `CallToolRequest` method.
 
-## Base URL
+## Base URLs
 
+### MCP Protocol Endpoint
 ```
 http://localhost:3000/mcp
+```
+
+### REST API Endpoints
+```
+http://localhost:3000/api/*
 ```
 
 ## Authentication
 
 Currently, no authentication is required. Future versions may implement token-based authentication.
 
-## Tools
+## REST API Endpoints
+
+For direct HTTP access without MCP protocol, the following REST endpoints are available:
+
+### GET /api/personas
+
+Get all available personas.
+
+#### Request
+```bash
+curl http://localhost:3000/api/personas
+```
+
+#### Response
+```json
+{
+  "personas": [
+    {
+      "id": "architect",
+      "name": "Software Architect",
+      "role": "architect",
+      "description": "Focuses on high-level system design...",
+      "specialty": "System Architecture",
+      "tags": ["architecture", "design", "scalability"]
+    },
+    // ... more personas
+  ],
+  "total": 12
+}
+```
+
+### GET /api/personas/:id
+
+Get a specific persona by ID.
+
+#### Request
+```bash
+curl http://localhost:3000/api/personas/architect
+```
+
+#### Response
+```json
+{
+  "id": "architect",
+  "name": "Software Architect",
+  "role": "architect",
+  "description": "Focuses on high-level system design...",
+  "specialty": "System Architecture",
+  "approach": "Top-down system thinking",
+  "expertise": ["system design", "scalability", "patterns"],
+  "tags": ["architecture", "design", "scalability"],
+  "prompt": "You are a Software Architect..."
+}
+```
+
+### POST /api/recommend
+
+Get persona recommendations for a task.
+
+#### Request
+```bash
+curl -X POST http://localhost:3000/api/recommend \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "debug memory leak",
+    "limit": 3
+  }'
+```
+
+#### Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| query | string | Yes | Task description or keywords |
+| limit | number | No | Max recommendations (default: 3) |
+
+#### Response
+```json
+{
+  "recommendations": [
+    {
+      "personaId": "debugger",
+      "score": 95,
+      "name": "Debugging Specialist",
+      "reasoning": "Perfect match for debugging tasks"
+    },
+    {
+      "personaId": "performance-analyst",
+      "score": 87,
+      "name": "Performance Analyst",
+      "reasoning": "Good for memory and performance issues"
+    }
+  ]
+}
+```
+
+### POST /api/compare
+
+Compare multiple personas for a task.
+
+#### Request
+```bash
+curl -X POST http://localhost:3000/api/compare \
+  -H "Content-Type: application/json" \
+  -d '{
+    "persona1": "architect",
+    "persona2": "developer",
+    "context": "API design"
+  }'
+```
+
+#### Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| persona1 | string | Yes | First persona ID |
+| persona2 | string | Yes | Second persona ID |
+| context | string | Yes | Task context for comparison |
+
+#### Response
+```json
+{
+  "comparison": {
+    "context": "API design",
+    "personas": {
+      "architect": {
+        "strengths": ["High-level design", "API patterns", "Scalability"],
+        "weaknesses": ["Implementation details"],
+        "score": 88
+      },
+      "developer": {
+        "strengths": ["Implementation", "Code quality"],
+        "weaknesses": ["May miss architectural concerns"],
+        "score": 75
+      }
+    },
+    "recommendation": "Use architect for initial design, developer for implementation"
+  }
+}
+```
+
+## MCP Protocol Tools
 
 ### 1. recommend-persona
 

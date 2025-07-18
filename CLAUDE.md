@@ -60,3 +60,7 @@ Test the server using MCP Inspector or integrate with MCP-compatible clients lik
 ## File Organization
 
 - Store plans in a `plans/` directory using a file name format `{year-month-day}-{version}-{brief topic}.md`
+
+## Code Guidelines
+
+- Never use emojis in docs unless the user specifically requests it

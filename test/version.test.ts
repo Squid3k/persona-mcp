@@ -33,11 +33,6 @@ describe('version.ts', () => {
     expect(VERSION).not.toMatch(/\s/);
   });
 
-  it('should be the expected version value', () => {
-    // Test specific version value
-    expect(VERSION).toBe('0.2.0');
-  });
-
   it('should be immutable', () => {
     const originalVersion = VERSION;
 

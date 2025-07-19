@@ -19,6 +19,7 @@ Before creating a release, ensure:
 - [ ] Package builds successfully: `npm run build`
 - [ ] CHANGELOG.md is updated with the new version's changes
 - [ ] Version in package.json follows semantic versioning
+- [ ] **Version in src/version.ts matches package.json version**
 
 ## Version Numbering
 
@@ -38,26 +39,39 @@ We follow [Semantic Versioning](https://semver.org/):
    npm version patch  # or minor/major
    ```
 
-2. Update CHANGELOG.md:
+2. **Update the version in src/version.ts to match package.json:**
+
+   ```bash
+   # Use the version update script to sync versions automatically
+   npm run version:update
+   ```
+
+3. Update CHANGELOG.md:
    - Move items from "Unreleased" to the new version section
    - Add comparison link at the bottom
    - Commit these changes
 
-3. Push changes and tags:
+4. **Verify version consistency:**
+
+   ```bash
+   npm test test/version.test.ts  # Ensures versions match
+   ```
+
+5. Push changes and tags:
 
    ```bash
    git push origin main
    git push origin --tags
    ```
 
-4. Create a GitHub Release:
+6. Create a GitHub Release:
    - Go to Releases → "Create a new release"
    - Choose the tag you just created
    - Title: `v{version}` (e.g., v0.1.0)
    - Copy the CHANGELOG entries for this version
    - Click "Publish release"
 
-5. The GitHub Actions workflow will automatically:
+7. The GitHub Actions workflow will automatically:
    - Run all tests
    - Build the package
    - Publish to npm with provenance
@@ -130,6 +144,12 @@ After releasing:
 4. Update the "Unreleased" section in CHANGELOG.md for future changes
 
 ## Troubleshooting
+
+### Version mismatch errors in CI
+
+- The version in `src/version.ts` must match `package.json`
+- Run `npm test test/version.test.ts` to verify they match
+- Update both files when changing versions
 
 ### Publishing fails with 403 error
 

@@ -22,7 +22,9 @@
     "lint:fix": "eslint src test --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "version:update": "node scripts/update-version.cjs",
+    "version:sync": "node scripts/update-version.cjs"
   },
   "lint-staged": {
     "*.ts": [

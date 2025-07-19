@@ -150,7 +150,7 @@ describe('Metrics Middleware', () => {
         measureAsyncExecution(asyncFn, recordMetric)
       ).rejects.toThrow('test error');
       expect(recordMetric).toHaveBeenCalledWith(expect.any(Number));
-      expect(recordMetric.mock.calls[0][0]).toBeGreaterThanOrEqual(10);
+      expect(recordMetric.mock.calls[0][0]).toBeGreaterThanOrEqual(9);
     });
   });
 

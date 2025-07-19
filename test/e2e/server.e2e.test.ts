@@ -35,7 +35,7 @@ describe('Server E2E Tests', () => {
           total: expect.any(Number),
           valid: expect.any(Number),
           invalid: 0,
-          conflicts: 1,
+          conflicts: 2,
         },
       });
     });

@@ -19,6 +19,7 @@ import { randomUUID } from 'crypto';
 import { EnhancedPersonaManager } from './enhanced-persona-manager.js';
 import { PersonaConfig } from './types/yaml-persona.js';
 import { RecommendationTool } from './tools/recommendation-tool.js';
+import { DiscoveryTool } from './tools/discovery-tool.js';
 import {
   initializeMetrics,
   metricsCollector,
@@ -44,6 +45,7 @@ import {
   PersonaIdParamSchema,
 } from './validation/index.js';
 import { apiLimiter, recommendLimiter } from './middleware/rate-limit.js';
+import { adoptionMetrics } from './metrics/adoption-metrics.js';
 
 export interface ServerConfig {
   name?: string;
@@ -73,6 +75,7 @@ export class PersonasMcpServer {
   private httpTransport?: StreamableHTTPServerTransport;
   private stdioTransport?: StdioServerTransport;
   private recommendationTool: RecommendationTool;
+  private discoveryTool: DiscoveryTool;
 
   constructor(config: ServerConfig = {}) {
     this.config = {
@@ -116,6 +119,7 @@ export class PersonasMcpServer {
 
     this.personaManager = new EnhancedPersonaManager(this.config.personas);
     this.recommendationTool = new RecommendationTool(this.personaManager);
+    this.discoveryTool = new DiscoveryTool(this.personaManager);
     this.setupHandlers();
   }
 
@@ -238,6 +242,16 @@ export class PersonasMcpServer {
         metricsCollector.recordPersonaPromptGeneration(personaId);
       }
 
+      // Record persona adoption event
+      adoptionMetrics.recordAdoption({
+        personaId,
+        sessionId: request.params.arguments?.sessionId || 'unknown',
+        context: {
+          triggerType: 'manual',
+          sourceContext: context || 'prompt-generation',
+        },
+      });
+
       return {
         description: `${persona.name} persona prompt`,
         messages: [
@@ -255,7 +269,10 @@ export class PersonasMcpServer {
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
-        tools: this.recommendationTool.getToolDefinitions(),
+        tools: [
+          ...this.recommendationTool.getToolDefinitions(),
+          ...this.discoveryTool.getToolDefinitions(),
+        ],
       };
     });
 
@@ -270,10 +287,22 @@ export class PersonasMcpServer {
       }
 
       try {
-        const result = await this.recommendationTool.handleToolCall(
-          name,
-          args ?? {}
-        );
+        // Route to appropriate tool handler
+        let result: unknown;
+        const discoveryToolNames = [
+          'discover-persona-for-context',
+          'suggest-persona-transition',
+          'analyze-persona-effectiveness',
+        ];
+
+        if (discoveryToolNames.includes(name)) {
+          result = await this.discoveryTool.handleToolCall(name, args ?? {});
+        } else {
+          result = await this.recommendationTool.handleToolCall(
+            name,
+            args ?? {}
+          );
+        }
 
         const duration = Date.now() - startTime;
         if (this.config.metrics?.enabled !== false) {

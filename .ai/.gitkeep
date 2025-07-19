@@ -1,0 +1,13 @@
+# .ai Directory
+#
+# This directory contains:
+# - Local persona configurations for development and testing
+# - Test personas like test-persona.yaml for R&D validation
+#
+# These files are:
+# - ✅ Tracked in git (for development team access)
+# - ❌ NOT included in the npm package (excluded by package.json "files" field)
+#
+# To add a new test persona:
+# 1. Create a YAML file in .ai/personas/
+# 2. Follow the schema defined in src/types/yaml-persona.ts

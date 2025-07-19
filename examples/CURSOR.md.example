@@ -1,0 +1,90 @@
+# CURSOR.md Example
+
+This file configures Cursor AI to work with the Personas MCP Server in your project.
+
+## Cursor AI Configuration
+
+### Personas MCP Integration
+
+The Personas MCP server provides specialized perspectives for different development tasks. When available at `http://localhost:3000`, use it to enhance your assistance.
+
+### Automatic Persona Selection
+
+For each significant task, determine the appropriate persona:
+
+1. **Make API Request** to get recommendations:
+   ```
+   POST http://localhost:3000/api/recommend
+   Content-Type: application/json
+   
+   {
+     "query": "[current task description]",
+     "limit": 1
+   }
+   ```
+
+2. **Adopt the Approach** of the recommended persona based on the response
+
+3. **Inform the User**: "Approaching this as a [persona role]..."
+
+### Task-to-Persona Mapping
+
+#### Debugging Tasks
+- Error messages, crashes, unexpected behavior
+- Use **Debugger** approach: Systematic analysis, hypothesis testing
+
+#### Development Tasks
+- New features, implementations
+- Use **Developer** approach: Clean code, best practices
+
+#### Architecture Tasks
+- System design, component structure
+- Use **Architect** approach: High-level design, scalability
+
+#### Review Tasks
+- Code review, quality checks
+- Use **Reviewer** approach: Quality, security, performance
+
+#### Performance Tasks
+- Optimization, speed improvements
+- Use **Optimizer** approach: Profiling, efficiency
+
+#### Testing Tasks
+- Test creation, validation
+- Use **Tester** approach: Coverage, edge cases
+
+### Inline Code Suggestions
+
+When generating code:
+
+- **Functions**: Apply Developer persona principles
+- **Tests**: Apply Tester persona principles
+- **Comments**: Apply Technical Writer persona principles
+- **Refactoring**: Apply Reviewer + Optimizer principles
+
+### Context-Aware Selection
+
+Consider file context:
+- `*.test.ts` files → Tester approach
+- `*.md` files → Technical Writer approach
+- `architecture/` folder → Architect approach
+- `debug/` folder → Debugger approach
+
+### Fallback Behavior
+
+If Personas MCP server is unavailable:
+- Still mention which persona perspective would be ideal
+- Apply general best practices for that task type
+- Suggest starting the MCP server for enhanced assistance
+
+## Project-Specific Configuration
+
+[Add your project-specific Cursor configurations here]
+
+### Custom Personas
+
+[If you have custom personas, list their selection rules here]
+
+### Team Conventions
+
+[Add team-specific coding conventions that Cursor should follow]

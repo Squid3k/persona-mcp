@@ -569,15 +569,14 @@ describe('PersonasMcpServer', () => {
       const handler = handlers[5]; // Sixth handler is ListToolsRequest
       const result = await handler({ params: {} });
 
-      expect(result).toEqual({
-        tools: [
-          {
-            name: 'recommend-persona',
-            description: 'Recommend a persona',
-            inputSchema: {},
-          },
-        ],
-      });
+      expect(result).toHaveProperty('tools');
+      expect(Array.isArray(result.tools)).toBe(true);
+      expect(result.tools.length).toBeGreaterThan(0);
+
+      // Check that we have both recommendation and discovery tools
+      const toolNames = result.tools.map((t: any) => t.name);
+      expect(toolNames).toContain('recommend-persona');
+      expect(toolNames).toContain('discover-persona-for-context');
     });
 
     it('should handle CallToolRequest successfully', async () => {

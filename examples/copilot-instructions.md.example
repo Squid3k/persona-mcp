@@ -1,0 +1,177 @@
+# GitHub Copilot Instructions Example
+
+This file configures GitHub Copilot to generate code with awareness of different development personas.
+
+## Persona-Aware Code Generation
+
+When generating code suggestions, apply principles from specialized personas based on the context:
+
+### Code Implementation
+
+Apply **Developer** persona principles:
+- Write clean, maintainable code
+- Use descriptive variable and function names
+- Follow SOLID principles
+- Include proper error handling
+- Avoid premature optimization
+
+Example:
+```typescript
+// Good: Clear, maintainable
+async function fetchUserData(userId: string): Promise<User> {
+  try {
+    const response = await api.get(`/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    throw new UserNotFoundError(`User ${userId} not found`);
+  }
+}
+```
+
+### Test Generation
+
+Apply **Tester** persona principles:
+- Test both happy and unhappy paths
+- Include edge cases
+- Use descriptive test names
+- Aim for comprehensive coverage
+
+Example:
+```typescript
+describe('fetchUserData', () => {
+  it('should return user data for valid user ID', async () => {
+    // Happy path test
+  });
+  
+  it('should throw UserNotFoundError for invalid user ID', async () => {
+    // Error case test
+  });
+  
+  it('should handle network timeouts gracefully', async () => {
+    // Edge case test
+  });
+});
+```
+
+### Code Comments and Documentation
+
+Apply **Technical Writer** persona principles:
+- Focus on "why" not "what"
+- Keep comments concise and valuable
+- Use JSDoc for public APIs
+- Include usage examples
+
+Example:
+```typescript
+/**
+ * Validates user permissions for resource access.
+ * 
+ * @param user - The user requesting access
+ * @param resource - The resource being accessed
+ * @returns true if user has permission
+ * 
+ * @example
+ * const canAccess = checkPermissions(currentUser, document);
+ * if (!canAccess) throw new ForbiddenError();
+ */
+function checkPermissions(user: User, resource: Resource): boolean {
+  // Check ownership first for performance
+  if (resource.ownerId === user.id) return true;
+  
+  // Fall back to role-based checks
+  return user.roles.some(role => resource.allowedRoles.includes(role));
+}
+```
+
+### Security-Sensitive Code
+
+Apply **Security Analyst** persona principles:
+- Never expose sensitive data
+- Validate all inputs
+- Use secure defaults
+- Follow OWASP guidelines
+
+Example:
+```typescript
+// Secure password handling
+async function updatePassword(userId: string, newPassword: string) {
+  // Validate password strength
+  if (!isStrongPassword(newPassword)) {
+    throw new WeakPasswordError();
+  }
+  
+  // Hash with appropriate algorithm
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+  
+  // Store only the hash
+  await db.users.update(userId, { passwordHash: hashedPassword });
+  
+  // Never log passwords
+  logger.info(`Password updated for user ${userId}`);
+}
+```
+
+### Performance-Critical Code
+
+Apply **Optimizer** persona principles:
+- Consider algorithmic complexity
+- Minimize resource usage
+- Cache when appropriate
+- Profile before optimizing
+
+Example:
+```typescript
+// Optimized batch processing
+async function processBatch<T>(
+  items: T[],
+  processor: (item: T) => Promise<void>,
+  concurrency = 10
+): Promise<void> {
+  // Process in controlled batches to avoid overwhelming resources
+  for (let i = 0; i < items.length; i += concurrency) {
+    const batch = items.slice(i, i + concurrency);
+    await Promise.all(batch.map(processor));
+  }
+}
+```
+
+### Code Review Suggestions
+
+Apply **Reviewer** persona principles:
+- Suggest improvements for readability
+- Identify potential bugs
+- Recommend better patterns
+- Check for security issues
+
+## Context-Specific Behavior
+
+### File Type Awareness
+
+- `*.test.*` files → Emphasize Tester principles
+- `*.md` files → Emphasize Technical Writer principles
+- `*Controller.*` files → Emphasize Security Analyst principles
+- `*Service.*` files → Balance Developer and Architect principles
+- `*Utils.*` files → Emphasize Optimizer principles
+
+### Project Structure Awareness
+
+- `/docs` folder → Technical Writer focus
+- `/tests` folder → Tester focus
+- `/security` folder → Security Analyst focus
+- `/performance` folder → Optimizer focus
+
+## Team-Specific Guidelines
+
+[Add your team's specific coding standards here]
+
+### Naming Conventions
+
+[Add your naming convention preferences]
+
+### Pattern Preferences
+
+[Add preferred design patterns for your project]
+
+### Technology Stack
+
+[List your tech stack to help Copilot generate appropriate code]

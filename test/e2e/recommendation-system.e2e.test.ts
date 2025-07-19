@@ -41,13 +41,14 @@ describe('Recommendation System E2E', () => {
 
     it('should provide tool definitions', () => {
       const tools = recommendationTool.getToolDefinitions();
-      expect(tools).toHaveLength(4);
+      expect(tools).toHaveLength(5);
 
       const toolNames = tools.map(t => t.name);
       expect(toolNames).toContain('recommend-persona');
       expect(toolNames).toContain('explain-persona-fit');
       expect(toolNames).toContain('compare-personas');
       expect(toolNames).toContain('get-recommendation-stats');
+      expect(toolNames).toContain('get-adoption-metrics');
     });
 
     it('should recommend personas for architecture tasks', async () => {
@@ -198,7 +199,7 @@ describe('Recommendation System E2E', () => {
       )) as any;
 
       expect(result.success).toBe(true);
-      expect(result.data.totalPersonas).toBe(13);
+      expect(result.data.totalPersonas).toBe(14);
       expect(result.data.availableRoles).toEqual(
         expect.arrayContaining([
           'architect',

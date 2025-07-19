@@ -131,6 +131,31 @@ curl -X POST http://localhost:3000/api/recommend \
 
 See more [examples](./examples/) for different programming languages.
 
+## Configuring AI Assistants for Automatic Persona Selection
+
+To enable your AI assistant to automatically select and adopt the most appropriate persona for each task, add instructions to your assistant's configuration file:
+
+### For Claude (CLAUDE.md)
+
+```
+When the Personas MCP server is available, automatically select and adopt the most appropriate persona for each task by:
+1. Analyzing the user's request to identify the type of task (debugging, architecture, implementation, etc.)
+2. Using the @recommend-persona tool to get persona recommendations
+3. Adopting the highest-scoring persona for the task
+4. Informing the user which persona was selected and why
+
+Example: If a user asks about debugging a memory leak, automatically adopt the debugger persona.
+```
+
+### For Other AI Assistants
+
+Similar instructions can be added to:
+- `CURSOR.md` for Cursor
+- `.github/copilot-instructions.md` for GitHub Copilot
+- Project-specific AI configuration files
+
+See our **[AI Assistant Configuration Guide](./docs/books/ai-assistant-configuration.md)** for detailed examples.
+
 ## Contributing
 
 We welcome contributions! Please see our **[Contributing Guide](./CONTRIBUTING.md)** for details on:

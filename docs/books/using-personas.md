@@ -255,6 +255,53 @@ Can you first analyze this as an architect, then provide the developer's perspec
 As a technical writer, can you explain how OAuth works in simple terms?
 ```
 
+## Automatic Persona Selection
+
+### Configuring Your AI Assistant
+
+You can configure your AI assistant to automatically select appropriate personas by adding instructions to your project's AI configuration files:
+
+1. **CLAUDE.md** - For Claude/Claude Code
+2. **CURSOR.md** - For Cursor IDE
+3. **.github/copilot-instructions.md** - For GitHub Copilot
+
+Example instruction:
+
+```
+When working on tasks in this project, automatically use the Personas MCP server to:
+1. Analyze the task type
+2. Get persona recommendations using @recommend-persona
+3. Adopt the most suitable persona
+4. Explain the selection to the user
+```
+
+### Benefits of Automatic Selection
+
+- **Seamless Experience**: No need to manually request personas
+- **Optimal Expertise**: Always get the right perspective
+- **Consistent Approach**: Same persona selection logic across team
+- **Time Saving**: Skip the decision-making process
+
+### How It Works
+
+When configured, your AI assistant will:
+
+1. **Analyze** your request to identify the task type
+2. **Query** the recommendation system for the best persona
+3. **Adopt** the highest-scoring persona automatically
+4. **Inform** you which persona was selected and why
+5. **Proceed** with the task from that perspective
+
+### Example Automatic Selections
+
+- "Why is my app crashing?" → Debugger persona
+- "Design a REST API" → Architect persona
+- "Review this code" → Reviewer persona
+- "Write tests for this" → Tester persona
+- "Optimize this query" → Performance Analyst persona
+
+For detailed configuration instructions, see the [AI Assistant Configuration Guide](./ai-assistant-configuration.md).
+
 ## Advanced Usage
 
 ### Chaining Personas

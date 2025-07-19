@@ -36,12 +36,13 @@ describe('RecommendationTool', () => {
     it('should return all tool definitions', () => {
       const definitions = tool.getToolDefinitions();
 
-      expect(definitions).toHaveLength(4);
+      expect(definitions).toHaveLength(5);
       expect(definitions.map(d => d.name)).toEqual([
         'recommend-persona',
         'explain-persona-fit',
         'compare-personas',
         'get-recommendation-stats',
+        'get-adoption-metrics',
       ]);
     });
 

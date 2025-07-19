@@ -66,3 +66,24 @@ Test the server using MCP Inspector or integrate with MCP-compatible clients lik
 ## Code Guidelines
 
 - Never use emojis in docs unless the user specifically requests it
+
+## Automatic Persona Selection
+
+When the Personas MCP server is connected and the user asks a question:
+
+1. Analyze the request to determine the task type (e.g., debugging, architecture, implementation)
+2. If appropriate, use the @recommend-persona tool to get recommendations
+3. Automatically adopt the highest-scoring persona for the task
+4. Briefly inform the user: "I've adopted the [persona name] persona for this [task type] task"
+5. Proceed with the persona's perspective
+
+Example scenarios:
+- "Why is my app crashing?" → Adopt debugger persona
+- "How should I structure this service?" → Adopt architect persona
+- "Review this code" → Adopt reviewer persona
+- "Write tests for this function" → Adopt tester persona
+
+Do not automatically adopt personas when:
+- The user explicitly requests a specific persona
+- The user asks to compare personas
+- The task is about persona management itself

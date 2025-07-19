@@ -107,6 +107,17 @@ Personas influence:
 - **Communication**: Level of detail and terminology
 - **Recommendations**: Types of solutions suggested
 
+### Can personas be selected automatically?
+
+Yes! You can configure your AI assistant to automatically select appropriate personas by adding instructions to configuration files like `CLAUDE.md`, `CURSOR.md`, or `.github/copilot-instructions.md`. This enables the AI to:
+
+1. Analyze your request
+2. Get persona recommendations
+3. Automatically adopt the best-fit persona
+4. Explain its choice
+
+See the [AI Assistant Configuration Guide](./books/ai-assistant-configuration.md) for setup instructions.
+
 ## Troubleshooting
 
 ### "Connection refused" error

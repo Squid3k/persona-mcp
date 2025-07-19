@@ -34,8 +34,8 @@ describe('CLI Functions', () => {
     it('should print the version', () => {
       printVersion();
 
-      expect(mockError).toHaveBeenCalledWith(VERSION);
-      expect(mockError).toHaveBeenCalledTimes(1);
+      expect(mockLog).toHaveBeenCalledWith(VERSION);
+      expect(mockLog).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -43,18 +43,17 @@ describe('CLI Functions', () => {
     it('should print help text', () => {
       printHelp();
 
-      expect(mockError).toHaveBeenCalledTimes(1);
-      const helpText = mockError.mock.calls[0][0];
-      expect(helpText).toContain('Personas MCP Server');
-      expect(helpText).toContain('USAGE:');
-      expect(helpText).toContain('OPTIONS:');
+      expect(mockLog).toHaveBeenCalledTimes(1);
+      const helpText = mockLog.mock.calls[0][0];
+      expect(helpText).toContain('Usage: personas-mcp [options]');
+      expect(helpText).toContain('Options:');
       expect(helpText).toContain('--port');
       expect(helpText).toContain('--host');
       expect(helpText).toContain('--no-cors');
       expect(helpText).toContain('--version');
       expect(helpText).toContain('--help');
-      expect(helpText).toContain('EXAMPLES:');
-      expect(helpText).toContain('PERSONA DIRECTORIES:');
+      expect(helpText).toContain('Examples:');
+      expect(helpText).toContain('Persona Directories:');
     });
   });
 

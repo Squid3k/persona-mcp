@@ -17,6 +17,9 @@ export abstract class BaseError extends Error {
     this.statusCode = statusCode;
     this.isOperational = isOperational;
 
+    // Set the name property to the constructor name
+    this.name = this.constructor.name;
+
     // Maintains proper stack trace for where our error was thrown
     Error.captureStackTrace(this, this.constructor);
 

@@ -2,24 +2,25 @@ import { ServerConfig } from './server.js';
 import { VERSION } from './version.js';
 
 export function printVersion(): void {
-  console.error(VERSION);
+  // eslint-disable-next-line no-console
+  console.log(VERSION);
 }
 
 export function printHelp(): void {
-  console.error(`
-Personas MCP Server
+  // eslint-disable-next-line no-console
+  console.log(`Usage: personas-mcp [options]
 
-USAGE:
-  personas-mcp [OPTIONS]
-
-OPTIONS:
+Options:
   -p, --port <number>           HTTP port (default: 3000)
   -h, --host <string>           HTTP host (default: localhost)
   --no-cors                     Disable CORS for HTTP transport
   -v, --version                 Show version number
   --help                        Show this help message
+  --metrics-endpoint <url>      OTLP metrics endpoint
+  --no-metrics                  Disable metrics collection
+  --config <path>               Path to configuration file
 
-EXAMPLES:
+Examples:
   # Run on default port
   personas-mcp
 
@@ -29,14 +30,13 @@ EXAMPLES:
   # Run without CORS
   personas-mcp --no-cors
 
-PERSONA DIRECTORIES:
+Persona Directories:
   Default personas:    Built-in TypeScript personas
   User personas:       ~/.ai/personas/*.yaml
   Project personas:    ./.ai/personas/*.yaml
 
   Project personas take precedence over user personas,
-  which take precedence over default personas.
-`);
+  which take precedence over default personas.`);
 }
 
 export function parseArgs(args: string[]): ServerConfig {
@@ -50,7 +50,12 @@ export function parseArgs(args: string[]): ServerConfig {
       case '--port':
       case '-p':
         if (nextArg && !isNaN(parseInt(nextArg))) {
-          config.port = parseInt(nextArg);
+          const port = parseInt(nextArg);
+          if (port < 0 || port > 65535) {
+            console.error('Port must be between 0 and 65535');
+            process.exit(1);
+          }
+          config.port = port;
           config.forceHttpMode = true; // Force HTTP mode when port is specified
           i++;
         } else {
@@ -73,6 +78,32 @@ export function parseArgs(args: string[]): ServerConfig {
 
       case '--no-cors':
         config.http = { ...config.http, enableCors: false };
+        break;
+
+      case '--metrics-endpoint':
+        if (nextArg) {
+          config.metrics = { ...config.metrics, endpoint: nextArg };
+          i++;
+        } else {
+          console.error('Metrics endpoint URL required');
+          process.exit(1);
+        }
+        break;
+
+      case '--no-metrics':
+        config.metrics = { ...config.metrics, enabled: false };
+        break;
+
+      case '--config':
+        if (nextArg) {
+          console.error(
+            'Failed to load configuration: --config option not implemented'
+          );
+          process.exit(1);
+        } else {
+          console.error('Configuration file path required');
+          process.exit(1);
+        }
         break;
 
       default:

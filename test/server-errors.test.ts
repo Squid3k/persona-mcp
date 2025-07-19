@@ -8,6 +8,7 @@ import {
   ValidationError,
   errorHandler,
 } from '../src/errors/index.js';
+import { ReadResourceRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
 describe('Server Error Handling', () => {
   let app: express.Application;
@@ -145,7 +146,6 @@ describe('Server Error Handling', () => {
       serverInstance['setupHandlers']();
 
       // Get the ReadResource handler
-      const ReadResourceRequestSchema = { parse: (v: any) => v };
       const handler = handlers.get(ReadResourceRequestSchema);
 
       // Test invalid URI

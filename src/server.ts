@@ -32,6 +32,7 @@ import {
   InvalidPersonaURIError,
   InvalidPromptNameError,
   TransportNotInitializedError,
+  ServerInitializationError,
   ServerShutdownError,
   errorHandler,
 } from './errors/index.js';
@@ -685,9 +686,7 @@ export class PersonasMcpServer {
 
     return new Promise<void>((resolve, reject) => {
       if (!this.httpServer) {
-        reject(
-          new ServerShutdownError('HTTP server', new Error('Not initialized'))
-        );
+        reject(new ServerInitializationError('HTTP server not initialized'));
         return;
       }
 
@@ -699,9 +698,7 @@ export class PersonasMcpServer {
       });
 
       if (!this.httpServer) {
-        reject(
-          new ServerShutdownError('HTTP server', new Error('Not initialized'))
-        );
+        reject(new ServerInitializationError('HTTP server not initialized'));
         return;
       }
 

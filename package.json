@@ -1,6 +1,6 @@
 {
   "name": "personas-mcp",
-  "version": "0.2.0-alpha",
+  "version": "0.2.0",
   "description": "MCP server providing prompt personas for LLM problem-solving assistance",
   "main": "dist/index.js",
   "type": "module",

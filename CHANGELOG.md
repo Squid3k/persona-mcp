@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-01-19
+
+### Added
+
+- **Automated Version Management**
+  - New `scripts/update-version.cjs` for automatic version synchronization
+  - npm scripts `version:update` and `version:sync` for version management
+  - Automatic sync between package.json and src/version.ts
+
+### Changed
+
+- **Release Process Improvements**
+  - Enhanced release documentation with clearer version update instructions
+  - Added version consistency verification step
+  - Improved troubleshooting section for version mismatch issues
+  - Removed brittle hardcoded version tests in favor of format validation
+
+### Fixed
+
+- Version mismatch issues between package.json and src/version.ts
+- CI failures after releases due to version inconsistencies
+- Brittle test expectations that were testing specific version values
+
 ## [0.2.0] - 2025-01-19
 
 ### Added

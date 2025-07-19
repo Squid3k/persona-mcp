@@ -7,25 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-01-19
+
 ### Added
 
-- Comprehensive documentation suite including:
+- **🚀 Context-Aware Persona Discovery System**
+  - New `discover-persona-for-context` MCP tool for intelligent persona suggestions
+  - Smart auto-discovery based on conversation history, file patterns, and error messages
+  - Proactive recommendations that analyze current work context
+  - File pattern matching for automatic persona detection
+- **📊 Advanced Metrics & Analytics**
+  - New `get-adoption-metrics` MCP tool for persona usage analytics
+  - Comprehensive adoption tracking with EventEmitter-based system
+  - Success rate monitoring and trending analysis
+  - Test persona validation signals for R&D purposes
+- **🧠 Enhanced Persona Intelligence**
+  - New `suggest-persona-transition` MCP tool for workflow optimization
+  - New `analyze-persona-effectiveness` MCP tool for performance analytics
+  - Enhanced persona metadata system with adoption triggers and incentives
+  - Intelligent persona sequencing and transition recommendations
+  - Attractiveness cues and authority signals for better persona selection
+- **📚 Comprehensive Documentation Suite**
   - Quick Start Guide for 5-minute setup
   - Persona Creation Guide with complete YAML schema
   - Integration examples (JavaScript, Python, curl)
-  - Contributing guidelines
-  - FAQ section
-- Example client implementations in multiple languages
-- Project-level persona support (`./.ai/personas/*.yaml`)
+  - Contributing guidelines and FAQ section
+  - Example client implementations in multiple languages
+- **🔧 Technical Infrastructure**
+  - Project-level persona support (`./.ai/personas/*.yaml`)
+  - Enhanced error handling and validation throughout the system
+  - Comprehensive test coverage with E2E testing
+  - Strict TypeScript checking with pre-commit hooks
+  - Rate limiting and API validation for REST endpoints
 
 ### Changed
 
 - Enhanced README with better structure and navigation
 - Improved documentation organization in `docs/` directory
+- Better error handling across all MCP operations
+- Upgraded to strict TypeScript checking for better code quality
+- Improved CI/CD pipeline with comprehensive testing
 
 ### Fixed
 
 - Documentation gaps and missing setup instructions
+- CI test environment compatibility issues
+- TypeScript type assertion corrections in metrics middleware
+- Test timing race conditions in CI environments
+- Pre-commit hook integration and formatting consistency
 
 ## [0.2.0-alpha] - 2024-01-18
 

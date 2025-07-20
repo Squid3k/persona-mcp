@@ -26,6 +26,15 @@ describe('CLI Error Path Tests', () => {
     mockConsoleError.mockRestore();
     mockProcessExit.mockRestore();
     vi.clearAllMocks();
+
+    // Clean up environment variables
+    delete process.env.METRICS_HEADERS;
+    delete process.env.METRICS_ENABLED;
+    delete process.env.METRICS_ENDPOINT;
+    delete process.env.METRICS_INTERVAL;
+    delete process.env.PORT;
+    delete process.env.HOST;
+    delete process.env.CORS_ALLOWED_ORIGINS;
   });
 
   describe('Configuration Errors', () => {
@@ -35,9 +44,17 @@ describe('CLI Error Path Tests', () => {
 
       const { parseArgs } = await import('../../src/cli-functions.js');
 
-      expect(() => parseArgs([])).toThrow();
+      const result = parseArgs([]);
 
-      delete process.env.METRICS_HEADERS;
+      // parseArgs doesn't throw, it logs errors and continues
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Warning: Invalid JSON in METRICS_HEADERS environment variable:',
+        expect.any(Error)
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'METRICS_HEADERS will be ignored. Expected format: \'{"key": "value"}\''
+      );
+      expect(result.metrics?.headers).toBeUndefined();
     });
 
     it('should handle invalid port values', async () => {

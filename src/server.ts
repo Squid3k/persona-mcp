@@ -65,10 +65,10 @@ import { apiLimiter, recommendLimiter } from './middleware/rate-limit.js';
 import { adoptionMetrics } from './metrics/adoption-metrics.js';
 import { CorsSecurity } from './utils/cors-security.js';
 import { ErrorSanitizer } from './utils/error-sanitizer.js';
-import { 
-  getMcpRateLimiter, 
+import {
+  getMcpRateLimiter,
   extractMcpClientId,
-  mcpRateLimiters 
+  mcpRateLimiters,
 } from './middleware/mcp-rate-limit.js';
 
 export interface ServerConfig {
@@ -96,6 +96,7 @@ export class PersonasMcpServer {
   private personaManager: EnhancedPersonaManager;
   private config: ServerConfig;
   private httpServer?: ReturnType<typeof createServer>;
+  private expressApp?: express.Application;
   private httpTransport?: StreamableHTTPServerTransport;
   private stdioTransport?: StdioServerTransport;
   private recommendationTool: RecommendationTool;
@@ -151,16 +152,25 @@ export class PersonasMcpServer {
    * Wrap an MCP handler with rate limiting
    */
   private wrapWithRateLimit<TRequest, TResult>(
-    handler: (request: TRequest, extra: RequestHandlerExtra<Request, Notification>) => TResult | Promise<TResult>,
+    handler: (
+      request: TRequest,
+      extra: RequestHandlerExtra<Request, Notification>
+    ) => TResult | Promise<TResult>,
     method: string
-  ): (request: TRequest, extra: RequestHandlerExtra<Request, Notification>) => Promise<TResult> {
-    return async (request: TRequest, extra: RequestHandlerExtra<Request, Notification>): Promise<TResult> => {
+  ): (
+    request: TRequest,
+    extra: RequestHandlerExtra<Request, Notification>
+  ) => Promise<TResult> {
+    return async (
+      request: TRequest,
+      extra: RequestHandlerExtra<Request, Notification>
+    ): Promise<TResult> => {
       // Get appropriate rate limiter
       const limiter = getMcpRateLimiter(method);
-      
+
       // Extract client identifier
       const clientId = extractMcpClientId(request);
-      
+
       // Check rate limit
       try {
         limiter.checkLimit(clientId);
@@ -171,7 +181,7 @@ export class PersonasMcpServer {
         }
         throw error;
       }
-      
+
       // Execute the handler
       return handler(request, extra);
     };
@@ -180,33 +190,40 @@ export class PersonasMcpServer {
   private setupHandlers() {
     // List available resources (personas)
     this.server.setRequestHandler(
-      ListResourcesRequestSchema, 
-      this.wrapWithRateLimit<ListResourcesRequest, ListResourcesResult>(async (_request, _extra) => {
-      return measureAsyncExecution(
-        async () => {
-          const personas = this.personaManager.getAllPersonas();
-          return {
-            resources: personas.map(persona => ({
-              uri: `persona://${persona.id}`,
-              name: persona.name,
-              description: persona.core.identity,
-              mimeType: 'application/json',
-            })),
-          };
+      ListResourcesRequestSchema,
+      this.wrapWithRateLimit<ListResourcesRequest, ListResourcesResult>(
+        async (_request, _extra) => {
+          return measureAsyncExecution(
+            async () => {
+              const personas = this.personaManager.getAllPersonas();
+              return {
+                resources: personas.map(persona => ({
+                  uri: `persona://${persona.id}`,
+                  name: persona.name,
+                  description: persona.core.identity,
+                  mimeType: 'application/json',
+                })),
+              };
+            },
+            duration =>
+              metricsCollector.recordMcpRequest(
+                'ListResources',
+                'success',
+                duration
+              )
+          );
         },
-        duration =>
-          metricsCollector.recordMcpRequest(
-            'ListResources',
-            'success',
-            duration
-          )
-      );
-    }, 'resources/list'));
+        'resources/list'
+      )
+    );
 
     // List resource templates - stub implementation that returns empty array
     this.server.setRequestHandler(
       ListResourceTemplatesRequestSchema,
-      this.wrapWithRateLimit<ListResourceTemplatesRequest, ListResourceTemplatesResult>(async (_request, _extra) => {
+      this.wrapWithRateLimit<
+        ListResourceTemplatesRequest,
+        ListResourceTemplatesResult
+      >(async (_request, _extra) => {
         // Currently no resource templates are supported
         // This stub prevents errors when clients query for templates
         return {
@@ -217,202 +234,237 @@ export class PersonasMcpServer {
 
     // Read a specific persona resource
     this.server.setRequestHandler(
-      ReadResourceRequestSchema, 
-      this.wrapWithRateLimit<ReadResourceRequest, ReadResourceResult>(async (request, _extra) => {
-      const startTime = Date.now();
-      try {
-        const uri = request.params.uri;
-        const match = uri.match(/^persona:\/\/(.+)$/);
+      ReadResourceRequestSchema,
+      this.wrapWithRateLimit<ReadResourceRequest, ReadResourceResult>(
+        async (request, _extra) => {
+          const startTime = Date.now();
+          try {
+            const uri = request.params.uri;
+            const match = uri.match(/^persona:\/\/(.+)$/);
 
-        if (!match) {
-          throw new InvalidPersonaURIError(uri);
-        }
+            if (!match) {
+              throw new InvalidPersonaURIError(uri);
+            }
 
-        const personaId = match[1];
-        const persona = this.personaManager.getPersona(personaId);
+            const personaId = match[1];
+            const persona = this.personaManager.getPersona(personaId);
 
-        if (!persona) {
-          throw new PersonaNotFoundError(personaId);
-        }
+            if (!persona) {
+              throw new PersonaNotFoundError(personaId);
+            }
 
-        // Record persona request metric
-        metricsCollector.recordPersonaRequest(personaId);
+            // Record persona request metric
+            metricsCollector.recordPersonaRequest(personaId);
 
-        const result = {
-          contents: [
-            {
-              uri,
-              mimeType: 'application/json',
-              text: JSON.stringify(persona, null, 2),
-            },
-          ],
-        };
+            const result = {
+              contents: [
+                {
+                  uri,
+                  mimeType: 'application/json',
+                  text: JSON.stringify(persona, null, 2),
+                },
+              ],
+            };
 
-        const duration = Date.now() - startTime;
-        metricsCollector.recordMcpRequest('ReadResource', 'success', duration);
-        return result;
-      } catch (error) {
-        const duration = Date.now() - startTime;
-        metricsCollector.recordMcpRequest('ReadResource', 'error', duration);
-        throw error;
-      }
-    }, 'resources/read'));
+            const duration = Date.now() - startTime;
+            metricsCollector.recordMcpRequest(
+              'ReadResource',
+              'success',
+              duration
+            );
+            return result;
+          } catch (error) {
+            const duration = Date.now() - startTime;
+            metricsCollector.recordMcpRequest(
+              'ReadResource',
+              'error',
+              duration
+            );
+            throw error;
+          }
+        },
+        'resources/read'
+      )
+    );
 
     // List available prompts
     this.server.setRequestHandler(
-      ListPromptsRequestSchema, 
-      this.wrapWithRateLimit<ListPromptsRequest, ListPromptsResult>(async (_request, _extra) => {
-      const personas = this.personaManager.getAllPersonas();
-      return {
-        prompts: personas.map(persona => ({
-          name: `adopt-persona-${persona.id}`,
-          description: `Adopt the ${persona.name} persona for ${persona.role} tasks`,
-          arguments: [
-            {
-              name: 'context',
-              description: 'The specific problem or task context',
-              required: false,
-            },
-          ],
-        })),
-      };
-    }, 'prompts/list'));
+      ListPromptsRequestSchema,
+      this.wrapWithRateLimit<ListPromptsRequest, ListPromptsResult>(
+        async (_request, _extra) => {
+          const personas = this.personaManager.getAllPersonas();
+          return {
+            prompts: personas.map(persona => ({
+              name: `adopt-persona-${persona.id}`,
+              description: `Adopt the ${persona.name} persona for ${persona.role} tasks`,
+              arguments: [
+                {
+                  name: 'context',
+                  description: 'The specific problem or task context',
+                  required: false,
+                },
+              ],
+            })),
+          };
+        },
+        'prompts/list'
+      )
+    );
 
     // Get a specific prompt
     this.server.setRequestHandler(
-      GetPromptRequestSchema, 
-      this.wrapWithRateLimit<GetPromptRequest, GetPromptResult>(async (request, _extra) => {
-      const promptName = request.params.name;
-      const match = promptName.match(/^adopt-persona-(.+)$/);
+      GetPromptRequestSchema,
+      this.wrapWithRateLimit<GetPromptRequest, GetPromptResult>(
+        async (request, _extra) => {
+          const promptName = request.params.name;
+          const match = promptName.match(/^adopt-persona-(.+)$/);
 
-      if (!match) {
-        throw new InvalidPromptNameError(promptName);
-      }
+          if (!match) {
+            throw new InvalidPromptNameError(promptName);
+          }
 
-      const personaId = match[1];
-      const persona = this.personaManager.getPersona(personaId);
+          const personaId = match[1];
+          const persona = this.personaManager.getPersona(personaId);
 
-      if (!persona) {
-        throw new PersonaNotFoundError(personaId);
-      }
+          if (!persona) {
+            throw new PersonaNotFoundError(personaId);
+          }
 
-      const context = request.params.arguments?.context || '';
-      const prompt = this.personaManager.generatePrompt(persona, context);
+          const context = request.params.arguments?.context || '';
+          const prompt = this.personaManager.generatePrompt(persona, context);
 
-      // Record prompt generation metric
-      if (this.config.metrics?.enabled !== false) {
-        metricsCollector.recordPersonaPromptGeneration(personaId);
-      }
+          // Record prompt generation metric
+          if (this.config.metrics?.enabled !== false) {
+            metricsCollector.recordPersonaPromptGeneration(personaId);
+          }
 
-      // Record persona adoption event
-      adoptionMetrics.recordAdoption({
-        personaId,
-        sessionId: request.params.arguments?.sessionId || 'unknown',
-        context: {
-          triggerType: 'manual',
-          sourceContext: context || 'prompt-generation',
-        },
-      });
-
-      return {
-        description: `${persona.name} persona prompt`,
-        messages: [
-          {
-            role: 'user',
-            content: {
-              type: 'text',
-              text: prompt,
+          // Record persona adoption event
+          adoptionMetrics.recordAdoption({
+            personaId,
+            sessionId: request.params.arguments?.sessionId || 'unknown',
+            context: {
+              triggerType: 'manual',
+              sourceContext: context || 'prompt-generation',
             },
-          },
-        ],
-      };
-    }, 'prompts/get'));
+          });
+
+          return {
+            description: `${persona.name} persona prompt`,
+            messages: [
+              {
+                role: 'user',
+                content: {
+                  type: 'text',
+                  text: prompt,
+                },
+              },
+            ],
+          };
+        },
+        'prompts/get'
+      )
+    );
 
     // List available tools
     this.server.setRequestHandler(
-      ListToolsRequestSchema, 
-      this.wrapWithRateLimit<ListToolsRequest, ListToolsResult>(async (_request, _extra) => {
-      return {
-        tools: [
-          ...this.recommendationTool.getToolDefinitions(),
-          ...this.discoveryTool.getToolDefinitions(),
-        ],
-      };
-    }, 'tools/list'));
+      ListToolsRequestSchema,
+      this.wrapWithRateLimit<ListToolsRequest, ListToolsResult>(
+        async (_request, _extra) => {
+          return {
+            tools: [
+              ...this.recommendationTool.getToolDefinitions(),
+              ...this.discoveryTool.getToolDefinitions(),
+            ],
+          };
+        },
+        'tools/list'
+      )
+    );
 
     // Handle tool calls
     this.server.setRequestHandler(
-      CallToolRequestSchema, 
-      this.wrapWithRateLimit<CallToolRequest, CallToolResult>(async (request, _extra) => {
-      const { name, arguments: args } = request.params;
-      const startTime = Date.now();
+      CallToolRequestSchema,
+      this.wrapWithRateLimit<CallToolRequest, CallToolResult>(
+        async (request, _extra) => {
+          const { name, arguments: args } = request.params;
+          const startTime = Date.now();
 
-      // Record tool invocation
-      if (this.config.metrics?.enabled !== false) {
-        metricsCollector.recordToolInvocation(name);
-      }
+          // Record tool invocation
+          if (this.config.metrics?.enabled !== false) {
+            metricsCollector.recordToolInvocation(name);
+          }
 
-      try {
-        // Route to appropriate tool handler
-        let result: unknown;
-        const discoveryToolNames = [
-          'discover-persona-for-context',
-          'suggest-persona-transition',
-          'analyze-persona-effectiveness',
-        ];
+          try {
+            // Route to appropriate tool handler
+            let result: unknown;
+            const discoveryToolNames = [
+              'discover-persona-for-context',
+              'suggest-persona-transition',
+              'analyze-persona-effectiveness',
+            ];
 
-        if (discoveryToolNames.includes(name)) {
-          result = await this.discoveryTool.handleToolCall(name, args ?? {});
-        } else {
-          result = await this.recommendationTool.handleToolCall(
-            name,
-            args ?? {}
-          );
-        }
+            if (discoveryToolNames.includes(name)) {
+              result = await this.discoveryTool.handleToolCall(
+                name,
+                args ?? {}
+              );
+            } else {
+              result = await this.recommendationTool.handleToolCall(
+                name,
+                args ?? {}
+              );
+            }
 
-        const duration = Date.now() - startTime;
-        if (this.config.metrics?.enabled !== false) {
-          metricsCollector.recordToolExecution(name, duration, true);
-          metricsCollector.recordMcpRequest('CallTool', 'success', duration);
-        }
+            const duration = Date.now() - startTime;
+            if (this.config.metrics?.enabled !== false) {
+              metricsCollector.recordToolExecution(name, duration, true);
+              metricsCollector.recordMcpRequest(
+                'CallTool',
+                'success',
+                duration
+              );
+            }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      } catch (error) {
-        const duration = Date.now() - startTime;
-        if (this.config.metrics?.enabled !== false) {
-          metricsCollector.recordToolExecution(name, duration, false);
-          metricsCollector.recordMcpRequest('CallTool', 'error', duration);
-        }
-
-        // Sanitize error for external exposure
-        const sanitized = ErrorSanitizer.sanitize(error);
-        
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
+            return {
+              content: [
                 {
-                  success: false,
-                  error: sanitized.message,
-                  code: sanitized.code,
+                  type: 'text',
+                  text: JSON.stringify(result, null, 2),
                 },
-                null,
-                2
-              ),
-            },
-          ],
-          isError: true,
-        };
-      }
-    }, 'tools/call'));
+              ],
+            };
+          } catch (error) {
+            const duration = Date.now() - startTime;
+            if (this.config.metrics?.enabled !== false) {
+              metricsCollector.recordToolExecution(name, duration, false);
+              metricsCollector.recordMcpRequest('CallTool', 'error', duration);
+            }
+
+            // Sanitize error for external exposure
+            const sanitized = ErrorSanitizer.sanitize(error);
+
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    {
+                      success: false,
+                      error: sanitized.message,
+                      code: sanitized.code,
+                    },
+                    null,
+                    2
+                  ),
+                },
+              ],
+              isError: true,
+            };
+          }
+        },
+        'tools/call'
+      )
+    );
   }
 
   async initialize(): Promise<void> {
@@ -484,6 +536,7 @@ export class PersonasMcpServer {
 
     // Create Express app
     const app = express();
+    this.expressApp = app;
 
     // Add metrics middleware if metrics are enabled
     if (this.config.metrics?.enabled !== false) {
@@ -497,7 +550,8 @@ export class PersonasMcpServer {
     // JSON parsing will be applied selectively to specific endpoints
 
     // Configure CORS if enabled
-    if (this.config.http?.enableCors !== false) { // Default to enabled
+    if (this.config.http?.enableCors !== false) {
+      // Default to enabled
       try {
         const corsOptions = CorsSecurity.createSecureCorsOptions(
           this.config.http?.allowedOrigins,
@@ -555,7 +609,7 @@ export class PersonasMcpServer {
       } catch (error) {
         // Log full error details
         ErrorSanitizer.logAndSanitize(error, 'MCP POST request');
-        
+
         if (!res.headersSent) {
           const sanitized = ErrorSanitizer.sanitize(error);
           res.status(500).json({
@@ -580,7 +634,7 @@ export class PersonasMcpServer {
       } catch (error) {
         // Log full error details
         ErrorSanitizer.logAndSanitize(error, 'MCP GET request');
-        
+
         if (!res.headersSent) {
           const sanitized = ErrorSanitizer.sanitize(error);
           res.status(sanitized.statusCode || 500).send(sanitized.message);
@@ -795,21 +849,9 @@ export class PersonasMcpServer {
 
     // Start HTTP server
     const host = this.config.host || 'localhost';
-    const port = this.config.port || 3000;
+    const port = this.config.port !== undefined ? this.config.port : 3000;
 
     return new Promise<void>((resolve, reject) => {
-      if (!this.httpServer) {
-        reject(new ServerInitializationError('HTTP server not initialized'));
-        return;
-      }
-
-      this.httpServer.listen(port, host, () => {
-        console.error(`Personas MCP server running on http://${host}:${port}`);
-        console.error(`MCP endpoint: http://${host}:${port}${endpoint}`);
-        console.error(`Health check: http://${host}:${port}/health`);
-        resolve();
-      });
-
       if (!this.httpServer) {
         reject(new ServerInitializationError('HTTP server not initialized'));
         return;
@@ -818,6 +860,28 @@ export class PersonasMcpServer {
       this.httpServer.on('error', error => {
         console.error('HTTP server error:', error);
         reject(error);
+      });
+
+      this.httpServer.listen(port, host, () => {
+        // Get the actual port (important when port 0 is used)
+        if (!this.httpServer) {
+          reject(
+            new ServerInitializationError(
+              'HTTP server became null during listen'
+            )
+          );
+          return;
+        }
+        const address = this.httpServer.address();
+        const actualPort =
+          typeof address === 'object' && address ? address.port : port;
+
+        console.error(
+          `Personas MCP server running on http://${host}:${actualPort}`
+        );
+        console.error(`MCP endpoint: http://${host}:${actualPort}${endpoint}`);
+        console.error(`Health check: http://${host}:${actualPort}/health`);
+        resolve();
       });
     });
   }
@@ -837,6 +901,38 @@ export class PersonasMcpServer {
     }
   }
 
+  /**
+   * Get the HTTP server instance if available
+   * @returns The HTTP server instance or undefined if not running in HTTP mode
+   */
+  getHttpServer(): ReturnType<typeof createServer> | undefined {
+    return this.httpServer;
+  }
+
+  /**
+   * Get the Express app instance if available
+   * @returns The Express app instance or undefined if not running in HTTP mode
+   */
+  getExpressApp(): express.Application | undefined {
+    return this.expressApp;
+  }
+
+  /**
+   * Get the server address information
+   * @returns The server address or null if not listening
+   */
+  getServerAddress(): { port: number; address: string } | null {
+    if (!this.httpServer) return null;
+    const address = this.httpServer.address();
+    if (typeof address === 'object' && address) {
+      return {
+        port: address.port,
+        address: address.address,
+      };
+    }
+    return null;
+  }
+
   async shutdown(): Promise<void> {
     console.error('Starting graceful shutdown...');
 
@@ -847,7 +943,7 @@ export class PersonasMcpServer {
     if (this.config.metrics?.enabled !== false) {
       await metricsCollector.shutdown();
     }
-    
+
     // Shutdown MCP rate limiters
     mcpRateLimiters.general.shutdown();
     mcpRateLimiters.tools.shutdown();

@@ -214,6 +214,7 @@ vi.mock('../src/personas/debugger.js', () => ({
 type MockPersonaLoader = {
   loadPersonasFromDirectory: Mock;
   loadPersonaFromFile: Mock;
+  resetFileCount: Mock;
 };
 
 type MockPersonaWatcher = {
@@ -340,6 +341,7 @@ describe('EnhancedPersonaManager', () => {
     mockLoader = {
       loadPersonasFromDirectory: vi.fn().mockResolvedValue([testPersona]),
       loadPersonaFromFile: vi.fn().mockResolvedValue(testPersona),
+      resetFileCount: vi.fn(),
     };
     vi.mocked(PersonaLoader).mockImplementation(
       () => mockLoader as unknown as PersonaLoader
@@ -1103,11 +1105,13 @@ describe('EnhancedPersonaManager', () => {
 
       expect(mockLoader.loadPersonasFromDirectory).toHaveBeenCalledWith(
         '/home/test/.ai/personas',
-        'user'
+        'user',
+        expect.any(Object)
       );
       expect(mockLoader.loadPersonasFromDirectory).toHaveBeenCalledWith(
         '/project/.ai/personas',
-        'project'
+        'project',
+        expect.any(Object)
       );
     });
 

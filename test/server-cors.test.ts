@@ -4,7 +4,6 @@ import { PersonasMcpServer } from '../src/server.js';
 
 describe('Server CORS Configuration', () => {
   let server: PersonasMcpServer;
-  let _httpServer: any;
 
   afterEach(async () => {
     if (server) {
@@ -22,11 +21,14 @@ describe('Server CORS Configuration', () => {
     });
 
     await server.run();
-    
-    // Get the actual server instance
-    const serverInstance = (server as any).httpServer;
-    
-    const response = await request(serverInstance)
+
+    // Get the Express app for testing
+    const app = server.getExpressApp();
+    if (!app) {
+      throw new Error('Express app not initialized');
+    }
+
+    const response = await request(app)
       .get('/health')
       .set('Origin', 'http://evil.com')
       .set('Cookie', 'test=value');
@@ -45,15 +47,21 @@ describe('Server CORS Configuration', () => {
     });
 
     await server.run();
-    
-    const serverInstance = (server as any).httpServer;
-    
-    const response = await request(serverInstance)
+
+    // Get the Express app for testing
+    const app = server.getExpressApp();
+    if (!app) {
+      throw new Error('Express app not initialized');
+    }
+
+    const response = await request(app)
       .get('/health')
       .set('Origin', 'http://localhost:3000');
 
     expect(response.status).toBe(200);
-    expect(response.headers['access-control-allow-origin']).toBe('http://localhost:3000');
+    expect(response.headers['access-control-allow-origin']).toBe(
+      'http://localhost:3000'
+    );
     expect(response.headers['access-control-allow-credentials']).toBe('true');
   });
 
@@ -67,12 +75,15 @@ describe('Server CORS Configuration', () => {
     });
 
     await server.run();
-    
-    const serverInstance = (server as any).httpServer;
-    
+
+    // Get the Express app for testing
+    const app = server.getExpressApp();
+    if (!app) {
+      throw new Error('Express app not initialized');
+    }
+
     // Request with no Origin header (like from Postman or mobile app)
-    const response = await request(serverInstance)
-      .get('/health');
+    const response = await request(app).get('/health');
 
     expect(response.status).toBe(200);
   });
@@ -87,19 +98,27 @@ describe('Server CORS Configuration', () => {
     });
 
     await server.run();
-    
-    const serverInstance = (server as any).httpServer;
-    
-    const response = await request(serverInstance)
+
+    // Get the Express app for testing
+    const app = server.getExpressApp();
+    if (!app) {
+      throw new Error('Express app not initialized');
+    }
+
+    const response = await request(app)
       .options('/api/personas')
       .set('Origin', 'http://localhost:3000')
       .set('Access-Control-Request-Method', 'POST')
       .set('Access-Control-Request-Headers', 'Content-Type');
 
     expect(response.status).toBe(204);
-    expect(response.headers['access-control-allow-origin']).toBe('http://localhost:3000');
+    expect(response.headers['access-control-allow-origin']).toBe(
+      'http://localhost:3000'
+    );
     expect(response.headers['access-control-allow-methods']).toContain('POST');
-    expect(response.headers['access-control-allow-headers']).toContain('Content-Type');
+    expect(response.headers['access-control-allow-headers']).toContain(
+      'Content-Type'
+    );
     expect(response.headers['access-control-max-age']).toBe('86400');
   });
 
@@ -113,10 +132,14 @@ describe('Server CORS Configuration', () => {
     });
 
     await server.run();
-    
-    const serverInstance = (server as any).httpServer;
-    
-    const response = await request(serverInstance)
+
+    // Get the Express app for testing
+    const app = server.getExpressApp();
+    if (!app) {
+      throw new Error('Express app not initialized');
+    }
+
+    const response = await request(app)
       .get('/health')
       .set('Origin', 'http://any-origin.com');
 
@@ -137,19 +160,25 @@ describe('Server CORS Configuration', () => {
     });
 
     await server.run();
-    
-    const serverInstance = (server as any).httpServer;
-    
+
+    // Get the Express app for testing
+    const app = server.getExpressApp();
+    if (!app) {
+      throw new Error('Express app not initialized');
+    }
+
     // Test allowed origin
-    const response1 = await request(serverInstance)
+    const response1 = await request(app)
       .get('/health')
       .set('Origin', 'http://app.example.com');
 
     expect(response1.status).toBe(200);
-    expect(response1.headers['access-control-allow-origin']).toBe('http://app.example.com');
+    expect(response1.headers['access-control-allow-origin']).toBe(
+      'http://app.example.com'
+    );
 
     // Test disallowed origin
-    const response2 = await request(serverInstance)
+    const response2 = await request(app)
       .get('/health')
       .set('Origin', 'http://evil.com');
 

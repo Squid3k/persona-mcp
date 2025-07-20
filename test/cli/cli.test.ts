@@ -36,7 +36,7 @@ describe('CLI Tests', () => {
       const { stdout, stderr, code } = await runCLI(['--version']);
 
       expect(code).toBe(0);
-      expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+(-\w+)?$/);
+      expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+(-\w+(\.\d+)?)?$/);
       expect(stderr).toBe('');
     });
 
@@ -44,7 +44,7 @@ describe('CLI Tests', () => {
       const { stdout, stderr, code } = await runCLI(['-v']);
 
       expect(code).toBe(0);
-      expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+(-\w+)?$/);
+      expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+(-\w+(\.\d+)?)?$/);
       expect(stderr).toBe('');
     });
   });

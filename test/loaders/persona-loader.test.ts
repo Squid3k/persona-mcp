@@ -86,6 +86,12 @@ describe('PersonaLoader', () => {
       if (filePath.endsWith('.yml')) return '.yml';
       return '';
     });
+    vi.mocked(path.resolve).mockImplementation((...args) => {
+      // If only one argument, just return it
+      if (args.length === 1) return args[0];
+      // Otherwise join them
+      return args.join('/');
+    });
 
     // Reset mocks
     vi.clearAllMocks();

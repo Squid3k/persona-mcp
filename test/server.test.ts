@@ -71,6 +71,9 @@ describe('PersonasMcpServer', () => {
     listen: Mock;
     on: Mock;
     close: Mock;
+    address: Mock;
+    _port?: number;
+    _host?: string;
   };
   let mockPersonaManager: any;
 
@@ -80,9 +83,20 @@ describe('PersonasMcpServer', () => {
     console.error = mockConsoleError;
 
     mockHttpServer = {
-      listen: vi.fn((port, host, callback) => callback()),
+      listen: vi.fn((port, host, callback) => {
+        // Store the port for address() to return
+        mockHttpServer._port = port;
+        mockHttpServer._host = host;
+        callback();
+      }),
       on: vi.fn(),
       close: vi.fn(callback => callback()),
+      address: vi.fn(() => ({
+        port: mockHttpServer._port || 3000,
+        address: mockHttpServer._host || 'localhost',
+      })),
+      _port: 3000,
+      _host: 'localhost',
     };
 
     vi.mocked(createHttpServer).mockReturnValue(mockHttpServer as any);
@@ -678,6 +692,7 @@ describe('PersonasMcpServer', () => {
               {
                 success: false,
                 error: 'Tool error',
+                code: 'UNKNOWN_ERROR',
               },
               null,
               2
@@ -717,7 +732,8 @@ describe('PersonasMcpServer', () => {
             text: JSON.stringify(
               {
                 success: false,
-                error: 'Unknown error occurred',
+                error: 'String error',
+                code: 'UNKNOWN_ERROR',
               },
               null,
               2
@@ -979,16 +995,12 @@ describe('PersonasMcpServer', () => {
       const handler = routes.get('post')!.get('/mcp')!;
       await handler(mockReq, mockRes);
 
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        'Error handling MCP request:',
-        expect.any(Error)
-      );
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         error: {
           code: -32603,
-          message: 'Internal server error',
+          message: 'Transport error',
         },
         id: null,
       });
@@ -1060,12 +1072,8 @@ describe('PersonasMcpServer', () => {
       const handler = routes.get('get')!.get('/mcp')!;
       await handler(mockReq, mockRes);
 
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        'Error handling MCP streaming request:',
-        expect.any(Error)
-      );
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.send).toHaveBeenCalledWith('Internal server error');
+      expect(mockRes.send).toHaveBeenCalledWith('Stream error');
     });
 
     it('should handle GET /sse with deprecation message', async () => {

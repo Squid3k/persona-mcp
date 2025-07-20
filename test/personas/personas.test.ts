@@ -35,7 +35,7 @@ describe('Default Personas', () => {
       expect(architectPersona.id).toBe('architect');
       expect(architectPersona.name).toBe('Software Architect');
       expect(architectPersona.role).toBe(PersonaRole.ARCHITECT);
-      expect(architectPersona.core.identity).toContain('Software Architect');
+      expect(architectPersona.core.identity).toContain('architect');
     });
 
     it('should have comprehensive expertise areas', () => {
@@ -58,16 +58,16 @@ describe('Default Personas', () => {
 
     it('should have detailed behavior structure', () => {
       expect(architectPersona.behavior.mindset).toContain(
-        'Think in systems and interactions, not just components'
+        'Think in systems & interactions'
       );
       expect(architectPersona.behavior.methodology).toContain(
-        'Understand the problem domain and business requirements'
+        'Analyze domain & business requirements'
       );
       expect(architectPersona.behavior.priorities).toContain(
-        'System scalability and performance characteristics'
+        'Scalability & performance'
       );
       expect(architectPersona.behavior.antiPatterns).toContain(
-        'Creating tightly coupled monolithic designs'
+        'Tightly coupled monoliths'
       );
     });
 
@@ -75,7 +75,7 @@ describe('Default Personas', () => {
       expect(architectPersona.examples).toBeDefined();
       expect(architectPersona.examples.length).toBeGreaterThanOrEqual(2);
       expect(
-        architectPersona.examples.some(ex => ex.includes('microservices'))
+        architectPersona.examples.some(ex => ex.includes('Microservices'))
       ).toBe(true);
     });
 
@@ -91,7 +91,7 @@ describe('Default Personas', () => {
       expect(developerPersona.id).toBe('developer');
       expect(developerPersona.name).toBe('Code Developer');
       expect(developerPersona.role).toBe(PersonaRole.DEVELOPER);
-      expect(developerPersona.core.identity).toContain('code craftsperson');
+      expect(developerPersona.core.identity).toContain('craftsperson');
     });
 
     it('should have implementation-focused expertise', () => {
@@ -111,13 +111,13 @@ describe('Default Personas', () => {
 
     it('should have development-focused behavior structure', () => {
       expect(developerPersona.behavior.mindset).toContain(
-        'Design is the foundation - code is the reflection of thoughtful design'
+        'Design foundations enable quality code'
       );
       expect(developerPersona.behavior.methodology).toContain(
-        'Write failing tests first to define expected behavior'
+        'Write failing tests first'
       );
       expect(developerPersona.behavior.priorities).toContain(
-        'Correctness and reliability over speed of delivery'
+        'Correctness over speed'
       );
     });
 
@@ -137,35 +137,31 @@ describe('Default Personas', () => {
       expect(reviewerPersona.id).toBe('reviewer');
       expect(reviewerPersona.name).toBe('Code Reviewer');
       expect(reviewerPersona.role).toBe(PersonaRole.REVIEWER);
-      expect(reviewerPersona.core.identity).toContain(
-        'meticulous code reviewer'
-      );
+      expect(reviewerPersona.core.identity).toContain('reviewer');
     });
 
     it('should have review-focused expertise', () => {
       expect(reviewerPersona.expertise.domains).toContain(
         'Security vulnerability patterns'
       );
-      expect(reviewerPersona.expertise.domains).toContain(
-        'Performance optimization'
+      expect(reviewerPersona.expertise.domains).toContain('Perf optimization');
+      expect(reviewerPersona.expertise.skills).toContain(
+        'Pattern recognition for bugs'
       );
       expect(reviewerPersona.expertise.skills).toContain(
-        'Pattern recognition for common bugs'
-      );
-      expect(reviewerPersona.expertise.skills).toContain(
-        'Risk assessment and mitigation'
+        'Risk assessment & mitigation'
       );
     });
 
     it('should have review-focused behavior structure', () => {
       expect(reviewerPersona.behavior.mindset).toContain(
-        'Every review is a teaching opportunity'
+        'Every review teaches'
       );
       expect(reviewerPersona.behavior.methodology).toContain(
-        'Third pass: assess security and performance'
+        'Third pass: assess security & perf'
       );
       expect(reviewerPersona.behavior.priorities).toContain(
-        'Security vulnerabilities over style issues'
+        'Security over style'
       );
     });
 
@@ -185,9 +181,7 @@ describe('Default Personas', () => {
       expect(debuggerPersona.id).toBe('debugger');
       expect(debuggerPersona.name).toBe('Debugging Specialist');
       expect(debuggerPersona.role).toBe(PersonaRole.DEBUGGER);
-      expect(debuggerPersona.core.identity).toContain(
-        'systematic problem solver'
-      );
+      expect(debuggerPersona.core.identity).toContain('investigator');
     });
 
     it('should have debugging-focused expertise', () => {
@@ -205,13 +199,13 @@ describe('Default Personas', () => {
 
     it('should have systematic debugging approach', () => {
       expect(debuggerPersona.behavior.mindset).toContain(
-        'Every bug has a logical explanation'
+        'Every bug has logical explanation'
       );
       expect(debuggerPersona.behavior.methodology).toContain(
-        'Reproduce the issue consistently'
+        'Reproduce consistently'
       );
       expect(debuggerPersona.behavior.priorities).toContain(
-        'Root cause over symptom treatment'
+        'Root cause over symptoms'
       );
     });
 

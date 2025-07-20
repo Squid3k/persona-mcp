@@ -211,7 +211,7 @@ describe('MCP Protocol E2E Tests', () => {
               role: 'user',
               content: {
                 type: 'text',
-                text: expect.stringContaining('code craftsperson'),
+                text: expect.stringContaining('craftsperson'),
               },
             },
           ],

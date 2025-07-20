@@ -1,0 +1,14 @@
+# NPM Publish Command for v0.3.0
+
+To publish version 0.3.0 to npm, run this command with your OTP code:
+
+npm publish --access public --otp=YOUR_OTP_CODE
+
+Replace YOUR_OTP_CODE with the 6-digit code from your authenticator app.
+
+After publishing, verify the release at:
+https://www.npmjs.com/package/personas-mcp
+
+Test the published package:
+npm view personas-mcp@0.3.0
+npm install -g personas-mcp@0.3.0

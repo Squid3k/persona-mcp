@@ -44,6 +44,7 @@ export const PersonaSchema = z.object({
 });
 
 export type Persona = z.infer<typeof PersonaSchema>;
+export type BehaviorDiagram = z.infer<typeof BehaviorDiagramSchema>;
 
 export const PersonaRole = {
   ARCHITECT: 'architect',

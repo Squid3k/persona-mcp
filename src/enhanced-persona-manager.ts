@@ -10,6 +10,12 @@ import {
 import { PersonaLoader } from './loaders/persona-loader.js';
 import { PersonaWatcher, WatchEvent } from './loaders/persona-watcher.js';
 import { PersonaResolver } from './loaders/persona-resolver.js';
+import { XmlPromptBuilder } from './utils/xml-prompt-builder.js';
+import {
+  PromptFormat,
+  PromptGenerationOptions,
+  CompressionLevel,
+} from './types/prompt-format.js';
 
 // Import existing default personas
 import { architectPersona } from './personas/architect.js';
@@ -175,6 +181,98 @@ export class EnhancedPersonaManager {
     }
 
     return prompt;
+  }
+
+  /**
+   * Generate prompt using new XML semantic format with Mermaid integration
+   * @param persona - The persona to generate prompt for
+   * @param context - Optional context to include
+   * @param compressionLevel - Level of compression to apply
+   * @returns XML-formatted prompt string
+   */
+  generateXmlPrompt(
+    persona: Persona,
+    context: string = '',
+    compressionLevel: CompressionLevel = CompressionLevel.MODERATE
+  ): string {
+    const builder = new XmlPromptBuilder(compressionLevel);
+    return builder.buildPrompt(persona, context);
+  }
+
+  /**
+   * Generate prompt with specified format and options
+   * @param persona - The persona to generate prompt for
+   * @param options - Generation options including format, model, compression
+   * @returns Formatted prompt string
+   */
+  generatePromptWithOptions(
+    persona: Persona,
+    options: PromptGenerationOptions
+  ): string {
+    const {
+      format,
+      context = '',
+      compressionLevel = CompressionLevel.MODERATE,
+    } = options;
+
+    switch (format) {
+      case PromptFormat.XML_SEMANTIC:
+        return this.generateXmlPrompt(persona, context, compressionLevel);
+
+      case PromptFormat.NARRATIVE:
+        // Use existing narrative generation
+        return this.generatePrompt(persona, context);
+
+      case PromptFormat.HASHTAG:
+        // TODO: Implement hashtag format for GPT-4
+        return this.generateHashtagPrompt(persona, context, compressionLevel);
+
+      case PromptFormat.HIERARCHICAL:
+        // TODO: Implement hierarchical format for Gemini
+        return this.generateHierarchicalPrompt(
+          persona,
+          context,
+          compressionLevel
+        );
+
+      default:
+        // Default to narrative for backward compatibility
+        return this.generatePrompt(persona, context);
+    }
+  }
+
+  /**
+   * Generate hashtag-delimited prompt (optimized for GPT-4)
+   * @private
+   */
+  private generateHashtagPrompt(
+    persona: Persona,
+    context: string,
+    _compressionLevel: CompressionLevel
+  ): string {
+    // TODO: Implement hashtag format
+    // For now, fall back to narrative
+    console.warn(
+      'Hashtag format not yet implemented, falling back to narrative'
+    );
+    return this.generatePrompt(persona, context);
+  }
+
+  /**
+   * Generate hierarchical outline prompt (optimized for Gemini)
+   * @private
+   */
+  private generateHierarchicalPrompt(
+    persona: Persona,
+    context: string,
+    _compressionLevel: CompressionLevel
+  ): string {
+    // TODO: Implement hierarchical format
+    // For now, fall back to narrative
+    console.warn(
+      'Hierarchical format not yet implemented, falling back to narrative'
+    );
+    return this.generatePrompt(persona, context);
   }
 
   /**

@@ -9,7 +9,8 @@ describe('version.ts', () => {
 
   it('should have a valid semantic version format', () => {
     // Test for semantic version format (x.y.z or x.y.z-prerelease)
-    const semverRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9-]+)?$/;
+    // Allow dots in prerelease (e.g., alpha.0, beta.1)
+    const semverRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/;
     expect(VERSION).toMatch(semverRegex);
   });
 

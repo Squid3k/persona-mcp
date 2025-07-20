@@ -103,3 +103,18 @@ export class PersonaConflictError extends BaseError {
     };
   }
 }
+
+/**
+ * Error thrown when a path traversal attempt is detected
+ */
+export class PathTraversalError extends BaseError {
+  constructor(message: string) {
+    super(
+      message,
+      'PATH_TRAVERSAL_ATTEMPT',
+      400,
+      true // This is a security error, not a bug
+    );
+    this.name = 'PathTraversalError';
+  }
+}

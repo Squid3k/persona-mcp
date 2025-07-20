@@ -8,20 +8,45 @@ import {
   PersonaSource,
   YamlPersonaSchema,
 } from '../types/yaml-persona.js';
+import { PathSecurity } from '../utils/path-security.js';
 
 export class PersonaLoader {
+  private fileCount = 0; // Track total files loaded
+  
   /**
    * Discover all YAML persona files in a directory
    */
-  async discoverPersonaFiles(directory: string): Promise<string[]> {
+  async discoverPersonaFiles(directory: string, maxFiles?: number): Promise<string[]> {
     try {
-      await fs.access(directory);
-      return await glob(['**/*.yaml', '**/*.yml'], {
-        cwd: directory,
+      // Normalize the directory path
+      const normalizedDir = path.resolve(directory);
+      
+      await fs.access(normalizedDir);
+      const files = await glob(['**/*.yaml', '**/*.yml'], {
+        cwd: normalizedDir,
         absolute: true,
         onlyFiles: true,
         ignore: ['**/node_modules/**', '**/.git/**'],
       });
+      
+      // Validate all discovered files stay within the directory
+      const validFiles: string[] = [];
+      for (const file of files) {
+        try {
+          PathSecurity.validatePath(file, normalizedDir);
+          validFiles.push(file);
+          
+          // Check if we've reached the max files limit
+          if (maxFiles && validFiles.length >= maxFiles) {
+            console.warn(`Reached maximum file limit (${maxFiles}) in directory: ${directory}`);
+            break;
+          }
+        } catch {
+          console.warn(`Skipping potentially unsafe file: ${file}`);
+        }
+      }
+      
+      return validFiles;
     } catch {
       // Directory doesn't exist or is not accessible
       return [];
@@ -33,23 +58,44 @@ export class PersonaLoader {
    */
   async loadPersonaFromFile(
     filePath: string,
-    sourceType: PersonaSource['type']
+    sourceType: PersonaSource['type'],
+    baseDirectory?: string,
+    maxFileSize?: number
   ): Promise<LoadedPersona> {
     try {
-      const content = await fs.readFile(filePath, 'utf-8');
+      // If a base directory is provided, validate the path stays within it
+      let validatedPath = filePath;
+      if (baseDirectory) {
+        validatedPath = PathSecurity.validatePath(filePath, baseDirectory);
+      }
+      
+      // Check file extension
+      if (!PathSecurity.hasAllowedExtension(validatedPath, ['.yaml', '.yml'])) {
+        throw new Error(`Invalid file extension. Only .yaml and .yml files are allowed`);
+      }
+      
+      // Check file size before reading
+      const stats = await fs.stat(validatedPath);
+      const defaultMaxSize = 1024 * 1024; // 1MB default
+      const sizeLimit = maxFileSize ?? defaultMaxSize;
+      
+      if (stats.size > sizeLimit) {
+        throw new Error(
+          `File size (${stats.size} bytes) exceeds maximum allowed size (${sizeLimit} bytes)`
+        );
+      }
+      
+      const content = await fs.readFile(validatedPath, 'utf-8');
       const yamlData = YAML.parse(content) as unknown;
 
       // Validate with Zod schema
       const persona = YamlPersonaSchema.parse(yamlData);
 
-      // Get file stats for metadata
-      const stats = await fs.stat(filePath);
-
       return {
         ...persona,
         source: {
           type: sourceType,
-          filePath,
+          filePath: validatedPath,
           lastModified: stats.mtime,
         },
         isValid: true,
@@ -64,16 +110,42 @@ export class PersonaLoader {
    */
   async loadPersonasFromDirectory(
     directory: string,
-    sourceType: PersonaSource['type']
+    sourceType: PersonaSource['type'],
+    limits?: {
+      maxFileSize?: number;
+      maxFilesPerDirectory?: number;
+      maxTotalFiles?: number;
+    }
   ): Promise<LoadedPersona[]> {
-    const files = await this.discoverPersonaFiles(directory);
+    // Normalize the directory path
+    const normalizedDir = path.resolve(directory);
+    
+    // Check total file count before loading more
+    if (limits?.maxTotalFiles && this.fileCount >= limits.maxTotalFiles) {
+      console.warn(`Reached maximum total file limit (${limits.maxTotalFiles}). Skipping directory: ${directory}`);
+      return [];
+    }
+    
+    const remainingFiles = limits?.maxTotalFiles ? limits.maxTotalFiles - this.fileCount : undefined;
+    const maxFilesForDir = limits?.maxFilesPerDirectory 
+      ? Math.min(limits.maxFilesPerDirectory, remainingFiles ?? Infinity)
+      : remainingFiles;
+    
+    const files = await this.discoverPersonaFiles(normalizedDir, maxFilesForDir);
     const personas: LoadedPersona[] = [];
 
     await Promise.all(
       files.map(async filePath => {
         try {
-          const persona = await this.loadPersonaFromFile(filePath, sourceType);
+          // Pass the base directory and size limit for validation
+          const persona = await this.loadPersonaFromFile(
+            filePath, 
+            sourceType, 
+            normalizedDir,
+            limits?.maxFileSize
+          );
           personas.push(persona);
+          this.fileCount++;
         } catch (error) {
           console.warn(`Failed to load persona from ${filePath}:`, error);
           // Create invalid persona for tracking
@@ -89,13 +161,31 @@ export class PersonaLoader {
 
     return personas;
   }
+  
+  /**
+   * Reset the file counter (useful for reloading)
+   */
+  resetFileCount(): void {
+    this.fileCount = 0;
+  }
 
   /**
    * Check if a file is a valid persona file
    */
-  async validatePersonaFile(filePath: string): Promise<boolean> {
+  async validatePersonaFile(filePath: string, baseDirectory?: string): Promise<boolean> {
     try {
-      const content = await fs.readFile(filePath, 'utf-8');
+      // If a base directory is provided, validate the path stays within it
+      let validatedPath = filePath;
+      if (baseDirectory) {
+        validatedPath = PathSecurity.validatePath(filePath, baseDirectory);
+      }
+      
+      // Check file extension
+      if (!PathSecurity.hasAllowedExtension(validatedPath, ['.yaml', '.yml'])) {
+        return false;
+      }
+      
+      const content = await fs.readFile(validatedPath, 'utf-8');
       const yamlData = YAML.parse(content) as unknown;
       YamlPersonaSchema.parse(yamlData);
       return true;

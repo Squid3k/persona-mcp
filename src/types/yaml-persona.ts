@@ -54,6 +54,11 @@ export interface PersonaConfig {
     strict: boolean;
     logErrors: boolean;
   };
+  limits?: {
+    maxFileSize?: number; // Maximum file size in bytes (default: 1MB)
+    maxFilesPerDirectory?: number; // Maximum files per directory (default: 100)
+    maxTotalFiles?: number; // Maximum total files across all directories (default: 500)
+  };
 }
 
 // Precedence levels for conflict resolution

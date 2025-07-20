@@ -20,6 +20,13 @@ Options:
   --no-metrics                  Disable metrics collection
   --config <path>               Path to configuration file
 
+Environment Variables:
+  CORS_ALLOWED_ORIGINS          Comma-separated list of allowed CORS origins
+  METRICS_ENABLED               Enable/disable metrics (true/false)
+  METRICS_ENDPOINT              OTLP metrics endpoint URL
+  METRICS_HEADERS               JSON object with headers for metrics
+  METRICS_INTERVAL              Metrics export interval in milliseconds
+
 Examples:
   # Run on default port
   personas-mcp
@@ -29,6 +36,9 @@ Examples:
 
   # Run without CORS
   personas-mcp --no-cors
+
+  # Run with specific CORS origins
+  CORS_ALLOWED_ORIGINS="http://localhost:3000,https://app.example.com" personas-mcp
 
 Persona Directories:
   Default personas:    Built-in TypeScript personas
@@ -116,11 +126,23 @@ export function parseArgs(args: string[]): ServerConfig {
   }
 
   // Check for environment variables for backward compatibility
-  if (process.env.PORT) {
+  // Only use env vars if not already set by CLI args
+  if (process.env.PORT && config.port === undefined) {
     config.port = parseInt(process.env.PORT, 10);
   }
-  if (process.env.HOST) {
+  if (process.env.HOST && config.host === undefined) {
     config.host = process.env.HOST;
+  }
+
+  // Configure CORS from environment variables
+  if (process.env.CORS_ALLOWED_ORIGINS) {
+    config.http = {
+      ...config.http,
+      allowedOrigins: process.env.CORS_ALLOWED_ORIGINS
+        .split(',')
+        .map(origin => origin.trim())
+        .filter(origin => origin.length > 0),
+    };
   }
 
   // Configure metrics from environment variables
@@ -130,15 +152,36 @@ export function parseArgs(args: string[]): ServerConfig {
     process.env.METRICS_HEADERS ||
     process.env.METRICS_INTERVAL
   ) {
+    // Parse headers with error handling
+    let headers: Record<string, string> | undefined;
+    if (process.env.METRICS_HEADERS) {
+      try {
+        headers = JSON.parse(process.env.METRICS_HEADERS) as Record<string, string>;
+      } catch (error) {
+        console.error('Warning: Invalid JSON in METRICS_HEADERS environment variable:', error);
+        console.error('METRICS_HEADERS will be ignored. Expected format: \'{"key": "value"}\'');
+        headers = undefined;
+      }
+    }
+
+    // Parse interval with validation
+    let interval: number | undefined;
+    if (process.env.METRICS_INTERVAL) {
+      const parsedInterval = parseInt(process.env.METRICS_INTERVAL, 10);
+      if (isNaN(parsedInterval) || parsedInterval <= 0) {
+        console.error('Warning: Invalid METRICS_INTERVAL value:', process.env.METRICS_INTERVAL);
+        console.error('METRICS_INTERVAL must be a positive number (milliseconds). Using default.');
+        interval = undefined;
+      } else {
+        interval = parsedInterval;
+      }
+    }
+
     config.metrics = {
       enabled: process.env.METRICS_ENABLED !== 'false',
       endpoint: process.env.METRICS_ENDPOINT,
-      headers: process.env.METRICS_HEADERS
-        ? (JSON.parse(process.env.METRICS_HEADERS) as Record<string, string>)
-        : undefined,
-      interval: process.env.METRICS_INTERVAL
-        ? parseInt(process.env.METRICS_INTERVAL, 10)
-        : undefined,
+      headers,
+      interval,
     };
   }
 

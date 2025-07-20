@@ -53,6 +53,12 @@ export class EnhancedPersonaManager {
         strict: false,
         logErrors: true,
       },
+      limits: {
+        maxFileSize: 1024 * 1024, // 1MB default
+        maxFilesPerDirectory: 100, // 100 files per directory default
+        maxTotalFiles: 500, // 500 total files default
+        ...config?.limits,
+      },
       ...config,
     };
   }
@@ -311,6 +317,7 @@ export class EnhancedPersonaManager {
   async reloadPersonas(): Promise<void> {
     console.error('Reloading all personas...');
     this.personas.clear();
+    this.loader.resetFileCount(); // Reset counter for reload
     await this.loadAllPersonas();
   }
 
@@ -342,6 +349,9 @@ export class EnhancedPersonaManager {
   private async loadAllPersonas(): Promise<void> {
     const allPersonas: LoadedPersona[] = [];
 
+    // Reset the loader's file counter
+    this.loader.resetFileCount();
+
     // Load default TypeScript personas
     console.error('Loading default personas...');
     const defaultPersonas = this.loadDefaultPersonas();
@@ -351,7 +361,8 @@ export class EnhancedPersonaManager {
     console.error('Loading user personas...');
     const userPersonas = await this.loader.loadPersonasFromDirectory(
       this.config.directories.user,
-      'user'
+      'user',
+      this.config.limits
     );
     allPersonas.push(...userPersonas);
 
@@ -359,7 +370,8 @@ export class EnhancedPersonaManager {
     console.error('Loading project personas...');
     const projectPersonas = await this.loader.loadPersonasFromDirectory(
       this.config.directories.project,
-      'project'
+      'project',
+      this.config.limits
     );
     allPersonas.push(...projectPersonas);
 

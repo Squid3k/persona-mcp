@@ -15,6 +15,7 @@ export {
   PersonaValidationError,
   PersonaLoadingError,
   PersonaConflictError,
+  PathTraversalError,
 } from './persona-errors.js';
 
 // MCP protocol errors
@@ -46,41 +47,34 @@ export function isOperationalError(error: unknown): error is BaseError {
  * Error handler middleware for Express
  */
 import { Request, Response, NextFunction } from 'express';
+import { ErrorSanitizer } from '../utils/error-sanitizer.js';
 
 export function errorHandler(
   error: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void {
   // Log non-operational errors (bugs)
   if (!(error instanceof BaseError) || !error.isOperational) {
-    console.error('Unexpected error:', error);
+    // Use logAndSanitize to securely log the error
+    ErrorSanitizer.logAndSanitize(error, `${req.method} ${req.path}`);
   }
 
-  // Determine status code and message
-  let statusCode = 500;
-  let errorResponse: Record<string, unknown> = {
+  // Get sanitized error response
+  const httpResponse = ErrorSanitizer.createHttpErrorResponse(error);
+  const sanitizedError = httpResponse.error;
+  
+  // Use the status code from the sanitized error
+  const statusCode = sanitizedError.statusCode || 500;
+  
+  // Create the response object
+  const errorResponse: Record<string, unknown> = {
     success: false,
-    error: 'Internal server error',
+    error: sanitizedError.message,
+    code: sanitizedError.code,
+    timestamp: httpResponse.timestamp,
   };
-
-  if (error instanceof BaseError) {
-    statusCode = error.statusCode;
-    errorResponse = {
-      success: false,
-      ...error.toJSON(),
-    };
-  } else if (error instanceof Error) {
-    // In development, include stack traces for debugging
-    if (process.env.NODE_ENV === 'development') {
-      errorResponse = {
-        success: false,
-        error: error.message,
-        stack: error.stack,
-      };
-    }
-  }
 
   res.status(statusCode).json(errorResponse);
 }

@@ -55,8 +55,8 @@ describe('Server Error Handling', () => {
       expect(response.body).toEqual({
         success: false,
         code: 'PERSONA_NOT_FOUND',
-        message: 'Persona not found: missing-persona',
-        statusCode: 404,
+        error: 'Persona not found: missing-persona',
+        timestamp: expect.any(String),
       });
     });
 
@@ -66,8 +66,8 @@ describe('Server Error Handling', () => {
       expect(response.body).toEqual({
         success: false,
         code: 'INVALID_PERSONA_URI',
-        message: expect.stringContaining('Invalid persona URI: bad://uri'),
-        statusCode: 400,
+        error: expect.stringContaining('Invalid persona URI: bad://uri'),
+        timestamp: expect.any(String),
       });
     });
 
@@ -79,12 +79,8 @@ describe('Server Error Handling', () => {
       expect(response.body).toEqual({
         success: false,
         code: 'VALIDATION_ERROR',
-        message: expect.stringContaining('Validation failed'),
-        statusCode: 400,
-        validationErrors: [
-          { field: 'name', message: 'Required field' },
-          { field: 'age', message: 'Must be a number' },
-        ],
+        error: expect.stringContaining('Validation failed'),
+        timestamp: expect.any(String),
       });
     });
 
@@ -98,7 +94,9 @@ describe('Server Error Handling', () => {
 
       expect(response.body).toEqual({
         success: false,
-        error: 'Internal server error',
+        code: 'INTERNAL_ERROR',
+        error: 'An error occurred while processing your request',
+        timestamp: expect.any(String),
       });
 
       process.env.NODE_ENV = originalEnv;
@@ -114,8 +112,9 @@ describe('Server Error Handling', () => {
 
       expect(response.body).toMatchObject({
         success: false,
+        code: 'UNKNOWN_ERROR',
         error: 'Something went wrong',
-        stack: expect.stringContaining('Error: Something went wrong'),
+        timestamp: expect.any(String),
       });
 
       process.env.NODE_ENV = originalEnv;

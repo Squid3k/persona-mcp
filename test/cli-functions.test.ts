@@ -162,5 +162,181 @@ describe('CLI Functions', () => {
 
       expect(config.http?.enableCors).toBe(false);
     });
+
+    describe('Environment variable parsing', () => {
+      let originalEnv: NodeJS.ProcessEnv;
+
+      beforeEach(() => {
+        originalEnv = { ...process.env };
+      });
+
+      afterEach(() => {
+        process.env = originalEnv;
+      });
+
+      it('should parse PORT from environment', () => {
+        process.env.PORT = '4000';
+        const config = parseArgs([]);
+        expect(config.port).toBe(4000);
+      });
+
+      it('should parse HOST from environment', () => {
+        process.env.HOST = '0.0.0.0';
+        const config = parseArgs([]);
+        expect(config.host).toBe('0.0.0.0');
+      });
+
+      it('should prefer CLI args over environment variables', () => {
+        process.env.PORT = '4000';
+        const config = parseArgs(['--port', '5000']);
+        expect(config.port).toBe(5000);
+      });
+
+      describe('METRICS configuration', () => {
+        it('should parse valid METRICS_HEADERS JSON', () => {
+          process.env.METRICS_HEADERS = '{"Authorization": "Bearer token", "X-API-Key": "key123"}';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics?.headers).toEqual({
+            Authorization: 'Bearer token',
+            'X-API-Key': 'key123'
+          });
+          expect(mockError).not.toHaveBeenCalled();
+        });
+
+        it('should handle invalid METRICS_HEADERS JSON gracefully', () => {
+          process.env.METRICS_HEADERS = '{invalid json}';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics?.headers).toBeUndefined();
+          expect(mockError).toHaveBeenCalledTimes(2);
+          expect(mockError).toHaveBeenNthCalledWith(1, 
+            'Warning: Invalid JSON in METRICS_HEADERS environment variable:',
+            expect.any(Error)
+          );
+          expect(mockError).toHaveBeenNthCalledWith(2,
+            'METRICS_HEADERS will be ignored. Expected format: \'{"key": "value"}\''
+          );
+        });
+
+        it('should handle empty METRICS_HEADERS', () => {
+          process.env.METRICS_HEADERS = '';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics).toBeUndefined();
+          expect(mockError).not.toHaveBeenCalled();
+        });
+
+        it('should parse valid METRICS_INTERVAL', () => {
+          process.env.METRICS_INTERVAL = '30000';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics?.interval).toBe(30000);
+          expect(mockError).not.toHaveBeenCalled();
+        });
+
+        it('should handle invalid METRICS_INTERVAL gracefully', () => {
+          process.env.METRICS_INTERVAL = 'not-a-number';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics?.interval).toBeUndefined();
+          expect(mockError).toHaveBeenCalledTimes(2);
+          expect(mockError).toHaveBeenNthCalledWith(1,
+            'Warning: Invalid METRICS_INTERVAL value:',
+            'not-a-number'
+          );
+          expect(mockError).toHaveBeenNthCalledWith(2,
+            'METRICS_INTERVAL must be a positive number (milliseconds). Using default.'
+          );
+        });
+
+        it('should reject negative METRICS_INTERVAL', () => {
+          process.env.METRICS_INTERVAL = '-5000';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics?.interval).toBeUndefined();
+          expect(mockError).toHaveBeenCalledTimes(2);
+          expect(mockError).toHaveBeenNthCalledWith(1,
+            'Warning: Invalid METRICS_INTERVAL value:',
+            '-5000'
+          );
+          expect(mockError).toHaveBeenNthCalledWith(2,
+            'METRICS_INTERVAL must be a positive number (milliseconds). Using default.'
+          );
+        });
+
+        it('should reject zero METRICS_INTERVAL', () => {
+          process.env.METRICS_INTERVAL = '0';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics?.interval).toBeUndefined();
+          expect(mockError).toHaveBeenCalledTimes(2);
+          expect(mockError).toHaveBeenNthCalledWith(1,
+            'Warning: Invalid METRICS_INTERVAL value:',
+            '0'
+          );
+          expect(mockError).toHaveBeenNthCalledWith(2,
+            'METRICS_INTERVAL must be a positive number (milliseconds). Using default.'
+          );
+        });
+
+        it('should handle all metrics environment variables together', () => {
+          process.env.METRICS_ENABLED = 'true';
+          process.env.METRICS_ENDPOINT = 'http://localhost:4318/v1/metrics';
+          process.env.METRICS_HEADERS = '{"Authorization": "Bearer token"}';
+          process.env.METRICS_INTERVAL = '60000';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics).toEqual({
+            enabled: true,
+            endpoint: 'http://localhost:4318/v1/metrics',
+            headers: { Authorization: 'Bearer token' },
+            interval: 60000
+          });
+        });
+
+        it('should handle METRICS_ENABLED false', () => {
+          process.env.METRICS_ENABLED = 'false';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics?.enabled).toBe(false);
+        });
+
+        it('should handle mix of valid and invalid metrics values', () => {
+          process.env.METRICS_ENABLED = 'false';
+          process.env.METRICS_ENDPOINT = 'http://localhost:4318/v1/metrics';
+          process.env.METRICS_HEADERS = '{bad json}';
+          process.env.METRICS_INTERVAL = 'invalid';
+          
+          const config = parseArgs([]);
+          
+          expect(config.metrics).toEqual({
+            enabled: false,
+            endpoint: 'http://localhost:4318/v1/metrics',
+            headers: undefined,
+            interval: undefined
+          });
+          expect(mockError).toHaveBeenCalledTimes(4); // 2 for headers, 2 for interval
+          // Verify the error messages
+          expect(mockError).toHaveBeenNthCalledWith(1,
+            'Warning: Invalid JSON in METRICS_HEADERS environment variable:',
+            expect.any(Error)
+          );
+          expect(mockError).toHaveBeenNthCalledWith(3,
+            'Warning: Invalid METRICS_INTERVAL value:',
+            'invalid'
+          );
+        });
+      });
+    });
   });
 });

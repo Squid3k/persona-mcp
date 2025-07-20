@@ -30,14 +30,22 @@ This document outlines the development roadmap for the Personas MCP Server proje
 
 ## Future Plans 📋
 
-### v1.3 - API Enhancements
+### v1.3 - Security Improvements
+
+- [ ] [Security hardening and authentication](./current/2025-07-20-v1-security-improvements.md)
+- [ ] Configurable HTTPS/TLS support
+- [ ] API authentication system
+- [ ] Path traversal protection
+- [ ] Comprehensive security fixes
+
+### v1.4 - API Enhancements
 
 - [ ] [Enhanced API features](./current/2025-07-15-v1-api-improvements.md)
 - [ ] Batch recommendation processing
 - [ ] Persona composition/combining
 - [ ] Context-aware recommendations
 
-### v1.4 - Performance & Scale
+### v1.5 - Performance & Scale
 
 - [ ] Caching layer for recommendations
 - [ ] Async processing for large batches

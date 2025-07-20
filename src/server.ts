@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import type { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -11,6 +12,22 @@ import {
   GetPromptRequestSchema,
   ListToolsRequestSchema,
   CallToolRequestSchema,
+  type ListResourcesRequest,
+  type ListResourceTemplatesRequest,
+  type ReadResourceRequest,
+  type ListPromptsRequest,
+  type GetPromptRequest,
+  type ListToolsRequest,
+  type CallToolRequest,
+  type ListResourcesResult,
+  type ListResourceTemplatesResult,
+  type ReadResourceResult,
+  type ListPromptsResult,
+  type GetPromptResult,
+  type ListToolsResult,
+  type CallToolResult,
+  type Request,
+  type Notification,
 } from '@modelcontextprotocol/sdk/types.js';
 import express from 'express';
 import cors from 'cors';
@@ -46,6 +63,13 @@ import {
 } from './validation/index.js';
 import { apiLimiter, recommendLimiter } from './middleware/rate-limit.js';
 import { adoptionMetrics } from './metrics/adoption-metrics.js';
+import { CorsSecurity } from './utils/cors-security.js';
+import { ErrorSanitizer } from './utils/error-sanitizer.js';
+import { 
+  getMcpRateLimiter, 
+  extractMcpClientId,
+  mcpRateLimiters 
+} from './middleware/mcp-rate-limit.js';
 
 export interface ServerConfig {
   name?: string;
@@ -123,9 +147,41 @@ export class PersonasMcpServer {
     this.setupHandlers();
   }
 
+  /**
+   * Wrap an MCP handler with rate limiting
+   */
+  private wrapWithRateLimit<TRequest, TResult>(
+    handler: (request: TRequest, extra: RequestHandlerExtra<Request, Notification>) => TResult | Promise<TResult>,
+    method: string
+  ): (request: TRequest, extra: RequestHandlerExtra<Request, Notification>) => Promise<TResult> {
+    return async (request: TRequest, extra: RequestHandlerExtra<Request, Notification>): Promise<TResult> => {
+      // Get appropriate rate limiter
+      const limiter = getMcpRateLimiter(method);
+      
+      // Extract client identifier
+      const clientId = extractMcpClientId(request);
+      
+      // Check rate limit
+      try {
+        limiter.checkLimit(clientId);
+      } catch (error) {
+        // Log rate limit violation
+        if (this.config.metrics?.enabled !== false) {
+          metricsCollector.recordMcpRequest(method, 'error', 0);
+        }
+        throw error;
+      }
+      
+      // Execute the handler
+      return handler(request, extra);
+    };
+  }
+
   private setupHandlers() {
     // List available resources (personas)
-    this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
+    this.server.setRequestHandler(
+      ListResourcesRequestSchema, 
+      this.wrapWithRateLimit<ListResourcesRequest, ListResourcesResult>(async (_request, _extra) => {
       return measureAsyncExecution(
         async () => {
           const personas = this.personaManager.getAllPersonas();
@@ -145,22 +201,24 @@ export class PersonasMcpServer {
             duration
           )
       );
-    });
+    }, 'resources/list'));
 
     // List resource templates - stub implementation that returns empty array
     this.server.setRequestHandler(
       ListResourceTemplatesRequestSchema,
-      async () => {
+      this.wrapWithRateLimit<ListResourceTemplatesRequest, ListResourceTemplatesResult>(async (_request, _extra) => {
         // Currently no resource templates are supported
         // This stub prevents errors when clients query for templates
         return {
           resourceTemplates: [],
         };
-      }
+      }, 'resources/list-templates')
     );
 
     // Read a specific persona resource
-    this.server.setRequestHandler(ReadResourceRequestSchema, async request => {
+    this.server.setRequestHandler(
+      ReadResourceRequestSchema, 
+      this.wrapWithRateLimit<ReadResourceRequest, ReadResourceResult>(async (request, _extra) => {
       const startTime = Date.now();
       try {
         const uri = request.params.uri;
@@ -198,10 +256,12 @@ export class PersonasMcpServer {
         metricsCollector.recordMcpRequest('ReadResource', 'error', duration);
         throw error;
       }
-    });
+    }, 'resources/read'));
 
     // List available prompts
-    this.server.setRequestHandler(ListPromptsRequestSchema, async () => {
+    this.server.setRequestHandler(
+      ListPromptsRequestSchema, 
+      this.wrapWithRateLimit<ListPromptsRequest, ListPromptsResult>(async (_request, _extra) => {
       const personas = this.personaManager.getAllPersonas();
       return {
         prompts: personas.map(persona => ({
@@ -216,10 +276,12 @@ export class PersonasMcpServer {
           ],
         })),
       };
-    });
+    }, 'prompts/list'));
 
     // Get a specific prompt
-    this.server.setRequestHandler(GetPromptRequestSchema, async request => {
+    this.server.setRequestHandler(
+      GetPromptRequestSchema, 
+      this.wrapWithRateLimit<GetPromptRequest, GetPromptResult>(async (request, _extra) => {
       const promptName = request.params.name;
       const match = promptName.match(/^adopt-persona-(.+)$/);
 
@@ -264,20 +326,24 @@ export class PersonasMcpServer {
           },
         ],
       };
-    });
+    }, 'prompts/get'));
 
     // List available tools
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+    this.server.setRequestHandler(
+      ListToolsRequestSchema, 
+      this.wrapWithRateLimit<ListToolsRequest, ListToolsResult>(async (_request, _extra) => {
       return {
         tools: [
           ...this.recommendationTool.getToolDefinitions(),
           ...this.discoveryTool.getToolDefinitions(),
         ],
       };
-    });
+    }, 'tools/list'));
 
     // Handle tool calls
-    this.server.setRequestHandler(CallToolRequestSchema, async request => {
+    this.server.setRequestHandler(
+      CallToolRequestSchema, 
+      this.wrapWithRateLimit<CallToolRequest, CallToolResult>(async (request, _extra) => {
       const { name, arguments: args } = request.params;
       const startTime = Date.now();
 
@@ -325,6 +391,9 @@ export class PersonasMcpServer {
           metricsCollector.recordMcpRequest('CallTool', 'error', duration);
         }
 
+        // Sanitize error for external exposure
+        const sanitized = ErrorSanitizer.sanitize(error);
+        
         return {
           content: [
             {
@@ -332,10 +401,8 @@ export class PersonasMcpServer {
               text: JSON.stringify(
                 {
                   success: false,
-                  error:
-                    error instanceof Error
-                      ? error.message
-                      : 'Unknown error occurred',
+                  error: sanitized.message,
+                  code: sanitized.code,
                 },
                 null,
                 2
@@ -345,7 +412,7 @@ export class PersonasMcpServer {
           isError: true,
         };
       }
-    });
+    }, 'tools/call'));
   }
 
   async initialize(): Promise<void> {
@@ -430,20 +497,29 @@ export class PersonasMcpServer {
     // JSON parsing will be applied selectively to specific endpoints
 
     // Configure CORS if enabled
-    if (this.config.http?.enableCors) {
-      const corsOptions = {
-        origin: this.config.http.allowedOrigins || ['*'],
-        credentials: true,
-        methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-        allowedHeaders: [
-          'Content-Type',
-          'Authorization',
-          'Mcp-Session-Id',
-          'x-session-id',
-        ],
-        exposedHeaders: ['Mcp-Session-Id', 'x-session-id'],
-      };
-      app.use(cors(corsOptions));
+    if (this.config.http?.enableCors !== false) { // Default to enabled
+      try {
+        const corsOptions = CorsSecurity.createSecureCorsOptions(
+          this.config.http?.allowedOrigins,
+          true // Enable credentials
+        );
+        app.use(cors(corsOptions));
+      } catch (error) {
+        console.error('CORS configuration error:', error);
+        // In production, fail fast on CORS misconfiguration
+        if (process.env.NODE_ENV === 'production') {
+          throw new ServerInitializationError(
+            `Invalid CORS configuration: ${error instanceof Error ? error.message : 'Unknown error'}`
+          );
+        }
+        // In development, use restrictive defaults
+        const fallbackOptions = CorsSecurity.createSecureCorsOptions(
+          ['http://localhost:3000', 'http://127.0.0.1:3000'],
+          false // Disable credentials as fallback
+        );
+        app.use(cors(fallbackOptions));
+        console.error('Using restrictive CORS fallback configuration');
+      }
     }
 
     // Create HTTP server
@@ -477,13 +553,16 @@ export class PersonasMcpServer {
         }
         await this.httpTransport.handleRequest(req, res);
       } catch (error) {
-        console.error('Error handling MCP request:', error);
+        // Log full error details
+        ErrorSanitizer.logAndSanitize(error, 'MCP POST request');
+        
         if (!res.headersSent) {
+          const sanitized = ErrorSanitizer.sanitize(error);
           res.status(500).json({
             jsonrpc: '2.0',
             error: {
               code: -32603,
-              message: 'Internal server error',
+              message: sanitized.message,
             },
             id: null,
           });
@@ -499,9 +578,12 @@ export class PersonasMcpServer {
         }
         await this.httpTransport.handleRequest(req, res);
       } catch (error) {
-        console.error('Error handling MCP streaming request:', error);
+        // Log full error details
+        ErrorSanitizer.logAndSanitize(error, 'MCP GET request');
+        
         if (!res.headersSent) {
-          res.status(500).send('Internal server error');
+          const sanitized = ErrorSanitizer.sanitize(error);
+          res.status(sanitized.statusCode || 500).send(sanitized.message);
         }
       }
     });
@@ -603,9 +685,11 @@ export class PersonasMcpServer {
           total: personas.length,
         });
       } catch (error) {
-        res.status(500).json({
+        const sanitized = ErrorSanitizer.sanitize(error);
+        res.status(sanitized.statusCode || 500).json({
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: sanitized.message,
+          code: sanitized.code,
         });
       }
     });
@@ -763,6 +847,12 @@ export class PersonasMcpServer {
     if (this.config.metrics?.enabled !== false) {
       await metricsCollector.shutdown();
     }
+    
+    // Shutdown MCP rate limiters
+    mcpRateLimiters.general.shutdown();
+    mcpRateLimiters.tools.shutdown();
+    mcpRateLimiters.resources.shutdown();
+    mcpRateLimiters.prompts.shutdown();
 
     // Disconnect MCP server from transports
     if (this.httpTransport) {

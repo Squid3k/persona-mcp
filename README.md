@@ -1,6 +1,6 @@
 # Personas MCP Server
 
-[![Version](https://img.shields.io/badge/version-0.4.0--alpha-blue)](https://github.com/pidster/persona-mcp/releases)
+[![Version](https://img.shields.io/badge/version-0.3.1-blue)](https://github.com/pidster/persona-mcp/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)

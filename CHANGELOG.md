@@ -7,9 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0] - 2025-01-19
+## [0.3.0] - 2025-01-20
 
 ### Added
+
+- **XML-Based Persona Optimization**
+  - New XML prompt generation system with semantic tagging for enhanced AI comprehension
+  - Added `src/types/prompt-format.ts` with prompt format types and compression levels
+  - Implemented `src/utils/xml-prompt-builder.ts` with Mermaid diagram integration
+  - Support for multiple AI model formats (Claude, GPT-4, Gemini)
+  - Achieved 25-33% compression while improving prompt actionability
+  - Enhanced `src/enhanced-persona-manager.ts` with XML generation methods
+  - Comprehensive test suite for XML generation with 16 passing tests
 
 - **Automated Version Management**
   - New `scripts/update-version.cjs` for automatic version synchronization
@@ -17,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic sync between package.json and src/version.ts
 
 ### Changed
+
+- **Persona Improvements**
+  - Optimized all 12 built-in personas with semantic XML structure
+  - Enhanced constraints with Must/Never prefixes for better categorization
+  - Simplified Mermaid diagrams while retaining essential decision flows
+  - Compressed methodology and decision criteria sections
+  - Added BehaviorDiagram type exports for proper TypeScript validation
 
 - **Release Process Improvements**
   - Enhanced release documentation with clearer version update instructions
@@ -29,6 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version mismatch issues between package.json and src/version.ts
 - CI failures after releases due to version inconsistencies
 - Brittle test expectations that were testing specific version values
+- TypeScript strict checking compliance with proper variable prefixing
+- ESLint warnings resolved with underscore prefix for unused parameters
+- Test regex patterns improved for better reliability
 
 ## [0.2.0] - 2025-01-19
 

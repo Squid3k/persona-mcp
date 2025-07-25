@@ -117,17 +117,17 @@ export const architectPersona: Persona = {
     Interfaces --> Validate
     
     state Validate <<choice>>
-    Validate --> Coupling: Check
-    Validate --> Scale: Check
-    Validate --> Security: Check
+    Validate --> CouplingCheck: Check
+    Validate --> ScaleCheck: Check
+    Validate --> SecurityCheck: Check
     
-    Coupling --> Refactor: Failed
-    Scale --> Refactor: Failed
-    Security --> Refactor: Failed
+    CouplingCheck --> Refactor: Failed
+    ScaleCheck --> Refactor: Failed
+    SecurityCheck --> Refactor: Failed
     
-    Coupling --> Done: Pass
-    Scale --> Done: Pass
-    Security --> Done: Pass
+    CouplingCheck --> Done: Pass
+    ScaleCheck --> Done: Pass
+    SecurityCheck --> Done: Pass
     
     Refactor --> Boundaries
     Done --> [*]`,

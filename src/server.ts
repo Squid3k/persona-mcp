@@ -37,6 +37,7 @@ import { EnhancedPersonaManager } from './enhanced-persona-manager.js';
 import { PersonaConfig } from './types/yaml-persona.js';
 import { RecommendationTool } from './tools/recommendation-tool.js';
 import { DiscoveryTool } from './tools/discovery-tool.js';
+import { installPersona, INSTALL_PERSONA_TOOL } from './tools/install-persona-tool.js';
 import {
   initializeMetrics,
   metricsCollector,
@@ -374,6 +375,7 @@ export class PersonasMcpServer {
             tools: [
               ...this.recommendationTool.getToolDefinitions(),
               ...this.discoveryTool.getToolDefinitions(),
+              INSTALL_PERSONA_TOOL, // Add the install-persona tool
             ],
           };
         },
@@ -403,7 +405,21 @@ export class PersonasMcpServer {
               'analyze-persona-effectiveness',
             ];
 
-            if (discoveryToolNames.includes(name)) {
+            if (name === 'install-persona') {
+              // Handle install-persona tool
+              result = await installPersona(args ?? {});
+              
+              // If successful, reload persona manager to include new persona
+              if ((result as any).success) {
+                try {
+                  await this.personaManager.initialize();
+                  console.error(`Persona manager reloaded after installing new persona: ${(result as any).persona?.name}`);
+                } catch (reloadError) {
+                  console.error('Failed to reload persona manager after installation:', reloadError);
+                  // Don't fail the installation, just log the error
+                }
+              }
+            } else if (discoveryToolNames.includes(name)) {
               result = await this.discoveryTool.handleToolCall(
                 name,
                 args ?? {}
@@ -710,6 +726,7 @@ export class PersonasMcpServer {
           fileWatching: true,
           yamlPersonas: true,
           restApi: true,
+          claudePersonaInstallation: true, // New feature flag
         },
       });
     });

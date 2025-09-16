@@ -1,7 +1,7 @@
 {
   "name": "personas-mcp",
   "version": "0.4.0-alpha.0",
-  "description": "MCP server providing prompt personas for LLM problem-solving assistance",
+  "description": "MCP server providing prompt personas for LLM problem-solving assistance with Claude persona installation",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
@@ -36,20 +36,23 @@
   },
   "keywords": [
     "mcp",
-    "personas",
+    "personas", 
     "llm",
     "prompts",
-    "model-context-protocol"
+    "model-context-protocol",
+    "claude",
+    "ai-installation",
+    "dynamic-personas"
   ],
-  "author": "pidster",
+  "author": "pidster (enhanced by Squid3k)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pidster/persona-mcp.git"
+    "url": "git+https://github.com/Squid3k/persona-mcp.git"
   },
-  "homepage": "https://github.com/pidster/persona-mcp#readme",
+  "homepage": "https://github.com/Squid3k/persona-mcp#readme",
   "bugs": {
-    "url": "https://github.com/pidster/persona-mcp/issues"
+    "url": "https://github.com/Squid3k/persona-mcp/issues"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -70,6 +73,7 @@
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "fast-glob": "^3.3.3",
+    "js-yaml": "^4.1.0",
     "yaml": "^2.8.0",
     "zod": "^3.25.76"
   },
